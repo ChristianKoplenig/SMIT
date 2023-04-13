@@ -1,0 +1,9 @@
+# python folder structure
+csv_backup/
+csv_raw/
+csv/
+old_files/
+
+# system folders
+__pycache__/
+.ipynb_checkpoints/
