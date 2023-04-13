@@ -13,8 +13,8 @@ def csv_cp():
     '''
     
     #### User Input
-    search = ("Features")           #search criteria for filename
-    path_to_raw = r'/media/data/coding/hrv/hrv_logger/csv_raw'
+    search = ("Tagstrom")           #search criteria for filename
+    path_to_raw = r'/media/data/coding/strom/graznetz/csv_raw'
     workdir = r'/media/data/coding/hrv/hrv_logger/csv'
     
     # set path to workdir
