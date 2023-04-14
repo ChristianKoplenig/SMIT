@@ -7,7 +7,7 @@ import shutil
 import pathlib as pl
 import pandas as pd
 
-def csv_cp():
+def csv_import():
     '''
     copies files to workdir, adds measurement column, formats timestamp column
     '''
@@ -15,7 +15,7 @@ def csv_cp():
     #### User Input
     search = ("Tagstrom")           #search criteria for filename
     path_to_raw = r'/media/data/coding/strom/graznetz/csv_raw'
-    workdir = r'/media/data/coding/hrv/hrv_logger/csv'
+    workdir = r'/media/data/coding/strom/graznetz/csv'
     
     # set path to workdir
     os.chdir(workdir)
