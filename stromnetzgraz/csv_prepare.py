@@ -14,8 +14,8 @@ def csv_import():
     
     #### User Input
     search = ("Tagstrom")           #search criteria for filename
-    path_to_raw = r'/media/data/coding/strom/graznetz/csv_raw'
-    workdir = r'/media/data/coding/strom/graznetz/csv'
+    path_to_raw = r'/media/data/coding/strom/stromnetzgraz/csv_raw'
+    workdir = r'/media/data/coding/strom/stromnetzgraz/csv'
     
     # set path to workdir
     os.chdir(workdir)
@@ -58,9 +58,9 @@ def csv_import():
                 #read and modify csv file
                 file = filename
                 df = pd.read_csv(file)
-                df.drop('index', axis=1, inplace=True)
-                df['Measurement'] = file[0:-13]
-                df[' timestamp'] = pd.to_datetime(df[' timestamp'], unit='ms')
+                #df.drop('index', axis=1, inplace=True)
+                #df['Measurement'] = file[0:-13]
+                #df['Ablesezeitpunkt'] = pd.to_datetime(df['Ablesezeitpunkt'], unit='ms', utc=True, yearfirst=True)
                 df.to_csv(file)
                 
                 #print copy message
