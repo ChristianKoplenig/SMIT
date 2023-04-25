@@ -15,11 +15,12 @@ def read_df():
     all_files = glob.glob(path + "/*.csv", )
     df_raw = pd.concat((pd.read_csv(r, 
                                     decimal=',', 
-                                    parse_dates=['Ablesezeitpunkt'],
-                                    converters={'time': lambda t: dt.datetime.strptime(t, '%Y-%m-%d %H:%M:%S.%f').time()}) 
+                                    #parse_dates=['Ablesezeitpunkt'],
+                                    #converters={'time': lambda t: dt.datetime.strptime(t, '%Y-%m-%d %H:%M:%S.%f').time()}
+                                    ) 
                                     for r in all_files)
                        )
-    df_raw.reset_index(drop=True, inplace=True)
+    #df_raw.reset_index(drop=True, inplace=True)
     # df_raw.columns = ['datapoint', 
     #               'time', 
     #               'hr', 

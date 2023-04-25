@@ -3,6 +3,7 @@ csv_backup/
 csv_raw/
 csv/
 old_files/
+raw_import/
 
 # system folders
 __pycache__/
