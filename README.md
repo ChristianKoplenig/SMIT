@@ -1,5 +1,6 @@
 # Analyse Data from Stromnetz Graz 
 working file: import.ipynb
+link to webportal: https://webportal.stromnetz-graz.at/login
 ## User input
 id_day --> letzte 3 Nummern der ID des Tagstromzählers  
 id_night --> letzte 3 Nummern der ID des Nachtstromzählers  
