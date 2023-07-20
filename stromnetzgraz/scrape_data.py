@@ -39,19 +39,21 @@ werte_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-
 actions = ActionChains(driver)
 start_picker.click()
 
-# start date
-actions.send_keys('01') #month
-actions.send_keys('01') #day
-actions.send_keys('2023')
-actions.send_keys(Keys.TAB)
-actions.send_keys(Keys.TAB)
-#end date
-actions.send_keys('02') #month
-actions.send_keys('01') #day
-actions.send_keys('2023')
-actions.send_keys(Keys.TAB)
-actions.send_keys(Keys.TAB)
-actions.perform()
+# date selection
+def date_selector(day, month, year):
+    '''
+    set start date for csv file
+    input dateformat 'dd', 'mm', 'yyyy'
+    '''
+    actions.send_keys(month) #month
+    actions.send_keys(day) #day
+    actions.send_keys(year)
+    actions.send_keys(Keys.TAB)
+    actions.send_keys(Keys.TAB)
+    actions.perform()
 
+
+date_selector('01', '02', '2023') # start date
+date_selector('03', '04', '2023') # end date
 confirm_btn.click()
 werte_btn.click()
