@@ -5,7 +5,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
 from selenium.webdriver.firefox.options import Options
-#from selenium.webdriver.firefox.service import Service
 
 import login_details
 
@@ -18,11 +17,6 @@ profile = Options()
 profile.set_preference("browser.download.folderList", 2)
 profile.set_preference("browser.download.manager.showWhenStarting", False)
 profile.set_preference("browser.download.dir", "/home/c/Downloads/csv")
-#profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream")
-
-# ##### firefox options #####
-# options = Options()
-# options.
 
 ##### open firefox instance #####
 driver = webdriver.Firefox(options=profile)
@@ -74,5 +68,3 @@ date_selector('03', '04', '2023') # end date
 confirm_btn.click()
 werte_btn.click()
 download_btn.click()
-
-############# download csv file ################
