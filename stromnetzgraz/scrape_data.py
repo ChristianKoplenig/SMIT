@@ -3,14 +3,29 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+
+from selenium.webdriver.firefox.options import Options
+#from selenium.webdriver.firefox.service import Service
+
 import login_details
 
 # import user credentials from file
 username = login_details.username
 password = login_details.password
 
+##### set firefox profile #####
+profile = Options()
+profile.set_preference("browser.download.folderList", 2)
+profile.set_preference("browser.download.manager.showWhenStarting", False)
+profile.set_preference("browser.download.dir", "/home/c/Downloads/csv")
+#profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream")
+
+# ##### firefox options #####
+# options = Options()
+# options.
+
 ##### open firefox instance #####
-driver = webdriver.Firefox()
+driver = webdriver.Firefox(options=profile)
 driver.get('https://webportal.stromnetz-graz.at/login')
 driver.maximize_window()
 
@@ -34,6 +49,7 @@ start_picker = driver.find_element(By.ID, "fromDayOverviewDate")
 end_picker = driver.find_element(By.ID, 'toDayOverviewDate')
 confirm_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')
 werte_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/div[2]/div[1]/div/div[1]')
+download_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
 
 ##### setup for export #####
 actions = ActionChains(driver)
@@ -57,12 +73,6 @@ date_selector('01', '02', '2023') # start date
 date_selector('03', '04', '2023') # end date
 confirm_btn.click()
 werte_btn.click()
+download_btn.click()
 
 ############# download csv file ################
-
-##### set firefox profile #####
-profile = webdriver.FirefoxProfile()
-profile.set_preference("browser.download.folderList", 2)
-profile.set_preference("browser.download.manager.showWhenStarting", False)
-profile.set_preference("browser.download.dir", "/home/c/Downloads/csv")
-profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream")
