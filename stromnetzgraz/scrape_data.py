@@ -57,3 +57,12 @@ date_selector('01', '02', '2023') # start date
 date_selector('03', '04', '2023') # end date
 confirm_btn.click()
 werte_btn.click()
+
+############# download csv file ################
+
+##### set firefox profile #####
+profile = webdriver.FirefoxProfile()
+profile.set_preference("browser.download.folderList", 2)
+profile.set_preference("browser.download.manager.showWhenStarting", False)
+profile.set_preference("browser.download.dir", "/home/c/Downloads/csv")
+profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream")
