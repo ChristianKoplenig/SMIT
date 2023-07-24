@@ -3,9 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-
 from selenium.webdriver.firefox.options import Options
-
 import login_details
 
 # import user credentials from file
