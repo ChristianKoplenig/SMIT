@@ -10,6 +10,8 @@ import login_details
 folder = "/home/c/Downloads/csv"    # download folder for csv files
 username = login_details.username   # import user credentials
 password = login_details.password
+start_date = '01-02-2023'           # set start date for data, format: dd-mm-yyyy
+end_date = '01-03-2023'             # set end date for data, format: dd-mm-yyyy
 
 def ff_options(dl_folder):
     ''' 
@@ -22,15 +24,15 @@ def ff_options(dl_folder):
     profile.set_preference("browser.download.dir", dl_folder)
     return profile
 
-def date_selector(day, month, year):
+def date_selector(date):
     '''
     set date for csv file
     input dateformat 'dd', 'mm', 'yyyy'
     '''
     actions = ActionChains(driver)
-    actions.send_keys(month) #month
-    actions.send_keys(day) #day
-    actions.send_keys(year)
+    actions.send_keys(date[3:5]) #month
+    actions.send_keys(date[:2]) #day
+    actions.send_keys(date[6:])
     actions.send_keys(Keys.TAB)
     actions.send_keys(Keys.TAB)
     actions.perform()
@@ -56,7 +58,7 @@ def stromnetz_setup(dl_folder):
     units_btn = driver.find_element(By.XPATH,"/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]")
     units_btn.click()
 
-def stromnetz_fillTageswerte():
+def stromnetz_fillTageswerte(start, end):
     '''
     for daily average computation
     set start and end dates
@@ -65,9 +67,9 @@ def stromnetz_fillTageswerte():
     tageswerte_btn.click()
     start_picker = driver.find_element(By.ID, "fromDayOverviewDate")
     start_picker.click()
-    date_selector('01', '02', '2023') # start date
-    date_selector('03', '04', '2023') # end date
-    time.sleep(1)
+    date_selector(start) # start date
+    date_selector(end) # end date
+    time.sleep(2)
     
 def stromnetz_download():
     '''
@@ -79,5 +81,5 @@ def stromnetz_download():
     download_btn.click()
     
 stromnetz_setup(folder)
-stromnetz_fillTageswerte()
+stromnetz_fillTageswerte(start_date, end_date)
 stromnetz_download()
