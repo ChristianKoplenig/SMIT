@@ -9,15 +9,19 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.firefox.options import Options
 import user_data
 
-# global variables
-#csvFolder = user_data.csv_dlFolder    # download folder for csv files
-username = user_data.username   # import user credentials
-password = user_data.password           
-dates = dict()
+# If no persisted date exists, create dict for dates and use start date from user_data
+if not os.path.isfile(user_data.persist_dates):
+    with open('dates.pkl', 'wb') as pk:
+        dates = dict()
+        dates['start'] = user_data.csv_startDate                                        # set start date for initial run, format: dd-mm-yyyy
+        dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')          # set end date yesterday for initial run, format: dd-mm-yyyy
+        dates['last_scrape'] = 'never'                                                  # flag for first run
+        pickle.dump(dates, pk)
+    pk.close()
 
-# user input
-dates['start'] = '01-01-2023'                                                   # set start date for initial run, format: dd-mm-yyyy
-dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')          # set end date yesterday for initial run, format: dd-mm-yyyy
+# Initialize dates variable from storage    
+with open('dates.pkl', 'rb') as pk:
+    dates = pickle.load(pk)  
 
 def ff_options(dl_folder):
     ''' 
@@ -30,41 +34,22 @@ def ff_options(dl_folder):
     profile.set_preference("browser.download.dir", dl_folder)
     return profile
 
-#########################
-def date_persist():
-    '''
-    get yesterdays date and persist it for future start date in date_updater function
-    '''
-    if not os.path.isfile(user_data.persist_dates):
-        with open('dates.pkl', 'wb') as pk:
-            global dates
-            dates['last_scrape'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
-            pickle.dump(dates, pk)
-        pk.close()
-    else:
-        with open('dates.pkl', 'rb') as pk:    # set date of last run
-            dates = pickle.load(pk)
-            if not (dates['last_scrape'] == (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')): # check if yesterdays date already in log
-                dates['last_scrape'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
-                print('appended yesterdays date to dates: ' + str(dates['last_scrape']))
-            else:
-                print('yesterdays date already persisted')
-        pk.close()
-        with open('dates.pkl', 'wb') as pk:    # save logfile
-            pickle.dump(dates, pk)
-        pk.close()
-    return dates
-
 def date_updater():
     '''
     update start/end date for autofill
     '''
     global dates
-    dates['start'] = date_persist()['last_scrape']
-    dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
-    return dates
+    if not (dates['last_scrape'] == (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')):       # check if yesterdays date already in log
+        dates['last_scrape'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
+    
+    if not dates['last_scrape'] == 'never':                                                         # update dates after first run
+        dates['start'] = dates['last_scrape']
+        dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
+    
+    with open('dates.pkl', 'wb') as pk:                                                             # save logfile
+        pickle.dump(dates, pk)
+    pk.close()
 
-#########################
 def date_selector(input_date):
     '''
     set date for csv file
@@ -88,8 +73,8 @@ def stromnetz_setup(dl_folder):
     driver.maximize_window()
 
     ##### login #####
-    driver.find_element(By.NAME, "email").send_keys(username)
-    driver.find_element(By.NAME, "password").send_keys(password)
+    driver.find_element(By.NAME, "email").send_keys(user_data.username)
+    driver.find_element(By.NAME, "password").send_keys(user_data.password)
     driver.find_element(By.XPATH,"/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button").click()
     time.sleep(2)
     # go to data page
@@ -112,7 +97,6 @@ def stromnetz_fillTageswerte(start, end):
     date_selector(end)      # end date
     confirm_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')
     confirm_btn.click()
-    date_updater()
     time.sleep(2)           # wait for data load
     
 def stromnetz_download():
@@ -121,7 +105,13 @@ def stromnetz_download():
     '''
     download_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
     download_btn.click()
-    
+
+################ run #######################    
 stromnetz_setup(user_data.csv_dlFolder)
+print('before: ' + str(dates))
 stromnetz_fillTageswerte(dates['start'], dates['end'])
-stromnetz_download()
+date_updater()
+#stromnetz_download()
+#date_persist()
+# date_updater()      
+print('after: ' + str(dates))
