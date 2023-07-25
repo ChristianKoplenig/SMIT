@@ -7,6 +7,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import user_data
 
 # If no persisted date exists, create dict for dates and use start date from user_data
@@ -23,6 +25,14 @@ if not os.path.isfile(user_data.persist_dates):
 with open('dates.pkl', 'rb') as pk:
     dates = pickle.load(pk)  
 
+##### useful functions #####
+def wait_and_click(elementXpath):
+    switchName = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, elementXpath))
+    )
+    switchName.click()
+###############        
+        
 def ff_options(dl_folder):
     ''' 
     set options for firefox webdriver 
@@ -106,7 +116,22 @@ def stromnetz_download():
     download_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
     download_btn.click()
 
+def day_night_selector(day_night):
+    '''
+    switch between day and night meassurements
+    day_night: values 'day' / 'night', defaults to day
+    '''
+    dn_switch = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')  
+    dn_switch.click()
+    
+    if day_night == 'night':
+        wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a')
+    else:
+        wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a')    
+    
 ################ run #######################    
 stromnetz_setup(user_data.csv_dlFolder)
-stromnetz_fillTageswerte(dates['start'], dates['end'])
-date_updater()
+time.sleep(3)
+day_night_selector('day')
+#stromnetz_fillTageswerte(dates['start'], dates['end'])
+#date_updater()
