@@ -108,10 +108,5 @@ def stromnetz_download():
 
 ################ run #######################    
 stromnetz_setup(user_data.csv_dlFolder)
-print('before: ' + str(dates))
 stromnetz_fillTageswerte(dates['start'], dates['end'])
 date_updater()
-#stromnetz_download()
-#date_persist()
-# date_updater()      
-print('after: ' + str(dates))
