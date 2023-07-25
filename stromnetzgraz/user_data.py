@@ -6,3 +6,6 @@ password = 'Gwhwk12.'
 # Folder structure
 csv_dlFolder = '/home/c/Downloads/csv'  # Download folder for csv files
 persist_dates = './dates.pkl'    # Filename for dates persistence
+
+# Csv File Options
+csv_startDate = '01-01-2023'
