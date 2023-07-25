@@ -130,7 +130,6 @@ def get_dn_daily():
     day_night_selector('night')
     stromnetz_fillTageswerte(dates['start'], dates['end'])
     stromnetz_download()
-    time.sleep(5)
     day_night_selector('day')
     stromnetz_fillTageswerte(dates['start'], dates['end'])
     stromnetz_download()
