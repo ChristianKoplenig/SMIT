@@ -25,13 +25,15 @@ if not os.path.isfile(user_data.persist_dates):
 with open('dates.pkl', 'rb') as pk:
     dates = pickle.load(pk)  
 
-##### useful functions #####
 def wait_and_click(elementXpath):
+    '''
+    waits until an web element is clickable (longest 10s) and clicks on element
+    elementXpath format: 'XPATH', parentesis important 
+    '''
     switchName = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, elementXpath))
     )
-    switchName.click()
-###############        
+    switchName.click()   
         
 def ff_options(dl_folder):
     ''' 
@@ -40,7 +42,7 @@ def ff_options(dl_folder):
     '''
     profile = Options()
     profile.set_preference("browser.download.folderList", 2)
-    profile.set_preference("browser.download.manager.showWhenStarting", False)
+    profile.set_preference("browser.download.alwaysOpenPanel", False)
     profile.set_preference("browser.download.dir", dl_folder)
     return profile
 
@@ -85,53 +87,53 @@ def stromnetz_setup(dl_folder):
     ##### login #####
     driver.find_element(By.NAME, "email").send_keys(user_data.username)
     driver.find_element(By.NAME, "password").send_keys(user_data.password)
-    driver.find_element(By.XPATH,"/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button").click()
-    time.sleep(2)
-    # go to data page
-    driver.find_element(By.XPATH,"/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div").click()
-    time.sleep(2)
-    # set units to [Wh]
-    units_btn = driver.find_element(By.XPATH,"/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]")
-    units_btn.click()
+    wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')                       # login confirmation
+    wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')                       # open data page
+    wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      # set unit to [Wh]
 
 def stromnetz_fillTageswerte(start, end):
     '''
     for daily average computation
     set start and end dates
     '''
-    tageswerte_btn = driver.find_element(By.XPATH,"/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div")
-    tageswerte_btn.click()
-    start_picker = driver.find_element(By.ID, "fromDayOverviewDate")
-    start_picker.click()
+    wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')       # select daily sum measurements
+    wait_and_click('//*[@id="fromDayOverviewDate"]')    # set cursor in start date input field
     date_selector(start)    # start date
     date_selector(end)      # end date
-    confirm_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')
-    confirm_btn.click()
+    wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button') # confirm date selections
     time.sleep(2)           # wait for data load
     
 def stromnetz_download():
     '''
     start download of csv file
     '''
-    download_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
-    download_btn.click()
+    wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
 
 def day_night_selector(day_night):
     '''
     switch between day and night meassurements
     day_night: values 'day' / 'night', defaults to day
     '''
-    dn_switch = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')  
-    dn_switch.click()
+    wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')              # make dropdown active
     
     if day_night == 'night':
-        wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a')
+        wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a') # choose night measurements
     else:
-        wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a')    
+        wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a') # choose day measurements
     
-################ run #######################    
-stromnetz_setup(user_data.csv_dlFolder)
-time.sleep(3)
-day_night_selector('day')
-#stromnetz_fillTageswerte(dates['start'], dates['end'])
-#date_updater()
+################ run #######################  
+def get_dn_daily(): 
+    '''
+    download csv files for day and night measurements
+    ''' 
+    stromnetz_setup(user_data.csv_dlFolder)
+    day_night_selector('night')
+    stromnetz_fillTageswerte(dates['start'], dates['end'])
+    stromnetz_download()
+    time.sleep(5)
+    day_night_selector('day')
+    stromnetz_fillTageswerte(dates['start'], dates['end'])
+    stromnetz_download()
+    date_updater()
+
+#get_dn_daily()
