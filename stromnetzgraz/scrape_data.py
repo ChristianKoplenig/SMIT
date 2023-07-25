@@ -44,13 +44,13 @@ def ff_options(dl_folder):
     profile.set_preference("browser.download.folderList", 2)
     profile.set_preference("browser.download.alwaysOpenPanel", False)
     profile.set_preference("browser.download.dir", dl_folder)
+    #profile.add_argument("-headless")
     return profile
 
 def date_updater():
     '''
     update start/end date for autofill
     '''
-    global dates
     if not (dates['last_scrape'] == (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')):       # check if yesterdays date already in log
         dates['last_scrape'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
     
@@ -58,9 +58,9 @@ def date_updater():
         dates['start'] = dates['last_scrape']
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
     
-    with open('dates.pkl', 'wb') as pk:                                                             # save logfile
-        pickle.dump(dates, pk)
-    pk.close()
+    with open('dates.pkl', 'wb') as dpk:                                                             # save logfile
+        pickle.dump(dates, dpk)
+    dpk.close()
 
 def date_selector(input_date):
     '''
@@ -136,4 +136,4 @@ def get_dn_daily():
     stromnetz_download()
     date_updater()
 
-#get_dn_daily()
+get_dn_daily()
