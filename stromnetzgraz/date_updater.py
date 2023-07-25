@@ -5,9 +5,9 @@ import os.path
 start_date = '01-01-2023'
 end_date = '02-01-2023'
 
-def date_pickle():
+def date_persist():
     '''
-    get todays date and pickle it for future start date in date_updater function
+    get yesterdays date and persist it for future start date in date_updater function
     '''
     path = './scrape_log.pkl'
     if not os.path.isfile(path):
@@ -17,12 +17,15 @@ def date_pickle():
             pickle.dump(scrape_log, pk)
         pk.close()
     else:
-        with open('scrape_log.pkl', 'rb') as pk:
+        with open('scrape_log.pkl', 'rb') as pk:    # append today to logfile
             scrape_log = pickle.load(pk)
-            scrape_log.append((date.today() - timedelta(days=1)).strftime('%d-%m-%Y'))
-            print('opend log: ' + str(scrape_log))
+            if not (scrape_log[-1] == (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')): # check if yesterdays date already in log
+                scrape_log.append((date.today() - timedelta(days=1)).strftime('%d-%m-%Y'))
+                print('appended yesterdays date to scrape_log: ' + str(scrape_log))
+            else:
+                print('yesterdays date already persisted')
         pk.close()
-        with open('scrape_log.pkl', 'wb') as pk:
+        with open('scrape_log.pkl', 'wb') as pk:    # save logfile
             pickle.dump(scrape_log, pk)
         pk.close()
     return scrape_log
@@ -33,7 +36,7 @@ def date_updater():
     '''
     global start_date
     global end_date
-    start_date= date_pickle()[-1]
+    start_date= date_persist()[-1]
     end_date = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
     return start_date, end_date
 
