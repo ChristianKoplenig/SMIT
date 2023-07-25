@@ -16,13 +16,13 @@ password = user_data.password
 dates = dict()
 
 # user input
-dates['start'] = '01-01-2023'       # set start date for initial run, format: dd-mm-yyyy
-dates['end'] = '02-01-2023'         # set end date for initial run, format: dd-mm-yyyy
+dates['start'] = '01-01-2023'                                                   # set start date for initial run, format: dd-mm-yyyy
+dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')          # set end date yesterday for initial run, format: dd-mm-yyyy
 
 def ff_options(dl_folder):
     ''' 
     set options for firefox webdriver 
-    dl_folder: target download directory
+    dl_folder: target download directory for firefox
     '''
     profile = Options()
     profile.set_preference("browser.download.folderList", 2)
@@ -35,7 +35,6 @@ def date_persist():
     '''
     get yesterdays date and persist it for future start date in date_updater function
     '''
-    #path = user_data.persist_dates
     if not os.path.isfile(user_data.persist_dates):
         with open('dates.pkl', 'wb') as pk:
             global dates
@@ -43,7 +42,7 @@ def date_persist():
             pickle.dump(dates, pk)
         pk.close()
     else:
-        with open('dates.pkl', 'rb') as pk:    # append today to logfile
+        with open('dates.pkl', 'rb') as pk:    # set date of last run
             dates = pickle.load(pk)
             if not (dates['last_scrape'] == (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')): # check if yesterdays date already in log
                 dates['last_scrape'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
@@ -66,15 +65,15 @@ def date_updater():
     return dates
 
 #########################
-def date_selector(date):
+def date_selector(input_date):
     '''
     set date for csv file
     input dateformat 'dd-mm-yyyy'
     '''
     actions = ActionChains(driver)
-    actions.send_keys(date[3:5]) #month
-    actions.send_keys(date[:2]) #day
-    actions.send_keys(date[6:])
+    actions.send_keys(input_date[3:5]) #month
+    actions.send_keys(input_date[:2]) #day
+    actions.send_keys(input_date[6:])
     actions.send_keys(Keys.TAB)
     actions.send_keys(Keys.TAB)
     actions.perform()
@@ -113,6 +112,7 @@ def stromnetz_fillTageswerte(start, end):
     date_selector(end)      # end date
     confirm_btn = driver.find_element(By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')
     confirm_btn.click()
+    date_updater()
     time.sleep(2)           # wait for data load
     
 def stromnetz_download():
