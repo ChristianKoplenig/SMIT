@@ -35,7 +35,7 @@ def wait_and_click(elementXpath):
     )
     switchName.click()   
         
-def ff_options(dl_folder):
+def ff_options(dl_folder, headless: bool = False):
     ''' 
     set options for firefox webdriver 
     dl_folder: target download directory for firefox
@@ -44,7 +44,10 @@ def ff_options(dl_folder):
     profile.set_preference("browser.download.folderList", 2)
     profile.set_preference("browser.download.alwaysOpenPanel", False)
     profile.set_preference("browser.download.dir", dl_folder)
-    #profile.add_argument("-headless")
+    
+    if headless is True:
+        profile.add_argument("-headless")
+    
     return profile
 
 def date_updater():
@@ -79,12 +82,12 @@ def date_selector(input_date):
     actions.send_keys(Keys.TAB)
     actions.perform()
 
-def stromnetz_setup(dl_folder):
+def stromnetz_setup(dl_folder, headless):
     '''
     login to stromnetz graz webportal and setup data page
     '''
     global driver
-    driver = webdriver.Firefox(options=ff_options(dl_folder))
+    driver = webdriver.Firefox(options=ff_options(dl_folder, headless))
     driver.get(user_data.login_url)
     driver.maximize_window()
 
@@ -105,8 +108,10 @@ def stromnetz_fillTageswerte(start, end):
     date_selector(start)    # start date
     date_selector(end)      # end date
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  # confirm date selections
-    time.sleep(2)           # wait for data load
-    
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/div[3]/div/app-bar-chart'))
+        ) # wait for data load
+
 def stromnetz_download():
     '''
     start download of csv file
@@ -126,11 +131,11 @@ def day_night_selector(day_night):
         wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a') # choose day measurements
     
 ################ run #######################  
-def get_dn_daily(): 
+def get_dn_daily(headless: bool=False): 
     '''
     download csv files for day and night measurements
     ''' 
-    stromnetz_setup(user_data.csv_dlFolder)
+    stromnetz_setup(user_data.csv_dlFolder, headless)
     day_night_selector('night')
     stromnetz_fillTageswerte(dates['start'], dates['end'])
     stromnetz_download()
@@ -147,8 +152,8 @@ def get_dn_daily():
 print('start before: ' + dates['start'])
 print('end before: ' + dates['end'])
 print('scrape before: ' + dates['last_scrape'])
-#get_dn_daily()
-date_updater()
+get_dn_daily(True)
+#date_updater()
 print('-'*10)
 print('start after: ' + dates['start'])
 print('end after: ' + dates['end'])
