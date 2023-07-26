@@ -50,15 +50,19 @@ def ff_options(dl_folder):
 def date_updater():
     '''
     update start/end date for autofill
-    '''
-    if not (dates['last_scrape'] == (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')):       # check if yesterdays date already in log
-        dates['last_scrape'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
+    run AFTER download routine
+    '''   
+    if dates['last_scrape'] == 'never':                                                                         # update dates after first run
+        dates['start'] = date.today().strftime('%d-%m-%Y')
+        dates['end'] = date.today().strftime('%d-%m-%Y')
     
-    if not dates['last_scrape'] == 'never':                                                         # update dates after first run
-        dates['start'] = dates['last_scrape']
+    if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):   # update start/end dates
+        dates['start'] = dates['last_scrape']    
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
     
-    with open('dates.pkl', 'wb') as dpk:                                                             # save logfile
+    dates['last_scrape'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
+    
+    with open('dates.pkl', 'wb') as dpk:                                                                        # save logfile
         pickle.dump(dates, dpk)
     dpk.close()
 
@@ -96,11 +100,11 @@ def stromnetz_fillTageswerte(start, end):
     for daily average computation
     set start and end dates
     '''
-    wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')       # select daily sum measurements
-    wait_and_click('//*[@id="fromDayOverviewDate"]')    # set cursor in start date input field
+    wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')                           # select daily sum measurements
+    wait_and_click('//*[@id="fromDayOverviewDate"]')                                                                                        # set cursor in start date input field
     date_selector(start)    # start date
     date_selector(end)      # end date
-    wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button') # confirm date selections
+    wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  # confirm date selections
     time.sleep(2)           # wait for data load
     
 def stromnetz_download():
@@ -135,4 +139,17 @@ def get_dn_daily():
     stromnetz_download()
     date_updater()
 
-get_dn_daily()
+################## testing ########################
+# dates['start'] = '20-07-2023'
+# dates['end'] = '24-07-2023'
+# dates['last_scrape'] = '24-07-2023'
+
+print('start before: ' + dates['start'])
+print('end before: ' + dates['end'])
+print('scrape before: ' + dates['last_scrape'])
+#get_dn_daily()
+date_updater()
+print('-'*10)
+print('start after: ' + dates['start'])
+print('end after: ' + dates['end'])
+print('scrape after: ' + dates['last_scrape'])
