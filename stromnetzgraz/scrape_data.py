@@ -1,4 +1,3 @@
-import time
 from datetime import date, timedelta
 import pickle
 import os.path
@@ -152,7 +151,7 @@ def get_dn_daily(headless: bool=False):
 print('start before: ' + dates['start'])
 print('end before: ' + dates['end'])
 print('scrape before: ' + dates['last_scrape'])
-get_dn_daily(True)
+#get_dn_daily(True)
 #date_updater()
 print('-'*10)
 print('start after: ' + dates['start'])
