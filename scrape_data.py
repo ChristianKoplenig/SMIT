@@ -1,3 +1,4 @@
+import time
 from datetime import date, timedelta
 import pickle
 import os.path
@@ -11,11 +12,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import user_data
 
-service = Service(log_path='./stromnetzgraz/Log/geckodriver.log')
-
 # If no persisted date exists, create dict for dates and use start date from user_data
 if not os.path.isfile(user_data.persist_dates):
-    with open('dates.pkl', 'wb') as pk:
+    with open(user_data.persist_dates, 'wb') as pk:
         dates = dict()
         dates['start'] = user_data.csv_startDate                                        # set start date for initial run, format: dd-mm-yyyy
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')          # set end date yesterday for initial run, format: dd-mm-yyyy
@@ -24,7 +23,7 @@ if not os.path.isfile(user_data.persist_dates):
     pk.close()
 
 # Initialize dates variable from storage    
-with open('dates.pkl', 'rb') as pk:
+with open(user_data.persist_dates, 'rb') as pk:
     dates = pickle.load(pk)  
 
 def wait_and_click(elementXpath):
@@ -41,11 +40,13 @@ def ff_options(dl_folder, headless: bool = False):
     ''' 
     set options for firefox webdriver 
     dl_folder: target download directory for firefox
+    headless: activate firefox headless mode
     '''
+    dl_path = os.path.abspath(dl_folder) # convert relative download path to absolute path
     profile = Options()
     profile.set_preference("browser.download.folderList", 2)
     profile.set_preference("browser.download.alwaysOpenPanel", False)
-    profile.set_preference("browser.download.dir", dl_folder)
+    profile.set_preference("browser.download.dir", dl_path)
     profile.set_preference('webdriver.log.init', True)
     
     if headless is True:
@@ -68,7 +69,7 @@ def date_updater():
     
     dates['last_scrape'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
     
-    with open('dates.pkl', 'wb') as dpk:                                                                        # save logfile
+    with open(user_data.persist_dates, 'wb') as dpk:                                                                        # save logfile
         pickle.dump(dates, dpk)
     dpk.close()
 
@@ -90,6 +91,7 @@ def stromnetz_setup(dl_folder, headless):
     login to stromnetz graz webportal and setup data page
     '''
     global driver
+    service = Service(log_path=user_data.webdriver_logFolder)    
     driver = webdriver.Firefox(options=ff_options(dl_folder, headless), service=service)
     driver.get(user_data.login_url)
     driver.maximize_window()
@@ -111,9 +113,10 @@ def stromnetz_fillTageswerte(start, end):
     date_selector(start)    # start date
     date_selector(end)      # end date
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  # confirm date selections
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/div[3]/div/app-bar-chart'))
-        ) # wait for data load
+    # WebDriverWait(driver, 10).until(
+    #     EC.presence_of_element_located((By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/div[3]/div/app-bar-chart'))
+    #     ) # wait for data load
+    time.sleep(3)
 
 def stromnetz_download():
     '''
@@ -155,11 +158,11 @@ def get_dn_daily(headless: bool=False):
 print('start before: ' + dates['start'])
 print('end before: ' + dates['end'])
 print('scrape before: ' + dates['last_scrape'])
-#get_dn_daily(True)
+get_dn_daily(True)
 #date_updater()
 print('-'*10)
 print('start after: ' + dates['start'])
 print('end after: ' + dates['end'])
 print('scrape after: ' + dates['last_scrape'])
 
-stromnetz_setup(user_data.csv_dlFolder, False)
+#stromnetz_setup(user_data.csv_dlFolder, False)
