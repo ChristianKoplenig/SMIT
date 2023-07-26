@@ -12,6 +12,5 @@ __pycache__/
 *.log
 
 # scraping files
-*chrome*
-login_details.py
 *.pkl
+test.txt
