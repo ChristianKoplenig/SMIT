@@ -7,7 +7,8 @@ password = 'Gwhwk12.'
 headless_mode = False                    # Run Firefox in headless mode, type: boolean
 
 # Folder structure
-csv_dlFolder = './csv_raw'                      # Download folder for csv files
+csv_dl_daysum = './csv_raw/daily'               # Download folder for Tageswerte csv files
+csv_dl_15min = './csv_raw/15min'                               # Download folder for 15min resolution csv files
 persist_dates = './log/dates.pkl'               # Filename for dates persistence
 webdriver_logFolder = './log/geckodriver.log'   # Log folder for webdriver
 
