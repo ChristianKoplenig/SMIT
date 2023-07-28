@@ -15,13 +15,9 @@ def move_files(meter_number):
     daysum files hardcoded in path_to_raw/workdir variables
     '''
     
-    #### User Input
-    path_to_raw = os.path.abspath(user_data.csv_dl_daysum)
-    workdir = os.path.abspath(user_data.csv_wd_daysum)
-    
-    # set path to workdir
-    os.chdir(workdir)
-    workdir_files = glob.glob('*.csv')
+    # set path variables
+    path_to_raw = pl.Path(user_data.csv_dl_daysum).absolute()
+    workdir = pl.Path(user_data.csv_wd_daysum).absolute()
     
     # set path to raw files
     os.chdir(path_to_raw)
@@ -42,30 +38,20 @@ def move_files(meter_number):
             src = pl.Path(filename).absolute()
             dest = workdir
             
-            #check if imported
-            if filename in workdir_files:
-                print('no new files')
-                #pass
-                
-            else:
-                
-                #copy files
-                shutil.copy(src, dest)
-                                
-                # ### modify ###
-            
-                # #switch to workdir
-                # os.chdir(workdir)
-            
-                # #read and modify csv file
-                # save_file = str(date.today().strftime('%Y%m%d') + '_' + str(meter_number)) + '.csv'
-                # os.rename(filename,save_file)
-                # print('files added')
-                # #print copy message
-                # #print('added file: ', filename)
-    #return() 
+
+            #copy files
+            shutil.copy(src, dest)
+                            
+            ### modify ###
+        
+            #switch to workdir
+            os.chdir(workdir)
+        
+            #change filenam
+            save_file = str(date.today().strftime('%Y%m%d') + '_' + str(meter_number)) + '.csv'
+            os.rename(filename,save_file)
+            print('files added')
  
-meter_number = user_data.day_meter   
 #save_file = str(date.today().strftime('%Y%m%d') + '_' + str(meter_number))
-move_files(meter_number)
+move_files(user_data.day_meter)
 #print(workdir_files)
