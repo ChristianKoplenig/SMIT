@@ -145,7 +145,7 @@ def get_dn_daily(headless: bool=False):
     download csv files for day and night measurements
     ''' 
     dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
-    stromnetz_setup(user_data.csv_dlFolder, headless)
+    stromnetz_setup(user_data.csv_dl_daysum, headless)
     day_night_selector('night')
     stromnetz_fillTageswerte(dates['start'], dates['end'])
     stromnetz_download()
@@ -169,4 +169,4 @@ print('start after: ' + dates['start'])
 print('end after: ' + dates['end'])
 print('scrape after: ' + dates['last_scrape'])
 
-#stromnetz_setup(user_data.csv_dlFolder, False)
+#stromnetz_setup(user_data.csv_dl_daysum, False)
