@@ -11,20 +11,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import user_data
-
-# If no persisted date exists, create dict for dates and use start date from user_data
-if not os.path.isfile(user_data.persist_dates):
-    with open(user_data.persist_dates, 'wb') as pk:
-        dates = dict()
-        dates['start'] = user_data.csv_startDate                                        # set start date for initial run, format: dd-mm-yyyy
-        dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')          # set end date yesterday for initial run, format: dd-mm-yyyy
-        dates['last_scrape'] = 'never'                                                  # flag for first run
-        pickle.dump(dates, pk)
-    pk.close()
-
-# Initialize dates variable from storage    
-with open(user_data.persist_dates, 'rb') as pk:
-    dates = pickle.load(pk)  
+import handle_logging
 
 def wait_and_click(elementXpath):
     '''
@@ -168,12 +155,19 @@ def get_dn_daily(headless: bool=False):
 # dates['end'] = '24-07-2023'
 # dates['last_scrape'] = '24-07-2023'
 
+## open logs
+handle_logging.initialize_dates_log()
+
+#read dates from pickle file
+dates = handle_logging.create_dates_var()
+
+
 print('start before: ' + dates['start'])
 print('end before: ' + dates['end'])
 print('scrape before: ' + dates['last_scrape'])
 print('-'*10)
-get_dn_daily(user_data.headless_mode)
-#date_updater()
+#get_dn_daily(user_data.headless_mode)
+start_date_updater()
 print('-'*10)
 print('start after: ' + dates['start'])
 print('end after: ' + dates['end'])
