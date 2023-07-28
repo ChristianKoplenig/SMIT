@@ -54,18 +54,18 @@ def ff_options(dl_folder, headless: bool = False):
     
     return profile
 
-def date_updater():
+def start_date_updater():
     '''
     update start/end date for autofill
     run AFTER download routine
     '''   
     if dates['last_scrape'] == 'never':                                                                         # update dates after first run
         dates['start'] = date.today().strftime('%d-%m-%Y')
-        dates['end'] = date.today().strftime('%d-%m-%Y')
+        #dates['end'] = date.today().strftime('%d-%m-%Y')
     
     if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):   # update start/end dates
         dates['start'] = dates['last_scrape']    
-        dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
+        #dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
     
     dates['last_scrape'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
     
@@ -116,6 +116,7 @@ def stromnetz_fillTageswerte(start, end):
     # WebDriverWait(driver, 10).until(
     #     EC.presence_of_element_located((By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/div[3]/div/app-bar-chart'))
     #     ) # wait for data load
+    
     time.sleep(3)
 
 def stromnetz_download():
@@ -136,11 +137,14 @@ def day_night_selector(day_night):
     else:
         wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a') # choose day measurements
     
+    time.sleep(3)
+    
 ################ run #######################  
 def get_dn_daily(headless: bool=False): 
     '''
     download csv files for day and night measurements
     ''' 
+    dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
     stromnetz_setup(user_data.csv_dlFolder, headless)
     day_night_selector('night')
     stromnetz_fillTageswerte(dates['start'], dates['end'])
@@ -148,7 +152,7 @@ def get_dn_daily(headless: bool=False):
     day_night_selector('day')
     stromnetz_fillTageswerte(dates['start'], dates['end'])
     stromnetz_download()
-    date_updater()
+    start_date_updater()
 
 ################## testing ########################
 # dates['start'] = '20-07-2023'
