@@ -145,15 +145,24 @@ def get_dn_daily(headless: bool=False):
     download csv files for day and night measurements
     ''' 
     dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
-    stromnetz_setup(user_data.csv_dl_daysum, headless)
-    day_night_selector('night')
-    stromnetz_fillTageswerte(dates['start'], dates['end'])
-    stromnetz_download()
-    day_night_selector('day')
-    stromnetz_fillTageswerte(dates['start'], dates['end'])
-    stromnetz_download()
-    start_date_updater()
-
+    
+    if user_data.headless_mode is True:
+        print('Firefox headless mode activated')
+        
+    if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
+        stromnetz_setup(user_data.csv_dl_daysum, headless)
+        day_night_selector('night')
+        stromnetz_fillTageswerte(dates['start'], dates['end'])
+        stromnetz_download()
+        day_night_selector('day')
+        stromnetz_fillTageswerte(dates['start'], dates['end'])
+        stromnetz_download()
+        print('Downloaded data with the following arguments:')
+        print('Start date: ' + dates['start'])
+        print('End date: ' + dates['end'])
+        start_date_updater()
+    else:
+        print('Data already scraped')
 ################## testing ########################
 # dates['start'] = '20-07-2023'
 # dates['end'] = '24-07-2023'
@@ -162,7 +171,8 @@ def get_dn_daily(headless: bool=False):
 print('start before: ' + dates['start'])
 print('end before: ' + dates['end'])
 print('scrape before: ' + dates['last_scrape'])
-get_dn_daily(True)
+print('-'*10)
+get_dn_daily(user_data.headless_mode)
 #date_updater()
 print('-'*10)
 print('start after: ' + dates['start'])
