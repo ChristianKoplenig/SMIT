@@ -4,8 +4,8 @@ username = 'ch.koplenig@posteo.net'
 password = 'Gwhwk12.'
 
 # Stromnetz Anlagedaten
-day_point = '199996'        # Zaehlpunktnummer Tagstrom
-night_point = '199997'      # Zaehlpunktnummer Nachtstrom
+day_meter = '199996'        # Zaehlpunktnummer Tagstrom; last six numbers
+night_meter = '199997'      # Zaehlpunktnummer Nachtstrom; last six numbers
 
 
 #################### not necessary to change ###############################
