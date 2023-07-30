@@ -55,10 +55,12 @@ def start_date_updater():
         #dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
     
     dates['last_scrape'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
+    dates['start'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
     
-    with open(user_data.persist_dates, 'wb') as dpk:                                                                        # save logfile
-        pickle.dump(dates, dpk)
-    dpk.close()
+    # with open(user_data.persist_dates, 'wb') as dpk:                                                                        # save logfile
+    #     pickle.dump(dates, dpk)
+    # dpk.close()
+    handle_logging.save_dates_loggingFile(dates)
 
 def date_selector(input_date):
     '''
@@ -162,10 +164,10 @@ handle_logging.initialize_dates_log()
 dates = handle_logging.create_dates_var()
 
 
-print('start before: ' + dates['start'])
-print('end before: ' + dates['end'])
-print('scrape before: ' + dates['last_scrape'])
-print('-'*10)
+# print('start before: ' + dates['start'])
+# print('end before: ' + dates['end'])
+# print('scrape before: ' + dates['last_scrape'])
+# print('-'*10)
 #get_dn_daily(user_data.headless_mode)
 start_date_updater()
 print('-'*10)
