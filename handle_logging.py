@@ -24,3 +24,11 @@ def create_dates_var():
     with open(user_data.persist_dates, 'rb') as pk:
         dates = pickle.load(pk)  
     return dates
+
+def save_dates_loggingFile(dates):
+    '''
+    export dates logging file 
+    '''
+    with open(user_data.persist_dates, 'wb') as dpk:                                                                        # save logfile
+        pickle.dump(dates, dpk)
+    dpk.close()
