@@ -13,3 +13,6 @@ __pycache__/
 
 # scraping files
 *.pkl
+
+# developement files
+testcode.py
