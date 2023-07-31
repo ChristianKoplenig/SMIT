@@ -1,10 +1,10 @@
 # python folder structure
-csv_backup/
 csv_raw/
-csv/
+csv_workdir/
 old_files/
 raw_import/
 alpha/
+stromnetzgraz/
 
 # system folders
 __pycache__/
@@ -12,7 +12,8 @@ __pycache__/
 *.log
 
 # scraping files
-*.pkl
+#*.pkl
 
 # developement files
 testcode.py
+scrapeandmove.py
