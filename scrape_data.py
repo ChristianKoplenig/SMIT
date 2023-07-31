@@ -1,6 +1,5 @@
 import time
 from datetime import date, timedelta
-import pickle
 import os.path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -38,28 +37,24 @@ def ff_options(dl_folder, headless: bool = False):
     
     if headless is True:
         profile.add_argument("-headless")
+        print('Firefox headless mode activated')
     
     return profile
 
-def start_date_updater():
+def start_date_updater(dates):
     '''
     update start/end date for autofill
     run AFTER download routine
     '''   
     if dates['last_scrape'] == 'never':                                                                         # update dates after first run
         dates['start'] = date.today().strftime('%d-%m-%Y')
-        #dates['end'] = date.today().strftime('%d-%m-%Y')
     
     if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):   # update start/end dates
-        dates['start'] = dates['last_scrape']    
-        #dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
+        dates['start'] = dates['last_scrape']
     
     dates['last_scrape'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
-    dates['start'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
+    dates['start'] = date.today().strftime('%d-%m-%Y')                                                          # update scraper log
     
-    # with open(user_data.persist_dates, 'wb') as dpk:                                                                        # save logfile
-    #     pickle.dump(dates, dpk)
-    # dpk.close()
     handle_logging.save_dates_loggingFile(dates)
 
 def date_selector(input_date):
@@ -102,11 +97,8 @@ def stromnetz_fillTageswerte(start, end):
     date_selector(start)    # start date
     date_selector(end)      # end date
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  # confirm date selections
-    # WebDriverWait(driver, 10).until(
-    #     EC.presence_of_element_located((By.XPATH, '/html/body/div/app-root/main/div/app-overview/div/div[3]/div/app-bar-chart'))
-    #     ) # wait for data load
-    
-    time.sleep(3)
+
+    time.sleep(3) # wait for element to load
 
 def stromnetz_download():
     '''
@@ -133,10 +125,9 @@ def get_dn_daily(headless: bool=False):
     '''
     download csv files for day and night measurements
     ''' 
+    handle_logging.initialize_dates_log()
+    dates = handle_logging.create_dates_var()
     dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
-    
-    if user_data.headless_mode is True:
-        print('Firefox headless mode activated')
         
     if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
         stromnetz_setup(user_data.csv_dl_daysum, headless)
@@ -149,30 +140,6 @@ def get_dn_daily(headless: bool=False):
         print('Downloaded data with the following arguments:')
         print('Start date: ' + dates['start'])
         print('End date: ' + dates['end'])
-        start_date_updater()
+        start_date_updater(dates)
     else:
         print('Data already scraped')
-################## testing ########################
-# dates['start'] = '20-07-2023'
-# dates['end'] = '24-07-2023'
-# dates['last_scrape'] = '24-07-2023'
-
-## open logs
-handle_logging.initialize_dates_log()
-
-#read dates from pickle file
-dates = handle_logging.create_dates_var()
-
-
-# print('start before: ' + dates['start'])
-# print('end before: ' + dates['end'])
-# print('scrape before: ' + dates['last_scrape'])
-# print('-'*10)
-#get_dn_daily(user_data.headless_mode)
-#start_date_updater()
-print('-'*10)
-print('start after: ' + dates['start'])
-print('end after: ' + dates['end'])
-print('scrape after: ' + dates['last_scrape'])
-
-#stromnetz_setup(user_data.csv_dl_daysum, False)
