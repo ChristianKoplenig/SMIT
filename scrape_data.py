@@ -9,8 +9,11 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import user_data
+import user_class
 import handle_logging
+
+# create user
+User = user_class.create_user()
 
 def wait_and_click(elementXpath):
     '''
@@ -75,14 +78,14 @@ def stromnetz_setup(dl_folder, headless):
     login to stromnetz graz webportal and setup data page
     '''
     global driver
-    service = Service(log_path=user_data.webdriver_logFolder)    
+    service = Service(log_path=User.webdriver_logFolder)    
     driver = webdriver.Firefox(options=ff_options(dl_folder, headless), service=service)
-    driver.get(user_data.login_url)
+    driver.get(User.login_url)
     driver.maximize_window()
 
     ##### login #####
-    driver.find_element(By.NAME, "email").send_keys(user_data.username)
-    driver.find_element(By.NAME, "password").send_keys(user_data.password)
+    driver.find_element(By.NAME, "email").send_keys(User.username)
+    driver.find_element(By.NAME, "password").send_keys(User.password)
     wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')                       # login confirmation
     wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')                       # open data page
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      # set unit to [Wh]
@@ -130,7 +133,7 @@ def get_dn_daily(headless: bool=False):
     dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
         
     if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
-        stromnetz_setup(user_data.csv_dl_daysum, headless)
+        stromnetz_setup(User.csv_dl_daysum, headless)
         day_night_selector('night')
         stromnetz_fillTageswerte(dates['start'], dates['end'])
         stromnetz_download()
