@@ -1,6 +1,9 @@
 import datetime as dt
 import pathlib as pl
-import user_data
+import user_class
+
+# create user class
+User = user_class.create_user()
 
 def pathlib_move(src,dest,appendix):
     '''
@@ -20,10 +23,10 @@ def move_files(meter_number):
     meter_number: day/night meter device number
     daysum files hardcoded in path_to_raw/workdir variables
     '''
-    
+
     # set path variables
-    path_to_raw = pl.Path(user_data.csv_dl_daysum).absolute()
-    workdir = pl.Path(user_data.csv_wd_daysum).absolute()
+    path_to_raw = pl.Path(User.csv_dl_daysum).absolute()
+    workdir = pl.Path(User.csv_wd_daysum).absolute()
 
     # select files in raw folder
     for filename in path_to_raw.glob('*.csv'): 
@@ -36,3 +39,6 @@ def move_files(meter_number):
             #filter for input files
             if meter_number in str(filename):
                 pathlib_move(filename, workdir, meter_number)
+
+
+#move_files(User.day_meter)
