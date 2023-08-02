@@ -1,6 +1,10 @@
+'''
+Tools for scraping data from website
+'''
 import time
 from datetime import date, timedelta
 import os.path
+# Webdriver imports
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -9,8 +13,9 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import modules.dynamicclass as dynamicclass
-import modules.filepersistence as filepersistence
+# Custom imports
+from modules import dynamicclass
+from modules import filepersistence
 
 # create user
 User = dynamicclass.create_user()

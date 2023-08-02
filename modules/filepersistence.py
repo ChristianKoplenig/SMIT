@@ -1,7 +1,11 @@
+'''
+Tools to persist data
+'''
 import os
 import pickle
 from datetime import date, timedelta
-import modules.dynamicclass as dynamicclass
+# Custom imports
+from modules import dynamicclass
 
 User = dynamicclass.create_user()
 
