@@ -1,9 +1,9 @@
 import os
 import pickle
 from datetime import date, timedelta
-import user_class
+import modules.dynamicclass as dynamicclass
 
-User = user_class.create_user()
+User = dynamicclass.create_user()
 
 def initialize_dates_log():
     ''' 
