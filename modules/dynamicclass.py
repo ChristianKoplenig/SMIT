@@ -1,5 +1,5 @@
 '''
-Dynamically creates an instance of class User based on variables from user_data file
+Dynamically creates an instance of class 'User' based on variables from user_data file
 Input:
     - path to user data file
     - name for the class

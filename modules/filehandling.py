@@ -1,6 +1,10 @@
+'''
+Tools for manipulating files on operating system level
+'''
 import datetime as dt
 import pathlib as pl
-import modules.dynamicclass as dynamicclass
+# Custom imports
+from modules import dynamicclass
 
 # create user class
 User = dynamicclass.create_user()
@@ -39,6 +43,3 @@ def move_files(meter_number):
             #filter for input files
             if meter_number in str(filename):
                 pathlib_move(filename, workdir, meter_number)
-
-
-#move_files(User.day_meter)
