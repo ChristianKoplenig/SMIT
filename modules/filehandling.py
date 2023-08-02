@@ -1,9 +1,9 @@
 import datetime as dt
 import pathlib as pl
-import user_class
+import modules.dynamicclass as dynamicclass
 
 # create user class
-User = user_class.create_user()
+User = dynamicclass.create_user()
 
 def pathlib_move(src,dest,appendix):
     '''

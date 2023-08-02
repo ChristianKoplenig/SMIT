@@ -9,11 +9,11 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import user_class
-import handle_logging
+import modules.dynamicclass as dynamicclass
+import modules.filepersistence as filepersistence
 
 # create user
-User = user_class.create_user()
+User = dynamicclass.create_user()
 
 def wait_and_click(elementXpath):
     '''
@@ -58,7 +58,7 @@ def start_date_updater(dates):
     dates['last_scrape'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
     dates['start'] = date.today().strftime('%d-%m-%Y')                                                          # update scraper log
     
-    handle_logging.save_dates_loggingFile(dates)
+    filepersistence.save_dates_loggingFile(dates)
 
 def date_selector(input_date):
     '''
@@ -128,8 +128,8 @@ def get_dn_daily(headless: bool=False):
     '''
     download csv files for day and night measurements
     ''' 
-    handle_logging.initialize_dates_log()
-    dates = handle_logging.create_dates_var()
+    filepersistence.initialize_dates_log()
+    dates = filepersistence.create_dates_var()
     dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
         
     if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
