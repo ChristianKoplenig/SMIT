@@ -21,4 +21,7 @@ def create_class_from_file(file_path, class_name):
     return CustomClass()
 
 def create_user():
+    '''
+    Dynamically creates user with data from user_data.py file
+    '''
     return create_class_from_file('/media/data/coding/strom/user_data.py', 'User')
