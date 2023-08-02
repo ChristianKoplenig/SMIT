@@ -129,7 +129,7 @@ def day_night_selector(day_night):
     time.sleep(3)
     
 ################ run #######################  
-def get_dn_daily(headless: bool=False): 
+def get_daysum_files(headless: bool=False): 
     '''
     download csv files for day and night measurements
     ''' 
@@ -149,5 +149,3 @@ def get_dn_daily(headless: bool=False):
         print('Start date: ' + dates['start'])
         print('End date: ' + dates['end'])
         start_date_updater(dates)
-    else:
-        print('Data already scraped')
