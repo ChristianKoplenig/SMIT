@@ -1,7 +1,10 @@
 # Stromnetz Graz - Analyse Data from Smartmeter
 Automatically scrape and plot the data from 'Stromnetz Graz' web portal.
 ## Setup
-Fill out user credentials in `user_data.py` located in `root` folder
+Fill out user credentials in `user_data.py` located in `root` folder.  
+In `root` folder create:  
+- csv_raw folder
+- csv_workdir folder
 
 ## Test System
 ### OS
