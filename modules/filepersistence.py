@@ -5,9 +5,9 @@ import os
 import pickle
 from datetime import date, timedelta
 # Custom imports
-from modules import dynamicclass
+import modules.user
 
-User = dynamicclass.create_user()
+User = modules.user.create_user()
 
 def initialize_dates_log():
     ''' 

@@ -5,12 +5,12 @@ import datetime as dt
 import pathlib as pl
 import pandas as pd
 # Custom imports
-from modules import dynamicclass
+import modules.user
 from modules import filepersistence
 from modules.scrapedata import get_daysum_files
 
-# create user class
-User = dynamicclass.create_user()
+# create user based on config file
+User = modules.user.create_user()
 
 def pathlib_move(src,dest,appendix):
     '''
