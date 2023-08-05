@@ -108,8 +108,10 @@ def create_dataframe(workdir, metertype):
     return df_return
 
 def scrapandmove():
-    """    
-    Download files from stromnetzgraz and move to work directory
+    """Scrape data and move '.csv' files to workdir.
+        
+    Call :func: `get_daysum_files` 
+    For each meter call :func: `move_files` 
     """
     filepersistence.initialize_dates_log()
     dates = filepersistence.create_dates_var()
