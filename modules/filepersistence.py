@@ -9,7 +9,7 @@ from modules import dynamicclass
 
 User = dynamicclass.create_user()
 
-def initialize_dates_log():
+def initialize_dates_log() -> None:
     """Create log file for managing scraping dates.
     
     If no persisted date exists, create dict for dates and use start date from User.
@@ -23,7 +23,7 @@ def initialize_dates_log():
             pickle.dump(dates, pk)
         pk.close()
 
-def create_dates_var():
+def create_dates_var() -> dict:
     """Load dates log dict.
 
     Returns
@@ -36,7 +36,7 @@ def create_dates_var():
         dates = pickle.load(pk)  
     return dates
 
-def save_dates_loggingFile(dates):
+def save_dates_loggingFile(dates: dict):
     """Persist dates in log dict.
 
     Parameters
