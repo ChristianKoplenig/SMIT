@@ -5,8 +5,7 @@ else:
     import tomlib
 
 class user():
-    """
-    A class that holds all the userdefined data and settings.
+    """A class that holds all the userdefined data and settings.
 
     Attributes
     ----------
@@ -18,7 +17,8 @@ class user():
     """
 
     def __init__(self, file_path : str = './user_data.toml'):
-        """
+        """Initialize user
+
         The constructor reads a TOML config file from *file_path*
         and loops through the dictionary in order to set the attributes
         of the class to self.key = value.
@@ -39,8 +39,7 @@ class user():
             setattr(self, key, value)
 
     def __repr__(self):
-        """
-        This special function gets called if you use print on a class instance.
+        """This special function gets called if you use print on a class instance.
 
         Parameters
         ----------
