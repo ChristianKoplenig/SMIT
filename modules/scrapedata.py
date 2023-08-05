@@ -14,11 +14,11 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom imports
-from modules import dynamicclass
+import modules.user
 from modules import filepersistence
 
 # create user
-User = dynamicclass.create_user()
+User = modules.user.create_user()
 
 def wait_and_click(elementXpath):
     '''
