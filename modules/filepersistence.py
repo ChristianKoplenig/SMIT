@@ -1,19 +1,19 @@
-'''
+"""
 Tools to persist data
-'''
+"""
 import os
 import pickle
 from datetime import date, timedelta
 # Custom imports
-from modules.user import user
+from modules import dynamicclass
 
-User = user()
+User = dynamicclass.create_user()
 
 def initialize_dates_log():
-    '''
-    create log file for managing scrape dates
-    If no persisted date exists, create dict for dates and use start date from User
-    '''
+    """Create log file for managing scraping dates.
+    
+    If no persisted date exists, create dict for dates and use start date from User.
+    """
     if not os.path.isfile(User.persist_dates):
         with open(User.persist_dates, 'wb') as pk:
             dates = dict()
@@ -24,17 +24,26 @@ def initialize_dates_log():
         pk.close()
 
 def create_dates_var():
-    '''
-    make dates log acessible
-    '''
+    """Load dates log dict.
+
+    Returns
+    -------
+    dict
+        start, end and last scrape dates
+    """
+
     with open(User.persist_dates, 'rb') as pk:
-        dates = pickle.load(pk)
+        dates = pickle.load(pk)  
     return dates
 
 def save_dates_loggingFile(dates):
-    '''
-    export dates logging file
-    '''
+    """Persist dates in log dict.
+
+    Parameters
+    ----------
+    dates : dict
+        start, end and last scrape dates
+    """
     with open(User.persist_dates, 'wb') as dpk:                                                                        # save logfile
         pickle.dump(dates, dpk)
     dpk.close()
