@@ -12,7 +12,7 @@ from modules.scrapedata import get_daysum_files
 # create user class
 User = dynamicclass.create_user()
 
-def pathlib_move(src,dest,appendix):
+def pathlib_move(src: pl.Path,dest: pl.Path,appendix: str) -> None:
     """Use pathlib to move and rename file.
 
     Move the file from `src` to `dest` and rename it to todays date (yyyy-mm-dd) folowed by '_appendix.csv'.
@@ -31,7 +31,7 @@ def pathlib_move(src,dest,appendix):
     new_filename = dest / str(str(dt.date.today().strftime('%Y%m%d') + '_' + str(appendix)) + '.csv')
     path.rename(new_filename)
         
-def move_files(meter_number):
+def move_files(meter_number: str) -> None:
     """Copy files to work directory.
     
     Iterate over all '.csv' files in webdriver download folder. 
@@ -60,7 +60,7 @@ def move_files(meter_number):
             if meter_number in str(filename):
                 pathlib_move(filename, workdir, meter_number)
                 
-def create_dataframe(workdir, metertype):
+def create_dataframe(workdir: pl.Path, metertype: str) -> pd.DataFrame:
     """Create basic dataframe for further analysis.
     
     Concat all files in `workdir` with same `metertype`.
@@ -107,7 +107,7 @@ def create_dataframe(workdir, metertype):
             df_return.drop_duplicates(subset='date', keep='first', inplace=True)
     return df_return
 
-def scrapandmove():
+def scrapandmove() -> None:
     """Scrape data and move '.csv' files to workdir.
         
     Call :func: `get_daysum_files` 
