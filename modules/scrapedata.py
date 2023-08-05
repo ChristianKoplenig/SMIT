@@ -15,15 +15,15 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom imports
-from modules import dynamicclass
+from modules.user import user
 from modules import filepersistence
 
 # create user
-User = dynamicclass.create_user()
+User = user()
 
 def wait_and_click(elementXpath: str) -> None:
     """Wait for web element and click.
-    
+
     Timeout 10s.
 
     Parameters
@@ -57,32 +57,32 @@ def ff_options(dl_folder: str, headless: bool = False) -> webdriver.FirefoxOptio
     profile.set_preference("browser.download.alwaysOpenPanel", False)
     profile.set_preference("browser.download.dir", dl_path)
     profile.set_preference('webdriver.log.init', True)
-    
+
     if headless is True:
         profile.add_argument("-headless")
         print('Firefox headless mode activated')
-    
+
     return profile
 
 def start_date_updater(dates: dict) -> None:
     """Update runtime dates in dates dict.
-    
+
     Run AFTER download routine
 
     Parameters
     ----------
     dates : dict
         Dict with parameters for date management
-    """ 
+    """
     if dates['last_scrape'] == 'never':                                                                         # update dates after first run
         dates['start'] = date.today().strftime('%d-%m-%Y')
-    
+
     if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):   # update start/end dates
         dates['start'] = dates['last_scrape']
-    
+
     dates['last_scrape'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
     dates['start'] = date.today().strftime('%d-%m-%Y')                                                          # update scraper log
-    
+
     filepersistence.save_dates_loggingFile(dates)
 
 def date_selector(input_date: str) -> None:
@@ -112,7 +112,7 @@ def stromnetz_setup(dl_folder: pl.Path, headless: bool) -> None:
         activate Firefox headless mode, by default False
     """
     global driver
-    service = Service(log_path=User.webdriver_logFolder)    
+    service = Service(log_path=User.webdriver_logFolder)
     driver = webdriver.Firefox(options=ff_options(dl_folder, headless), service=service)
     driver.get(User.login_url)
     driver.maximize_window()
@@ -149,7 +149,7 @@ def stromnetz_download() -> None:
 
 def day_night_selector(day_night: str) -> None:
     """Switch between day/night meassurements.
-    
+
     Defaults to day meassurements.
 
 import typing
@@ -159,14 +159,13 @@ import typing
         either `day` or `night`
     """
     wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')              # make dropdown active
-    
+
     if day_night == 'night':
         wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a') # choose night measurements
     else:
         wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a') # choose day measurements
-    
+
     time.sleep(3)
-    
 ################ run #######################  
 def get_daysum_files(headless: bool=False) -> None: 
     """Initiate '.csv' files download for day sum files.
@@ -179,7 +178,7 @@ def get_daysum_files(headless: bool=False) -> None:
     filepersistence.initialize_dates_log()
     dates = filepersistence.create_dates_var()
     dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
-        
+
     if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
         stromnetz_setup(User.csv_dl_daysum, headless)
         day_night_selector('night')
