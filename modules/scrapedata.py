@@ -23,16 +23,16 @@ User = modules.user.create_user()
 def wait_and_click(elementXpath):
     '''
     waits until an web element is clickable (longest 10s) and clicks on element
-    elementXpath format: 'XPATH', parentesis important 
+    elementXpath format: 'XPATH', parentesis important
     '''
     switchName = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, elementXpath))
     )
-    switchName.click()   
-        
+    switchName.click()
+
 def ff_options(dl_folder, headless: bool = False):
-    ''' 
-    set options for firefox webdriver 
+    '''
+    set options for firefox webdriver
     dl_folder: target download directory for firefox
     headless: activate firefox headless mode
     '''
@@ -42,27 +42,27 @@ def ff_options(dl_folder, headless: bool = False):
     profile.set_preference("browser.download.alwaysOpenPanel", False)
     profile.set_preference("browser.download.dir", dl_path)
     profile.set_preference('webdriver.log.init', True)
-    
+
     if headless is True:
         profile.add_argument("-headless")
         print('Firefox headless mode activated')
-    
+
     return profile
 
 def start_date_updater(dates):
     '''
     update start/end date for autofill
     run AFTER download routine
-    '''   
+    '''
     if dates['last_scrape'] == 'never':                                                                         # update dates after first run
         dates['start'] = date.today().strftime('%d-%m-%Y')
-    
+
     if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):   # update start/end dates
         dates['start'] = dates['last_scrape']
-    
+
     dates['last_scrape'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
     dates['start'] = date.today().strftime('%d-%m-%Y')                                                          # update scraper log
-    
+
     filepersistence.save_dates_loggingFile(dates)
 
 def date_selector(input_date):
@@ -83,14 +83,14 @@ def stromnetz_setup(dl_folder, headless):
     login to stromnetz graz webportal and setup data page
     '''
     global driver
-    service = Service(log_path=User.webdriver_logFolder)    
+    service = Service(log_path=User['webdriver_logFolder'])
     driver = webdriver.Firefox(options=ff_options(dl_folder, headless), service=service)
-    driver.get(User.login_url)
+    driver.get(User['login_url'])
     driver.maximize_window()
 
     ##### login #####
-    driver.find_element(By.NAME, "email").send_keys(User.username)
-    driver.find_element(By.NAME, "password").send_keys(User.password)
+    driver.find_element(By.NAME, "email").send_keys(User['username'])
+    driver.find_element(By.NAME, "password").send_keys(User['password'])
     wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')                       # login confirmation
     wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')                       # open data page
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      # set unit to [Wh]
@@ -120,25 +120,25 @@ def day_night_selector(day_night):
     day_night: values 'day' / 'night', defaults to day
     '''
     wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')              # make dropdown active
-    
+
     if day_night == 'night':
         wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a') # choose night measurements
     else:
         wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a') # choose day measurements
-    
+
     time.sleep(3)
-    
-################ run #######################  
-def get_daysum_files(headless: bool=False): 
+
+################ run #######################
+def get_daysum_files(headless: bool=False):
     '''
     download csv files for day and night measurements
-    ''' 
+    '''
     filepersistence.initialize_dates_log()
     dates = filepersistence.create_dates_var()
     dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
-        
+
     if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
-        stromnetz_setup(User.csv_dl_daysum, headless)
+        stromnetz_setup(User['csv_dl_daysum'], headless)
         day_night_selector('night')
         stromnetz_fillTageswerte(dates['start'], dates['end'])
         stromnetz_download()
