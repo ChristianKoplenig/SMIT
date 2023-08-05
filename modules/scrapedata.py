@@ -1,6 +1,6 @@
-'''
+"""
 Tools for scraping data from website
-'''
+"""
 import time
 from datetime import date, timedelta
 import os.path
@@ -21,21 +21,35 @@ from modules import filepersistence
 User = dynamicclass.create_user()
 
 def wait_and_click(elementXpath):
-    '''
-    waits until an web element is clickable (longest 10s) and clicks on element
-    elementXpath format: 'XPATH', parentesis important 
-    '''
+    """Wait for web element and click.
+    
+    Timeout 10s.
+
+    Parameters
+    ----------
+    elementXpath : XPATH
+        `xpath` of the element to click on
+    """
     switchName = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, elementXpath))
     )
     switchName.click()   
         
 def ff_options(dl_folder, headless: bool = False):
-    ''' 
-    set options for firefox webdriver 
-    dl_folder: target download directory for firefox
-    headless: activate firefox headless mode
-    '''
+    """Set options for firefox webdriver.
+
+    Parameters
+    ----------
+    dl_folder : folder path
+        Target donwload directory for Firefox webdriver.
+    headless : bool, optional
+        activate Firefox headless mode, by default False
+
+    Returns
+    -------
+    webdriver profile
+        Options for Firefox webdriver.
+    """
     dl_path = os.path.abspath(dl_folder) # convert relative download path to absolute path
     profile = Options()
     profile.set_preference("browser.download.folderList", 2)
@@ -50,10 +64,15 @@ def ff_options(dl_folder, headless: bool = False):
     return profile
 
 def start_date_updater(dates):
-    '''
-    update start/end date for autofill
-    run AFTER download routine
-    '''   
+    """Update runtime dates in dates dict.
+    
+    Run AFTER download routine
+
+    Parameters
+    ----------
+    dates : dict
+        Dict with parameters for date management
+    """ 
     if dates['last_scrape'] == 'never':                                                                         # update dates after first run
         dates['start'] = date.today().strftime('%d-%m-%Y')
     
@@ -66,10 +85,13 @@ def start_date_updater(dates):
     filepersistence.save_dates_loggingFile(dates)
 
 def date_selector(input_date):
-    '''
-    set date for csv file
-    input dateformat 'dd-mm-yyyy'
-    '''
+    """Fill dates in date-input web element.
+
+    Parameters
+    ----------
+    input_date : string
+        Date with format dd-mm-yyyy
+    """
     actions = ActionChains(driver)
     actions.send_keys(input_date[3:5]) #month
     actions.send_keys(input_date[:2]) #day
@@ -79,9 +101,15 @@ def date_selector(input_date):
     actions.perform()
 
 def stromnetz_setup(dl_folder, headless):
-    '''
-    login to stromnetz graz webportal and setup data page
-    '''
+    """Login to stromnetz graz webportal and setup data page.
+
+    Parameters
+    ----------
+    dl_folder : folder path
+        Target donwload directory for Firefox webdriver.
+    headless : bool, optional
+        activate Firefox headless mode, by default False
+    """
     global driver
     service = Service(log_path=User.webdriver_logFolder)    
     driver = webdriver.Firefox(options=ff_options(dl_folder, headless), service=service)
@@ -96,10 +124,15 @@ def stromnetz_setup(dl_folder, headless):
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      # set unit to [Wh]
 
 def stromnetz_fillTageswerte(start, end):
-    '''
-    for daily average computation
-    set start and end dates
-    '''
+    """Activate day sum web-element and fill start/end dates.
+
+    Parameters
+    ----------
+    start : string
+        Date with format dd-mm-yyyy
+    end : string
+        Date with format dd-mm-yyyy
+    """
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')                           # select daily sum measurements
     wait_and_click('//*[@id="fromDayOverviewDate"]')                                                                                        # set cursor in start date input field
     date_selector(start)    # start date
@@ -109,16 +142,20 @@ def stromnetz_fillTageswerte(start, end):
     time.sleep(3) # wait for element to load
 
 def stromnetz_download():
-    '''
-    start download of csv file
-    '''
+    """Click download web-element.
+    """
     wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
 
 def day_night_selector(day_night):
-    '''
-    switch between day and night meassurements
-    day_night: values 'day' / 'night', defaults to day
-    '''
+    """Switch between day/night meassurements.
+    
+    Defaults to day meassurements.
+
+    Parameters
+    ----------
+    day_night : string
+        either `day` or `night`
+    """
     wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')              # make dropdown active
     
     if day_night == 'night':
@@ -130,9 +167,13 @@ def day_night_selector(day_night):
     
 ################ run #######################  
 def get_daysum_files(headless: bool=False): 
-    '''
-    download csv files for day and night measurements
-    ''' 
+    """Initiate '.csv' files download for day sum files.
+
+    Parameters
+    ----------
+    headless : bool, optional
+        run Firefox in headless mode, by default False
+    """
     filepersistence.initialize_dates_log()
     dates = filepersistence.create_dates_var()
     dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
