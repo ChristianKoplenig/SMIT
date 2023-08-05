@@ -5,12 +5,12 @@ import datetime as dt
 import pathlib as pl
 import pandas as pd
 # Custom imports
-from modules import dynamicclass
+from modules.user import user
 from modules import filepersistence
 from modules.scrapedata import get_daysum_files
 
 # create user class
-User = dynamicclass.create_user()
+User = user()
 
 def pathlib_move(src,dest,appendix):
     """Use pathlib to move and rename file.
@@ -30,11 +30,11 @@ def pathlib_move(src,dest,appendix):
     path = pl.Path(src)
     new_filename = dest / str(str(dt.date.today().strftime('%Y%m%d') + '_' + str(appendix)) + '.csv')
     path.rename(new_filename)
-        
+
 def move_files(meter_number):
     """Copy files to work directory.
-    
-    Iterate over all '.csv' files in webdriver download folder. 
+
+    Iterate over all '.csv' files in webdriver download folder.
     Select files with creation date of today.
     Select files with `meter_number` in filename.
     For selected files run :func: `pathlib_move`.
@@ -49,26 +49,26 @@ def move_files(meter_number):
     workdir = pl.Path(User.csv_wd_daysum).absolute()
 
     # select files in raw folder
-    for filename in path_to_raw.glob('*.csv'): 
+    for filename in path_to_raw.glob('*.csv'):
         filename_cdate = filename.stat().st_ctime
         cdate = dt.datetime.fromtimestamp(filename_cdate).strftime('%Y-%m-%d')
-        
+
         # just process downloaded files from today
         if cdate == dt.date.today().strftime('%Y-%m-%d'):
-        
+
             #filter for input files
             if meter_number in str(filename):
                 pathlib_move(filename, workdir, meter_number)
-                
+
 def create_dataframe(workdir, metertype):
     """Create basic dataframe for further analysis.
-    
+
     Concat all files in `workdir` with same `metertype`.
     Delete unused columns.
     Convert date format.
     Set column dtype formats.
     Sort values by date.
-    Drop duplicates.     
+    Drop duplicates.
 
     Parameters
     ----------
@@ -109,15 +109,15 @@ def create_dataframe(workdir, metertype):
 
 def scrapandmove():
     """Scrape data and move '.csv' files to workdir.
-        
-    Call :func: `get_daysum_files` 
-    For each meter call :func: `move_files` 
+
+    Call :func: `get_daysum_files`
+    For each meter call :func: `move_files`
     """
     filepersistence.initialize_dates_log()
     dates = filepersistence.create_dates_var()
-   
+
     if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
-    
+
         get_daysum_files(User.headless_mode)
         move_files(User.day_meter)
         move_files(User.night_meter)
