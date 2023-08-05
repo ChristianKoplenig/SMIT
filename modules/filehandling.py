@@ -1,58 +1,87 @@
-'''
-Tools for manipulating files on operating system level
-'''
+"""
+    Tools for manipulating files on os basis
+"""
 import datetime as dt
 import pathlib as pl
 import pandas as pd
 # Custom imports
-from modules.user import user
+from modules import dynamicclass
 from modules import filepersistence
 from modules.scrapedata import get_daysum_files
 
-# create user based on config file
-User = user()
+# create user class
+User = dynamicclass.create_user()
 
 def pathlib_move(src,dest,appendix):
-    '''
-    use pathlib to move file, rename file: 'today_appendix.csv'
-    src, dest: filetype= pathlib path
-    appendix: type string, append to filename
-    '''
+    """Use pathlib to move and rename file.
+
+    Move the file from `src` to `dest` and rename it to todays date (yyyy-mm-dd) folowed by '_appendix.csv'.
+    File will get a '.csv' extension.
+
+    Parameters
+    ----------
+    src : pathlib path
+        Path to source file
+    dest : pathlib path
+        Path to destination file
+    appendix : string
+        String to append to filename
+    """
     path = pl.Path(src)
     new_filename = dest / str(str(dt.date.today().strftime('%Y%m%d') + '_' + str(appendix)) + '.csv')
     path.rename(new_filename)
-
+        
 def move_files(meter_number):
-    '''
-    copy files to workdir
-    rename files
+    """Copy files to work directory.
+    
+    Iterate over all '.csv' files in webdriver download folder. 
+    Select files with creation date of today.
+    Select files with `meter_number` in filename.
+    For selected files run :func: `pathlib_move`.
 
-    meter_number: day/night meter device number
-    daysum files hardcoded in path_to_raw/workdir variables
-    '''
-
+    Parameters
+    ----------
+    meter_number : string
+        Day/Night meter device number
+    """
     # set path variables
     path_to_raw = pl.Path(User.csv_dl_daysum).absolute()
     workdir = pl.Path(User.csv_wd_daysum).absolute()
 
     # select files in raw folder
-    for filename in path_to_raw.glob('*.csv'):
+    for filename in path_to_raw.glob('*.csv'): 
         filename_cdate = filename.stat().st_ctime
         cdate = dt.datetime.fromtimestamp(filename_cdate).strftime('%Y-%m-%d')
-
+        
         # just process downloaded files from today
         if cdate == dt.date.today().strftime('%Y-%m-%d'):
-
+        
             #filter for input files
             if meter_number in str(filename):
                 pathlib_move(filename, workdir, meter_number)
-
+                
 def create_dataframe(workdir, metertype):
-    '''
-    Create dataframe for data analysis
-    workdir: path to csv files
-    metertype: either day or night meter
-    '''
+    """Create basic dataframe for further analysis.
+    
+    Concat all files in `workdir` with same `metertype`.
+    Delete unused columns.
+    Convert date format.
+    Set column dtype formats.
+    Sort values by date.
+    Drop duplicates.     
+
+    Parameters
+    ----------
+    workdir : pathlib path
+        Path to directory with files to import.
+    metertype : string
+        Day/Night meter device number.
+
+    Returns
+    -------
+    dataframe
+        Pandas dataframe with values per meter.
+    """
     path = pl.Path(workdir)
     df_return = pd.DataFrame()
     filelist = []
@@ -79,14 +108,16 @@ def create_dataframe(workdir, metertype):
     return df_return
 
 def scrapandmove():
-    '''
-    Download files from stromnetzgraz and move to work directory
-    '''
+    """Scrape data and move '.csv' files to workdir.
+        
+    Call :func: `get_daysum_files` 
+    For each meter call :func: `move_files` 
+    """
     filepersistence.initialize_dates_log()
     dates = filepersistence.create_dates_var()
-
+   
     if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
-
+    
         get_daysum_files(User.headless_mode)
         move_files(User.day_meter)
         move_files(User.night_meter)
