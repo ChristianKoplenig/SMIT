@@ -4,6 +4,7 @@ Tools for scraping data from website
 import time
 from datetime import date, timedelta
 import os.path
+import pathlib as pl
 # Webdriver imports
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -20,7 +21,7 @@ from modules import filepersistence
 # create user
 User = dynamicclass.create_user()
 
-def wait_and_click(elementXpath):
+def wait_and_click(elementXpath: str) -> None:
     """Wait for web element and click.
     
     Timeout 10s.
@@ -35,7 +36,7 @@ def wait_and_click(elementXpath):
     )
     switchName.click()   
         
-def ff_options(dl_folder, headless: bool = False):
+def ff_options(dl_folder: str, headless: bool = False) -> webdriver.FirefoxOptions:
     """Set options for firefox webdriver.
 
     Parameters
@@ -63,7 +64,7 @@ def ff_options(dl_folder, headless: bool = False):
     
     return profile
 
-def start_date_updater(dates):
+def start_date_updater(dates: dict) -> None:
     """Update runtime dates in dates dict.
     
     Run AFTER download routine
@@ -84,7 +85,7 @@ def start_date_updater(dates):
     
     filepersistence.save_dates_loggingFile(dates)
 
-def date_selector(input_date):
+def date_selector(input_date: str) -> None:
     """Fill dates in date-input web element.
 
     Parameters
@@ -100,7 +101,7 @@ def date_selector(input_date):
     actions.send_keys(Keys.TAB)
     actions.perform()
 
-def stromnetz_setup(dl_folder, headless):
+def stromnetz_setup(dl_folder: pl.Path, headless: bool) -> None:
     """Login to stromnetz graz webportal and setup data page.
 
     Parameters
@@ -123,7 +124,7 @@ def stromnetz_setup(dl_folder, headless):
     wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')                       # open data page
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      # set unit to [Wh]
 
-def stromnetz_fillTageswerte(start, end):
+def stromnetz_fillTageswerte(start: str, end: str) -> None:
     """Activate day sum web-element and fill start/end dates.
 
     Parameters
@@ -141,16 +142,17 @@ def stromnetz_fillTageswerte(start, end):
 
     time.sleep(3) # wait for element to load
 
-def stromnetz_download():
+def stromnetz_download() -> None:
     """Click download web-element.
     """
     wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
 
-def day_night_selector(day_night):
+def day_night_selector(day_night: str) -> None:
     """Switch between day/night meassurements.
     
     Defaults to day meassurements.
 
+import typing
     Parameters
     ----------
     day_night : string
@@ -166,7 +168,7 @@ def day_night_selector(day_night):
     time.sleep(3)
     
 ################ run #######################  
-def get_daysum_files(headless: bool=False): 
+def get_daysum_files(headless: bool=False) -> None: 
     """Initiate '.csv' files download for day sum files.
 
     Parameters
