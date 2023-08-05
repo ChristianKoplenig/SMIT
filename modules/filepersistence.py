@@ -5,12 +5,12 @@ import os
 import pickle
 from datetime import date, timedelta
 # Custom imports
-import modules.user
+from modules.user import user
 
-User = modules.user.create_user()
+User = user()
 
 def initialize_dates_log():
-    ''' 
+    '''
     create log file for managing scrape dates
     If no persisted date exists, create dict for dates and use start date from User
     '''
@@ -26,14 +26,14 @@ def initialize_dates_log():
 def create_dates_var():
     '''
     make dates log acessible
-    '''   
+    '''
     with open(User.persist_dates, 'rb') as pk:
-        dates = pickle.load(pk)  
+        dates = pickle.load(pk)
     return dates
 
 def save_dates_loggingFile(dates):
     '''
-    export dates logging file 
+    export dates logging file
     '''
     with open(User.persist_dates, 'wb') as dpk:                                                                        # save logfile
         pickle.dump(dates, dpk)
