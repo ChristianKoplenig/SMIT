@@ -5,13 +5,13 @@ import os
 import pickle
 from datetime import date, timedelta
 # Custom imports
-from modules import dynamicclass
+from modules.user import user
 
-User = dynamicclass.create_user()
+User = user()
 
 def initialize_dates_log() -> None:
     """Create log file for managing scraping dates.
-    
+
     If no persisted date exists, create dict for dates and use start date from User.
     """
     if not os.path.isfile(User.persist_dates):
@@ -33,7 +33,7 @@ def create_dates_var() -> dict:
     """
 
     with open(User.persist_dates, 'rb') as pk:
-        dates = pickle.load(pk)  
+        dates = pickle.load(pk)
     return dates
 
 def save_dates_loggingFile(dates: dict):
