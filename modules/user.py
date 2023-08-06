@@ -4,6 +4,8 @@ if sys.version_info < (3, 11):
 else:
     import tomlib
 
+import pathlib as pl
+
 class user():
     """A class that holds all the userdefined data and settings.
 
@@ -16,7 +18,10 @@ class user():
     None
     """
 
-    def __init__(self, file_path : str = './user_data.toml'):
+    def __init__(self,
+                 user_path : str = './user_data.toml',
+                 user_data_file_name : str = 'user_data.toml',
+                 user_settings_file_name_path : str = 'user_settings.toml'):
         """Initialize user
 
         The constructor reads a TOML config file from *file_path*
@@ -29,8 +34,14 @@ class user():
             path to user config file
         """
 
+        # get user data and settings from TOML files
+        self.__add_TOML_to_attributes(user_path, user_data_file_name)
+        self.__add_TOML_to_attributes(user_path, user_settings_file_name_path)
+
+
+    def __add_TOML_to_attributes(self, file_path : str, file_name : str):
         # load file
-        with open(file_path, 'rb') as file:
+        with open(pl.Path(file_path, file_name), 'rb') as file:
             data = tomlib.load(file)
 
         # loop through all key value pairs of the config file
@@ -53,6 +64,6 @@ class user():
         return self.username
 
 if __name__ == '__main__':
-    User = user('../user_data.toml')
+    User = user('../')
     print(User.username)
     print(User)
