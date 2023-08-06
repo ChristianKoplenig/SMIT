@@ -14,7 +14,7 @@ night_meter = '199997'      # Zaehlpunktnummer Nachtstrom; last six numbers
 csv_startDate = '01-01-2023'            # Start date for initial run
 
 # Firefox options
-headless_mode = True                    # Run Firefox in headless mode, type: boolean
+headless_mode = true                    # Run Firefox in headless mode, type: boolean
 
 # Folder structure
 ## scraping
