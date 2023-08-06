@@ -1,11 +1,11 @@
 # Login credentials
 login_url = 'https://webportal.stromnetz-graz.at/login'
-username = 'email'
-password = 'password'
+username = 'ch.koplenig@posteo.net'
+password = 'Gwhwk12.'
 
 # Stromnetz Anlagedaten
-day_meter   = '000000'      # Zaehlpunktnummer Tagstrom; last six numbers
-night_meter = '000001'      # Zaehlpunktnummer Nachtstrom; last six numbers
+day_meter   = '199996'      # Zaehlpunktnummer Tagstrom; last six numbers
+night_meter = '199997'      # Zaehlpunktnummer Nachtstrom; last six numbers
 
 
 #################### not necessary to change ###############################
@@ -14,7 +14,7 @@ night_meter = '000001'      # Zaehlpunktnummer Nachtstrom; last six numbers
 csv_startDate = '01-01-2023'            # Start date for initial run
 
 # Firefox options
-headless_mode = true                    # Run Firefox in headless mode, type: boolean
+headless_mode = True                    # Run Firefox in headless mode, type: boolean
 
 # Folder structure
 ## scraping
