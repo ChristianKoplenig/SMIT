@@ -6,7 +6,7 @@ import pathlib as pl
 import pandas as pd
 # Custom imports
 from modules.user import user
-from modules import filepersistence
+import modules.filepersistence as filepersistence
 from modules.scrapedata import get_daysum_files
 
 # create user class

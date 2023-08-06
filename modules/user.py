@@ -53,6 +53,8 @@ class user():
         return self.username
 
 if __name__ == '__main__':
-    User = user('../user_data.toml')
-    print(User.username)
+    User = user('./user_data.toml')
+    #print(User.username)
     print(User)
+
+User = user()
