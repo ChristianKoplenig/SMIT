@@ -20,7 +20,7 @@ class user():
     """
 
     def __init__(self,
-                 user_path : str = './user_data.toml',
+                 user_path : str = './',
                  user_data_file_name : str = 'user_data.toml',
                  user_settings_file_name_path : str = 'user_settings.toml'):
         """Initialize user
