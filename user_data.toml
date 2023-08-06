@@ -1,7 +1,6 @@
 # Login credentials
 login_url = 'https://webportal.stromnetz-graz.at/login'
 username = 'email'
-password = 'password'
 
 # Stromnetz Anlagedaten
 day_meter   = '000000'  # Zaehlpunktnummer Tagstrom; last six numbers
