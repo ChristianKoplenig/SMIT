@@ -16,7 +16,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom imports
 from modules.user import user
-#from modules 
 import modules.filepersistence as filepersistence
 
 # create user
