@@ -36,8 +36,8 @@ def wait_and_click(elementXpath: str) -> None:
     switchName = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, elementXpath))
     )
-    switchName.click()   
-        
+    switchName.click()
+
 def ff_options(dl_folder: str, headless: bool = False) -> webdriver.FirefoxOptions:
     """Set options for firefox webdriver.
 
@@ -95,9 +95,15 @@ def date_selector(input_date: str) -> None:
     input_date : string
         Date with format dd-mm-yyyy
     """
+    language = driver.execute_script("return navigator.language;")
+
     actions = ActionChains(driver)
-    actions.send_keys(input_date[3:5]) #month
-    actions.send_keys(input_date[:2]) #day
+    if language == 'de':
+        actions.send_keys(input_date[ :2]) #day
+        actions.send_keys(input_date[3:5]) #month
+    else:
+        actions.send_keys(input_date[3:5]) #month
+        actions.send_keys(input_date[ :2]) #day
     actions.send_keys(input_date[6:])
     actions.send_keys(Keys.TAB)
     actions.send_keys(Keys.TAB)
@@ -168,8 +174,8 @@ import typing
         wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a') # choose day measurements
 
     time.sleep(3)
-################ run #######################  
-def get_daysum_files(headless: bool=False) -> None: 
+################ run #######################
+def get_daysum_files(headless: bool=False) -> None:
     """Initiate '.csv' files download for day sum files.
 
     Parameters
@@ -193,7 +199,7 @@ def get_daysum_files(headless: bool=False) -> None:
         print('Start date: ' + dates['start'])
         print('End date: ' + dates['end'])
         start_date_updater(dates)
-        
+
 
 ################debug#################        
 #stromnetz_setup(User.csv_dl_daysum, False)
