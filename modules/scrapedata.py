@@ -16,11 +16,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom imports
 from modules.user import user
-from modules import filepersistence
+import modules.filepersistence as filepersistence
 
 # create user
 User = user()
-
+################debug################
+#print(User)
+#####################################
 def wait_and_click(elementXpath: str) -> None:
     """Wait for web element and click.
 
@@ -191,3 +193,8 @@ def get_daysum_files(headless: bool=False) -> None:
         print('Start date: ' + dates['start'])
         print('End date: ' + dates['end'])
         start_date_updater(dates)
+        
+
+################debug#################        
+#stromnetz_setup(User.csv_dl_daysum, False)
+######################################
