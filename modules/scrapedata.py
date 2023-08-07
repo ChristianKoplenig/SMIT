@@ -137,7 +137,7 @@ def stromnetz_fillTageswerte(start: str, end: str) -> None:
         Date with format dd-mm-yyyy
     """
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')                           # select daily sum measurements
-    wait_and_click('//*[@id="fromDayOverviewDate"]')                                                                                        # set cursor in start date input field
+    driver.find_element(By.ID, "quarterHourly").send_keys(Keys.TAB)                                                                                 # set cursor in start date input field
     date_selector(start)    # start date
     date_selector(end)      # end date
     wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  # confirm date selections
