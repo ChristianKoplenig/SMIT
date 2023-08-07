@@ -30,6 +30,7 @@ def pathlib_move(src: pl.Path,dest: pl.Path,appendix: str) -> None:
     path = pl.Path(src)
     new_filename = dest / str(str(dt.date.today().strftime('%Y%m%d') + '_' + str(appendix)) + '.csv')
     path.rename(new_filename)      
+
 def move_files(meter_number: str) -> None:
     """Copy files to work directory.
 
@@ -58,6 +59,7 @@ def move_files(meter_number: str) -> None:
             #filter for input files
             if meter_number in str(filename):
                 pathlib_move(filename, workdir, meter_number)              
+
 def create_dataframe(workdir: pl.Path, metertype: str) -> pd.DataFrame:
     """Create basic dataframe for further analysis.
 
@@ -82,27 +84,28 @@ def create_dataframe(workdir: pl.Path, metertype: str) -> pd.DataFrame:
     """
     path = pl.Path(workdir)
     df_return = pd.DataFrame()
-    filelist = []
+    
+    filelist = [filename for filename in path.glob('*.csv') if str(metertype) in filename.name]
+    
+    df_return = pd.concat(
+            (pd.read_csv(
+                file,
+                sep=';',
+                decimal=',',
+                header=0,
+                parse_dates=['date'],
+                converters={'date': lambda t: dt.datetime.strptime(t, '%Y-%m-%dT%H:%M:%S.%f%z').date()},
+                names=['date', 'zaehlerstand', '1', '2', 'verbrauch', '3', '4'],
+                usecols=lambda x: x in ['date', 'zaehlerstand', 'verbrauch'],
+            ) for file in filelist
+        )
+    )
 
-    for filename in path.glob('*.csv'):
-        if (str(metertype) in filename.name):
-            filelist.append(filename)
-            df_return = pd.concat((pd.read_csv(r,
-                                              sep=';',
-                                              decimal=',',
-                                              header=0,
-                                              parse_dates=['date'],
-                                              converters={'date': lambda t: dt.datetime.strptime(t, '%Y-%m-%dT%H:%M:%S.%f%z').date()},
-                                              names=['date', 'zaehlerstand', '1', '2', 'verbrauch', '3', '4'],
-                                              usecols=lambda x: x in ['date', 'zaehlerstand', 'verbrauch'],
-                                            )
-                                for r in filelist))
-
-            df_return['zaehlerstand'] = df_return['zaehlerstand'].astype(float)
-            df_return['verbrauch'] = df_return['verbrauch'].astype(float)
-            df_return.sort_values(by='date', inplace=True)
-            df_return.reset_index(drop=True, inplace=True)
-            df_return.drop_duplicates(subset='date', keep='first', inplace=True)
+    df_return['zaehlerstand'] = df_return['zaehlerstand'].astype(float)
+    df_return['verbrauch'] = df_return['verbrauch'].astype(float)
+    df_return.sort_values(by='date', inplace=True)
+    df_return.reset_index(drop=True, inplace=True)
+    df_return.drop_duplicates(subset='date', keep='first', inplace=True)
     return df_return
 
 def scrapandmove() -> None:
