@@ -1,11 +1,12 @@
 import sys
+import pathlib as pl
+import tkinter as tk
+import tkinter.simpledialog
 if sys.version_info < (3, 11):
     import tomli as tomlib
 else:
     import tomlib
 
-import pathlib as pl
-import tkinter as tk
 
 class user():
     """A class that holds all the userdefined data and settings.
@@ -57,7 +58,7 @@ class user():
     def __ask_for_password_and_add_to_attributes(self):
         root = tk.Tk()
         root.withdraw()
-        password = tk.simpledialog.askstring('Please insert password', 'Password:', show='*')
+        password = tkinter.simpledialog.askstring('Please insert password', 'Password:', show='*')
         root.destroy()
         setattr(self, 'password', password)
 
