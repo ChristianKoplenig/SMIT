@@ -13,24 +13,37 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-# Custom imports
-#from modules.user import user
+# Custom modules
 from modules.filepersistence import persistence
 
 class webscraper():
-    """Class for interacting with webdriver module
-    
-    Methods
-    -------
-    wait_and_click
-    ff_options
-    start_date_updater
-    date_selector
-    stromnetz_setup
-    stromnetz_FillTageswerte
-    stromnetz_download
-    day_night_selector
-    get_daysum_files
+    """Methods for interacting with webdriver module
+        
+        Attributes
+        ----------
+        UserClass : class type
+            Holds user information      
+        
+        Methods
+        -------
+        wait_and_click(elementXpath):
+            Wait for web element and click.
+        ff_options(dl_folder, headless):
+            Set options for firefox webdriver.
+        start_date_updater(dates):
+            Update runtime dates in dates dict.
+        date_selector(input_date):
+            Fill dates in date-input web element.
+        stromnetz_setup(dl_folder, headless):
+            Login to stromnetz graz webportal and setup data page.
+        stromnetz_FillTageswerte(start, end):
+            Activate day sum web-element and fill start/end dates.
+        stromnetz_download():
+            Start download from webpage.
+        day_night_selector(day_night):
+            Switch between day/night meter.
+        get_daysum_files(headless):
+            Download data summarized by day
     """
     def __init__(self, UserClass: 'modules.user.user') -> None:
         """Initialize Class with all attributes from `UserClass`
@@ -98,14 +111,15 @@ class webscraper():
         dates : dict
             Dict with parameters for date management
         """
-        if dates['last_scrape'] == 'never':                                                                         # update dates after first run
+        # update dates after first run
+        if dates['last_scrape'] == 'never':                                                                         
             dates['start'] = date.today().strftime('%d-%m-%Y')
-
-        if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):   # update start/end dates
+        # update start/end dates
+        if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):   
             dates['start'] = dates['last_scrape']
 
-        dates['last_scrape'] = date.today().strftime('%d-%m-%Y')                                                    # update scraper log
-        dates['start'] = date.today().strftime('%d-%m-%Y')                                                          # update scraper log
+        dates['last_scrape'] = date.today().strftime('%d-%m-%Y')
+        dates['start'] = date.today().strftime('%d-%m-%Y')
 
         persistence(self).save_dates_loggingFile(dates)
 
@@ -144,9 +158,12 @@ class webscraper():
         ##### login #####
         driver.find_element(By.NAME, "email").send_keys(self.username)
         driver.find_element(By.NAME, "password").send_keys(self.password)
-        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')                       # login confirmation
-        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')                       # open data page
-        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      # set unit to [Wh]
+        # login confirmation
+        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
+        # open data page                       
+        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')
+        # set unit to [Wh]                       
+        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      
 
     def stromnetz_fillTageswerte(self, start: str, end: str) -> None:
         """Activate day sum web-element and fill start/end dates.
@@ -158,11 +175,14 @@ class webscraper():
         end : string
             Date with format dd-mm-yyyy
         """
-        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')                           # select daily sum measurements
-        webscraper(self).wait_and_click('//*[@id="fromDayOverviewDate"]')                                                                                        # set cursor in start date input field
+        # select daily sum measurements
+        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')
+        # set cursor in start date input field                           
+        webscraper(self).wait_and_click('//*[@id="fromDayOverviewDate"]')                                                                                        
         webscraper(self).date_selector(start)    # start date
         webscraper(self).date_selector(end)      # end date
-        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  # confirm date selections
+        # confirm date selections
+        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  
 
         time.sleep(3) # wait for element to load
 
@@ -176,21 +196,22 @@ class webscraper():
 
         Defaults to day meassurements.
 
-    import typing
         Parameters
         ----------
         day_night : string
             either `day` or `night`
         """
-        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')              # make dropdown active
-
+        # make dropdown active
+        webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')              
+        # choose night measurements
         if day_night == 'night':
-            webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a') # choose night measurements
+            webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a') 
+        # choose day measurements
         else:
-            webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a') # choose day measurements
+            webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a') 
 
         time.sleep(3)
-    ################ run #######################  
+ 
     def get_daysum_files(self, headless: bool=False) -> None: 
         """Initiate '.csv' files download for day sum files.
 
@@ -201,9 +222,10 @@ class webscraper():
         """
         persistence(self).initialize_dates_log()
         dates = persistence(self).create_dates_var()
-        dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')      # set end date for scraping to yesterday
-
-        if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
+        dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
+        
+        # scrape just once a day
+        if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 
             webscraper(self).stromnetz_setup(self.csv_dl_daysum, headless)
             webscraper(self).day_night_selector('night')
             webscraper(self).stromnetz_fillTageswerte(dates['start'], dates['end'])
