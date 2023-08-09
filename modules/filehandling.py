@@ -4,19 +4,27 @@
 import datetime as dt
 import pathlib as pl
 import pandas as pd
-# Custom imports
+# Custom modules
 from modules.filepersistence import persistence
-from modules.scrapedata import get_daysum_files
+from modules.scrapedata import webscraper
 
 class osinterface():
-    """Class for interacting with files on os filesystem
-    
-    Methods
-    -------
-    pathlib_move
-    move_files
-    create_dataframe
-    scrapeandmove
+    """Methods for interacting with files on os filesystem
+        
+        Attributes
+        ----------
+        UserClass : class type
+            Holds user information      
+        Methods
+        -------
+        pathlib_move(src, dest, appendix):
+            Move and rename files.
+        move_files(meter_number):
+            Filter files and run pathlib_move().
+        create_dataframe(workdir, metertype):
+            Create initial dataframe.
+        scrapeandmove():
+            Initiate download process and move files.
     """
     def __init__(self, UserClass: 'modules.user.user') -> None:
         """Initialize Class with all attributes from `UserClass`
@@ -135,10 +143,11 @@ class osinterface():
         """
         persistence(self).initialize_dates_log()
         dates = persistence(self).create_dates_var()
+        
+        # scrape just once a day
+        if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
 
-        if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 # scrape just once a day
-
-            get_daysum_files(self.headless_mode)
+            webscraper(self).get_daysum_files(self.headless_mode)
             osinterface(self).move_files(self.day_meter)
             osinterface(self).move_files(self.night_meter)
         else:

@@ -1,19 +1,15 @@
-#python folder structure
+# custom folder structure
 csv_raw/
 csv_workdir/
-old_files/
-raw_import/
-alpha/
-stromnetzgraz/
 
-# system folders
+# system specific
 __pycache__/
 .ipynb_checkpoints/
 *.log
 
-# scraping files
-#*.pkl
-
 # developement files
 testcode.py
+test_nb.ipynb
+
+# excluded for security issues
 user_data.toml
