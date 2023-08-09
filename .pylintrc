@@ -533,7 +533,8 @@ ignored-classes=optparse.Values,thread._local,_thread._local,argparse.Namespace,
                   user, 
                   testUser,
                   persistence,
-                  osinterface
+                  osinterface,
+                  webscraper
 
 # Show a hint with possible names when a member name was not found. The aspect
 # of finding the hint is based on edit distance.

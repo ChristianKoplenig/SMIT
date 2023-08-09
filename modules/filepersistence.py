@@ -6,13 +6,21 @@ from pathlib import Path
 from datetime import date, timedelta
 
 class persistence():
-    """Class for dealing with all the data that needs to be peristed 
-    
+    """Methods to generate and access logging data.
+
+        Attributes
+        ----------
+        UserClass : class type
+            Holds user information        
+        
         Methods
         -------
-        initialize_dates_log
-        create_dates_var
-        save_dates_loggingFile
+        initialize_dates_log():
+            Create `dates` log on first run
+        create_dates_var():
+            Make `dates` dict accessible
+        save_dates_loggingFile():
+            Saves `dates` log file 
     """
     def __init__(self, UserClass: 'modules.user.user') -> None:
         """Initialize Class with all attributes from `UserClass`
@@ -32,7 +40,7 @@ class persistence():
 
         If no persisted date exists, create dict for dates and use start date from user settings.
         """
-        if not Path.is_file(self.persist_dates):
+        if not Path(self.persist_dates).exists():
             with open(self.persist_dates, 'wb') as pk:
                 dates = dict()
                 # Initial run setup
