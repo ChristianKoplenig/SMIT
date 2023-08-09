@@ -2,7 +2,7 @@
 csv_startDate = '01-01-2023'  # Start date for initial run
 
 # Firefox options
-headless_mode = false  # Run Firefox in headless mode, type: boolean
+headless_mode = true  # Run Firefox in headless mode, type: boolean
 
 # Folder structure
 ## scraping
