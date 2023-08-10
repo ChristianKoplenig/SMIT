@@ -123,21 +123,6 @@ class webscraper():
 
         persistence(self).save_dates_loggingFile(dates)
 
-    def date_selector(self, input_date: str) -> None:
-        """Fill dates in date-input web element.
-
-        Parameters
-        ----------
-        input_date : string
-            Date with format dd-mm-yyyy
-        """
-        actions = ActionChains(driver)
-        actions.send_keys(input_date[3:5]) #month
-        actions.send_keys(input_date[:2]) #day
-        actions.send_keys(input_date[6:])
-        actions.send_keys(Keys.TAB)
-        actions.send_keys(Keys.TAB)
-        actions.perform()
 
     def stromnetz_setup(self, dl_folder: pl.Path, headless: bool) -> None:
         """Login to stromnetz graz webportal and setup data page.
@@ -165,6 +150,28 @@ class webscraper():
         # set unit to [Wh]                       
         webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      
 
+    def date_selector(self, input_date: str) -> None:
+        """Fill dates in date-input web element.
+
+        Parameters
+        ----------
+        input_date : string
+            Date with format dd-mm-yyyy
+        """
+        language = driver.execute_script("return navigator.language;")
+        actions = ActionChains(driver)
+        
+        if language == 'de':
+            actions.send_keys(input_date[ :2]) #day
+            actions.send_keys(input_date[3:5]) #month
+        else:
+            actions.send_keys(input_date[3:5]) #month
+            actions.send_keys(input_date[ :2]) #day
+        actions.send_keys(input_date[6:])
+        actions.send_keys(Keys.TAB)
+        actions.send_keys(Keys.TAB)
+        actions.perform()
+    
     def stromnetz_fillTageswerte(self, start: str, end: str) -> None:
         """Activate day sum web-element and fill start/end dates.
 
