@@ -1,6 +1,8 @@
 # custom folder structure
 csv_raw/
 csv_workdir/
+# shared_docs/
+# no_git/
 
 # system specific
 __pycache__/
