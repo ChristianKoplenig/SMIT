@@ -1,3 +1,21 @@
+## Folderstructure
+- `root` --> Folder for Jupyther Notebook files and `user_data.py` file
+- `csv_raw` --> Download folder for webdriver
+- `csv_workdir` --> Python working directory
+- `log` --> Folder to store log-files
+- `modules` --> Folder for `module.py` files
+- `opt` --> Folder for **not** programm related stuff (shared files, testfiles...) 
+
+
+
+
+
+
+
+---
+
+# <p align='center'> OLD Version </p>
+
 # Stromnetz Graz - Analyse Data from Smartmeter
 Automatically scrape and plot the data from 'Stromnetz Graz' web portal.
 ## Setup
