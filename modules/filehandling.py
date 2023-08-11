@@ -5,8 +5,8 @@ import datetime as dt
 import pathlib as pl
 import pandas as pd
 # Custom modules
-from modules.filepersistence import persistence
-from modules.scrapedata import webscraper
+from filepersistence import persistence
+from scrapedata import webscraper
 
 class osinterface():
     """Methods for interacting with files on os filesystem

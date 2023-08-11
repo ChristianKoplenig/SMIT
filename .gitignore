@@ -11,7 +11,7 @@ __pycache__/
 
 # developement files
 testcode.py
-test_nb.ipynb
+#test_nb.ipynb
 
 # excluded for security issues
 user_data.toml

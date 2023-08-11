@@ -14,7 +14,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom modules
-from modules.filepersistence import persistence
+from filepersistence import persistence
 
 class webscraper():
     """Methods for interacting with webdriver module
