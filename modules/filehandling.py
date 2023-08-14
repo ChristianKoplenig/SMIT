@@ -5,8 +5,8 @@ import datetime as dt
 import pathlib as pl
 import pandas as pd
 # Custom modules
-from modules.filepersistence import persistence
-from modules.scrapedata import webscraper
+from modules.filepersistence import Persistence
+from modules.scrapedata import Webscraper
 from modules.user import user
 
 class OsInterface():
@@ -141,13 +141,13 @@ class OsInterface():
         Call :func: `get_daysum_files`
         For each meter call :func: `move_files`
         """
-        persistence(self).initialize_dates_log()
-        dates = persistence(self).create_dates_var()
+        Persistence(self).initialize_dates_log()
+        dates = Persistence(self).create_dates_var()
         
         # scrape just once a day
         if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
 
-            webscraper(self).get_daysum_files(self.user.headless_mode)
+            Webscraper(self).get_daysum_files(self.user.headless_mode)
             self.move_files(self.user.day_meter)
             self.move_files(self.user.night_meter)
         else:
