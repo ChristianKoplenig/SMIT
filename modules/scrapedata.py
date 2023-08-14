@@ -57,7 +57,7 @@ class Webscraper():
 
         UserClass : user
         
-        self.user = UserClass
+        self.user_instance = UserClass
             
     def wait_and_click(self, elementXpath: str) -> None:
         """Wait for web element and click.
@@ -122,10 +122,10 @@ class Webscraper():
         dates['last_scrape'] = date.today().strftime('%d-%m-%Y')
         dates['start'] = date.today().strftime('%d-%m-%Y')
 
-        Persistence(self).save_dates_loggingFile(dates)
+        Persistence(self.user_instance).save_dates_loggingFile(dates)
 
 
-    def stromnetz_setup(self, dl_folder: pl.Path, headless: bool) -> None:
+    def stromnetz_setup(self, dl_folder: pl.Path, headless: bool=False) -> None:
         """Login to stromnetz graz webportal and setup data page.
 
         Parameters
@@ -136,14 +136,14 @@ class Webscraper():
             activate Firefox headless mode, by default False
         """
         global driver
-        service = Service(log_path=self.user.webdriver_logFolder)
+        service = Service(log_path=self.user_instance.webdriver_logFolder)
         driver = webdriver.Firefox(options=self.ff_options(dl_folder, headless), service=service)
-        driver.get(self.user.login_url)
+        driver.get(self.user_instance.login_url)
         driver.maximize_window()
 
         ##### login #####
-        driver.find_element(By.NAME, "email").send_keys(self.user.username)
-        driver.find_element(By.NAME, "password").send_keys(self.user.password)
+        driver.find_element(By.NAME, "email").send_keys(self.user_instance.username)
+        driver.find_element(By.NAME, "password").send_keys(self.user_instance.password)
         # login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
         # open data page                       
@@ -228,13 +228,13 @@ class Webscraper():
         headless : bool, optional
             run Firefox in headless mode, by default False
         """
-        Persistence(self).initialize_dates_log()
-        dates = Persistence(self).create_dates_var()
+        Persistence(self.user_instance).initialize_dates_log()
+        dates = Persistence(self.user_instance).create_dates_var()
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
         
         # scrape just once a day
         if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 
-            self.stromnetz_setup(self.user.csv_dl_daysum, headless)
+            self.stromnetz_setup(self.user_instance.csv_dl_daysum, headless)
             self.day_night_selector('night')
             self.stromnetz_fillTageswerte(dates['start'], dates['end'])
             self.stromnetz_download()
@@ -250,4 +250,4 @@ class Webscraper():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user.username
+        return self.user_instance.username
