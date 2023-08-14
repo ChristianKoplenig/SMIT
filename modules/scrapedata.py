@@ -14,7 +14,8 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom modules
-from modules.filepersistence import persistence
+from modules.filepersistence import Persistence
+from modules.user import user
 
 class webscraper():
     """Methods for interacting with webdriver module
@@ -45,7 +46,7 @@ class webscraper():
         get_daysum_files(headless):
             Download data summarized by day
     """
-    def __init__(self, UserClass: 'modules.user.user') -> None:
+    def __init__(self, UserClass: user) -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
@@ -53,10 +54,10 @@ class webscraper():
         UserClass : class type
             User data initiated via `user()` function from user module            
         """
-        # vars() creates dict 
-        # items() iterate over key/value pairs       
-        for key, value in vars(UserClass).items():
-            setattr(self, key, value)
+
+        UserClass : user
+        
+        self.user = UserClass
             
     def wait_and_click(self, elementXpath: str) -> None:
         """Wait for web element and click.
@@ -121,7 +122,7 @@ class webscraper():
         dates['last_scrape'] = date.today().strftime('%d-%m-%Y')
         dates['start'] = date.today().strftime('%d-%m-%Y')
 
-        persistence(self).save_dates_loggingFile(dates)
+        Persistence(self).save_dates_loggingFile(dates)
 
 
     def stromnetz_setup(self, dl_folder: pl.Path, headless: bool) -> None:
@@ -135,14 +136,14 @@ class webscraper():
             activate Firefox headless mode, by default False
         """
         global driver
-        service = Service(log_path=self.webdriver_logFolder)
+        service = Service(log_path=self.user.webdriver_logFolder)
         driver = webdriver.Firefox(options=webscraper(self).ff_options(dl_folder, headless), service=service)
-        driver.get(self.login_url)
+        driver.get(self.user.login_url)
         driver.maximize_window()
 
         ##### login #####
-        driver.find_element(By.NAME, "email").send_keys(self.username)
-        driver.find_element(By.NAME, "password").send_keys(self.password)
+        driver.find_element(By.NAME, "email").send_keys(self.user.username)
+        driver.find_element(By.NAME, "password").send_keys(self.user.password)
         # login confirmation
         webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
         # open data page                       
@@ -227,13 +228,13 @@ class webscraper():
         headless : bool, optional
             run Firefox in headless mode, by default False
         """
-        persistence(self).initialize_dates_log()
-        dates = persistence(self).create_dates_var()
+        Persistence(self).initialize_dates_log()
+        dates = Persistence(self).create_dates_var()
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
         
         # scrape just once a day
         if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 
-            webscraper(self).stromnetz_setup(self.csv_dl_daysum, headless)
+            webscraper(self).stromnetz_setup(self.user.csv_dl_daysum, headless)
             webscraper(self).day_night_selector('night')
             webscraper(self).stromnetz_fillTageswerte(dates['start'], dates['end'])
             webscraper(self).stromnetz_download()
@@ -249,4 +250,4 @@ class webscraper():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.username
+        return self.user.username
