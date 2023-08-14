@@ -34,19 +34,19 @@ class Persistence():
         
         UserClass : user
         
-        self.user = UserClass
+        self.user_instance = UserClass
 
     def initialize_dates_log(self) -> None:
         """Create log file for managing scraping dates.
 
         If no persisted date exists, create dict for dates and use start date from user settings.
         """
-        if not Path(self.user.persist_dates).exists():
-            with open(self.user.persist_dates, 'wb') as pk:
+        # Initial run
+        if not Path(self.user_instance.persist_dates).exists():
+            with open(self.user_instance.persist_dates, 'wb') as pk:
                 dates = dict()
-                # Initial run setup
                 # Date format: dd-mm-yyyy
-                dates['start'] = self.user.csv_startDate 
+                dates['start'] = self.user_instance.csv_startDate 
                 dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
                 dates['last_scrape'] = 'never'
                 pickle.dump(dates, pk)
@@ -62,7 +62,7 @@ class Persistence():
         dict
             [start], [end] and [last scrape] dates
         """
-        with open(self.user.persist_dates, 'rb') as pk:
+        with open(self.user_instance.persist_dates, 'rb') as pk:
             dates = pickle.load(pk)
         return dates
 
@@ -76,7 +76,7 @@ class Persistence():
         dates : dict
             [start], [end], [last scrape]
         """
-        with open(self.user.persist_dates, 'wb') as dpk:
+        with open(self.user_instance.persist_dates, 'wb') as dpk:
             pickle.dump(dates, dpk)
         dpk.close()
         
@@ -84,4 +84,4 @@ class Persistence():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user.username
+        return self.user_instance.username
