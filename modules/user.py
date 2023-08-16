@@ -6,6 +6,7 @@ if sys.version_info < (3, 11):
     import tomli as tomlib
 else:
     import tomlib
+from modules.rsahandling import RsaTools
 
 
 class user():
@@ -60,7 +61,7 @@ class user():
         root.withdraw()
         password = tkinter.simpledialog.askstring('Please insert password', 'Password:', show='*')
         root.destroy()
-        setattr(self, 'password', password)
+        setattr(self, 'password', RsaTools(self).encrypt_pwd(password))
 
     def __repr__(self):
         """This special function gets called if you use print on a class instance.
