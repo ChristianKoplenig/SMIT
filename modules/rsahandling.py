@@ -3,7 +3,7 @@ Tools for dealing with cryptographie
 """
 import rsa
 import pathlib as pl
-from user import user
+#from modules.user import user
 
 class RsaTools():
     """Methods for accessing the rsa library
@@ -16,7 +16,7 @@ class RsaTools():
     -------
     
     """
-    def __init__(self, UserClass: user) -> None:
+    def __init__(self, UserClass: 'user') -> None:
         """Initialize user class variables, set path variables for rsa keys.
 
         Parameters
@@ -24,7 +24,7 @@ class RsaTools():
         UserClass : class type
             User data initiated via `user()` function from user module. 
         """        
-        UserClass : user
+        UserClass : 'user'
         
         self.UserClass = UserClass
         self.pub_path = pl.Path('./keys/public_key.pem')
@@ -64,7 +64,7 @@ class RsaTools():
             print('priv read')        
         return private_key, public_key
         
-    def encode_pwd(self, pwd: str) -> bytes:
+    def encrypt_pwd(self, pwd: str) -> bytes:
         """Encrypt `pwd` with public key.
 
         Parameters
@@ -104,13 +104,14 @@ class RsaTools():
         return self.UserClass.username   
     
 ##################debug###############
-     
-a = user()
-#RsaTools(a).generate_keys()
-# print(RsaTools(a).load_keys())
 
-pass1 = 'teststring pass1'
-p1_encode = RsaTools(a).encode_pwd(pass1)
-print('enc: ' + str(p1_encode))
-#RsaTools(a).decrypt_pwd(p1_encode)
-print('dec: ' + str(RsaTools(a).decrypt_pwd(p1_encode)))
+# if __name__ == '__main__':     
+#     a = user()
+#     #RsaTools(a).generate_keys()
+#     # print(RsaTools(a).load_keys())
+
+#     pass1 = 'teststring pass1'
+#     p1_encode = RsaTools(a).encrypt_pwd(pass1)
+#     print('enc: ' + str(p1_encode))
+#     #RsaTools(a).decrypt_pwd(p1_encode)
+#     print('dec: ' + str(RsaTools(a).decrypt_pwd(p1_encode)))
