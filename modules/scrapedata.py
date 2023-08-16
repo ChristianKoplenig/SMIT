@@ -15,6 +15,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom modules
 from modules.filepersistence import persistence
+from modules.rsahandling import RsaTools
 
 class webscraper():
     """Methods for interacting with webdriver module
@@ -142,7 +143,7 @@ class webscraper():
 
         ##### login #####
         driver.find_element(By.NAME, "email").send_keys(self.username)
-        driver.find_element(By.NAME, "password").send_keys(self.password)
+        driver.find_element(By.NAME, "password").send_keys(RsaTools(self).decrypt_pwd(self.password))
         # login confirmation
         webscraper(self).wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
         # open data page                       
