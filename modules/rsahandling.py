@@ -38,7 +38,7 @@ class RsaTools():
                 key.write(private_key.save_pkcs1('PEM'))
                 print('priv written')
 
-    def load_keys(self):
+    def load_keys(self) -> 'KeyPair':
         with open(self.pub_path, 'rb') as key:
             public_key = rsa.PublicKey.load_pkcs1(key.read())
             print('pub read')
@@ -48,7 +48,21 @@ class RsaTools():
             print('priv read')        
         return private_key, public_key
         
+    def encode_pwd(self, pwd: str) -> str:
+        pwd_enc = pwd.encode('utf8')
+        pwd_crypt = rsa.encrypt(pwd_enc, self.load_keys()[1])
+        return pwd_crypt
+    
+    def decrypt_pwd(self, pwd: str) -> str:
+        pwd_decrypt = rsa.decrypt(pwd, self.load_keys()[0])
+        return pwd_decrypt.decode('utf8')
         
 a = user()
-RsaTools(a).generate_keys()
-print(RsaTools(a).load_keys())
+#RsaTools(a).generate_keys()
+# print(RsaTools(a).load_keys())
+
+pass1 = 'teststring pass1'
+p1_encode = RsaTools(a).encode_pwd(pass1)
+print('enc: ' + str(p1_encode))
+#RsaTools(a).decrypt_pwd(p1_encode)
+print('dec: ' + str(RsaTools(a).decrypt_pwd(p1_encode)))
