@@ -17,6 +17,7 @@
 - rsa for password
 - readme
 - pwd dialog with save option
+- init in module classes -> changed attribute `UserClass` to `user_instance`
 
 ## Disclaimer
 The password is send in plain text to the login field. This is not good practice
