@@ -15,4 +15,3 @@ my_user = user()
 
 
 Webscraper(my_user).stromnetz_setup(my_user.csv_dl_daysum)
-
