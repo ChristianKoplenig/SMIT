@@ -144,7 +144,7 @@ class Webscraper():
 
         ##### login #####
         driver.find_element(By.NAME, "email").send_keys(self.user_instance.username)
-        driver.find_element(By.NAME, "password").send_keys(RsaTools(self).decrypt_pwd(self.user_instance.password))
+        driver.find_element(By.NAME, "password").send_keys(RsaTools(self.user_instance).decrypt_pwd(self.user_instance.password))
         # login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
         # open data page                       
