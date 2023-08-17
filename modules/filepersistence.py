@@ -11,7 +11,7 @@ class Persistence():
 
         Attributes
         ----------
-        UserClass : class type
+        UserInstance : class type
             Holds user information        
         
         Methods
@@ -23,18 +23,18 @@ class Persistence():
         save_dates_loggingFile():
             Saves `dates` log file 
     """
-    def __init__(self, UserClass: user) -> None:
+    def __init__(self, UserInstance: user) -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
         ----------
-        UserClass : class type
+        UserInstance : class type
             User data initiated via `user()` function from user module            
         """
         
-        UserClass : user
+        UserInstance : user
         
-        self.user_instance = UserClass
+        self.user_instance = UserInstance
 
     def initialize_dates_log(self) -> None:
         """Create log file for managing scraping dates.
