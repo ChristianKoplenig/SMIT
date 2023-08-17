@@ -1,9 +1,8 @@
 """
-Tools for dealing with cryptographie
+Tools for dealing with cryptography
 """
-import rsa
 import pathlib as pl
-#from modules.user import user
+import rsa
 
 class RsaTools():
     """Methods for accessing the rsa library
@@ -15,7 +14,7 @@ class RsaTools():
     Methods
     -------
     
-    """
+    """    
     def __init__(self, UserInstance: 'user') -> None:
         """Initialize user class variables, set path variables for rsa keys.
 
@@ -49,8 +48,8 @@ class RsaTools():
 
         Returns
         -------
-        tuple[PrivateKey, PublicKey]
-            Tuple with key pair.
+        dict
+            Private and public key
         """
         with open(self.pub_path, 'rb') as key:
             public_key = rsa.PublicKey.load_pkcs1(key.read())
@@ -58,8 +57,12 @@ class RsaTools():
             
         with open(self.priv_path, 'rb') as key:
             private_key = rsa.PrivateKey.load_pkcs1(key.read())
-            print('priv read')        
-        return private_key, public_key
+            print('priv read')
+        keys = {
+            'private_key': private_key,
+            'public_key': public_key
+        }        
+        return keys
         
     def encrypt_pwd(self, pwd: str) -> bytes:
         """Encrypt `pwd` with public key.
@@ -75,7 +78,7 @@ class RsaTools():
             Encrypted input.
         """
         pwd_enc = pwd.encode('utf8')
-        pwd_crypt = rsa.encrypt(pwd_enc, self.load_keys()[1])
+        pwd_crypt = rsa.encrypt(pwd_enc, self.load_keys()['public_key'])
         return pwd_crypt
     
     def decrypt_pwd(self, pwd: bytes) -> str:
@@ -91,7 +94,7 @@ class RsaTools():
         str
             Decrypted input.
         """
-        pwd_decrypt = rsa.decrypt(pwd, self.load_keys()[0])
+        pwd_decrypt = rsa.decrypt(pwd, self.load_keys()['private_key'])
         return pwd_decrypt.decode('utf8')
         
     def __repr__(self) -> str:
