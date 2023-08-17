@@ -5,10 +5,11 @@ import datetime as dt
 import pathlib as pl
 import pandas as pd
 # Custom modules
-from modules.filepersistence import persistence
-from modules.scrapedata import webscraper
+from modules.filepersistence import Persistence
+from modules.scrapedata import Webscraper
+from modules.user import user
 
-class osinterface():
+class OsInterface():
     """Methods for interacting with files on os filesystem
         
         Attributes
@@ -26,7 +27,7 @@ class osinterface():
         scrapeandmove():
             Initiate download process and move files.
     """
-    def __init__(self, UserClass: 'modules.user.user') -> None:
+    def __init__(self, UserClass: user) -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
@@ -34,10 +35,9 @@ class osinterface():
         UserClass : class type
             User data initiated via `user()` function from user module            
         """
-        # vars() creates dict 
-        # items() iterate over key/value pairs       
-        for key, value in vars(UserClass).items():
-            setattr(self, key, value)
+        UserClass : user
+        
+        self.user_instance = UserClass
             
     def pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
@@ -72,8 +72,8 @@ class osinterface():
             Day/Night meter device number
         """
         # set path variables
-        path_to_raw = pl.Path(self.csv_dl_daysum).absolute()
-        workdir = pl.Path(self.csv_wd_daysum).absolute()
+        path_to_raw = pl.Path(self.user_instance.csv_dl_daysum).absolute()
+        workdir = pl.Path(self.user_instance.csv_wd_daysum).absolute()
 
         # select files in raw folder
         for filename in path_to_raw.glob('*.csv'):
@@ -85,7 +85,7 @@ class osinterface():
 
                 #filter for input files
                 if meter_number in str(filename):
-                    osinterface(self).pathlib_move(filename, workdir, meter_number)              
+                    self.pathlib_move(filename, workdir, meter_number)              
 
     def create_dataframe(self, workdir: pl.Path, metertype: str) -> pd.DataFrame:
         """Create basic dataframe for further analysis.
@@ -141,15 +141,15 @@ class osinterface():
         Call :func: `get_daysum_files`
         For each meter call :func: `move_files`
         """
-        persistence(self).initialize_dates_log()
-        dates = persistence(self).create_dates_var()
+        Persistence(self.user_instance).initialize_dates_log()
+        dates = Persistence(self.user_instance).create_dates_var()
         
         # scrape just once a day
         if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
 
-            webscraper(self).get_daysum_files(self.headless_mode)
-            osinterface(self).move_files(self.day_meter)
-            osinterface(self).move_files(self.night_meter)
+            Webscraper(self.user_instance).get_daysum_files(self.user_instance.headless_mode)
+            self.move_files(self.user_instance.day_meter)
+            self.move_files(self.user_instance.night_meter)
         else:
             print('Most recent data already downloaded')
             
@@ -157,4 +157,4 @@ class osinterface():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.username
+        return self.user_instance.username
