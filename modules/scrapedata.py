@@ -23,7 +23,7 @@ class Webscraper():
         
         Attributes
         ----------
-        UserClass : class type
+        UserInstance : class type
             Holds user information      
         
         Methods
@@ -47,18 +47,18 @@ class Webscraper():
         get_daysum_files(headless):
             Download data summarized by day
     """
-    def __init__(self, UserClass: user) -> None:
+    def __init__(self, UserInstance: user) -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
         ----------
-        UserClass : class type
+        UserInstance : class type
             User data initiated via `user()` function from user module            
         """
 
-        UserClass : user
+        UserInstance : user
         
-        self.user_instance = UserClass
+        self.user_instance = UserInstance
             
     def wait_and_click(self, elementXpath: str) -> None:
         """Wait for web element and click.

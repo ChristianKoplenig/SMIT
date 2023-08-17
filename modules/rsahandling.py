@@ -16,7 +16,7 @@ class RsaTools():
     -------
     
     """
-    def __init__(self, UserClass: 'user') -> None:
+    def __init__(self, UserInstance: 'user') -> None:
         """Initialize user class variables, set path variables for rsa keys.
 
         Parameters
@@ -24,24 +24,21 @@ class RsaTools():
         UserClass : class type
             User data initiated via `user()` function from user module. 
         """        
-        UserClass : 'user'
+        UserInstance : 'user'
         
-        self.UserClass = UserClass
+        self.user_instance = UserInstance
         self.pub_path = pl.Path('./keys/public_key.pem')
         self.priv_path = pl.Path('./keys/private_key.pem')
         print('init')
-    
-    def generate_keys(self) -> None:
-        """If no key pair exists in keys folder generate one."""
         
+        #If no key pair exists in keys folder generate one.
         (public_key, private_key) = rsa.newkeys(1024)
-        print('Keys generated')
-
+        print('Keys generated') 
         if not pl.Path(self.pub_path).exists():    
             with open(self.pub_path, 'wb') as key:
                 key.write(public_key.save_pkcs1('PEM'))
                 print('pub written')
-        
+
         if not pl.Path(self.priv_path).exists():    
             with open(self.priv_path, 'wb') as key:
                 key.write(private_key.save_pkcs1('PEM'))
@@ -101,7 +98,7 @@ class RsaTools():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.UserClass.username   
+        return self.user_instance.username   
     
 ##################debug###############
 
