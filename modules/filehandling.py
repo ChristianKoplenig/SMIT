@@ -14,7 +14,7 @@ class OsInterface():
         
         Attributes
         ----------
-        UserClass : class type
+        UserInstance : class type
             Holds user information      
         Methods
         -------
@@ -27,17 +27,17 @@ class OsInterface():
         scrapeandmove():
             Initiate download process and move files.
     """
-    def __init__(self, UserClass: user) -> None:
+    def __init__(self, UserInstance: user) -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
         ----------
-        UserClass : class type
+        UserInstance : class type
             User data initiated via `user()` function from user module            
         """
-        UserClass : user
+        UserInstance : user
         
-        self.user_instance = UserClass
+        self.user_instance = UserInstance
             
     def pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
