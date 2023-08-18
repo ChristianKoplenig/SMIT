@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 def generate_ab():
     a = 'string a'
     b = 'string b'
@@ -7,4 +9,12 @@ def generate_ab():
     }
     return return_dict
 
-print(generate_ab()['val_a'])
+#print(generate_ab()['val_a'])
+
+def named_tuple_ab():
+    Keys = namedtuple("Keys", ["public_key", "private_key"])
+    keys = Keys('pub','priv')
+    return keys
+
+print(named_tuple_ab().private_key)
+    
