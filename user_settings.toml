@@ -13,3 +13,7 @@ webdriver_logFolder = './log/geckodriver.log' # Log folder for webdriver
 ## working
 csv_wd_daysum       = './csv_workdir/daily'   # Location of files to process
 csv_wd_15min        = './csv_workdir/15min'
+
+# Rsa Options
+private_key_path     = './keys/private_key.pem'     # Location and file name for private key
+public_key_path      = './keys/public_key.pem'      # Location and file name for private key

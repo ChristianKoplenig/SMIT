@@ -14,7 +14,7 @@ class OsInterface():
         
         Attributes
         ----------
-        UserClass : class type
+        user : class instance
             Holds user information      
         Methods
         -------
@@ -27,17 +27,17 @@ class OsInterface():
         scrapeandmove():
             Initiate download process and move files.
     """
-    def __init__(self, UserClass: user) -> None:
+    def __init__(self, user: user) -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
         ----------
-        UserClass : class type
+        UserInstance : class type
             User data initiated via `user()` function from user module            
         """
-        UserClass : user
+        user : user
         
-        self.user_instance = UserClass
+        self.user = user
             
     def pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
@@ -72,8 +72,8 @@ class OsInterface():
             Day/Night meter device number
         """
         # set path variables
-        path_to_raw = pl.Path(self.user_instance.csv_dl_daysum).absolute()
-        workdir = pl.Path(self.user_instance.csv_wd_daysum).absolute()
+        path_to_raw = pl.Path(self.user.csv_dl_daysum).absolute()
+        workdir = pl.Path(self.user.csv_wd_daysum).absolute()
 
         # select files in raw folder
         for filename in path_to_raw.glob('*.csv'):
@@ -141,15 +141,15 @@ class OsInterface():
         Call :func: `get_daysum_files`
         For each meter call :func: `move_files`
         """
-        Persistence(self.user_instance).initialize_dates_log()
-        dates = Persistence(self.user_instance).create_dates_var()
+        Persistence(self.user).initialize_dates_log()
+        dates = Persistence(self.user).create_dates_var()
         
         # scrape just once a day
         if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
 
-            Webscraper(self.user_instance).get_daysum_files(self.user_instance.headless_mode)
-            self.move_files(self.user_instance.day_meter)
-            self.move_files(self.user_instance.night_meter)
+            Webscraper(self.user).get_daysum_files(self.user.headless_mode)
+            self.move_files(self.user.day_meter)
+            self.move_files(self.user.night_meter)
         else:
             print('Most recent data already downloaded')
             
@@ -157,4 +157,4 @@ class OsInterface():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user_instance.username
+        return self.user.username
