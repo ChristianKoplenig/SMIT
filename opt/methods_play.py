@@ -9,9 +9,10 @@ if sys.path[0] != str(module_dir):
 
 from modules.user import user
 from modules.scrapedata import Webscraper
+from modules.passwordhandling import UiTools
 #################################################################
 
 my_user = user()
 
-
-Webscraper(my_user).stromnetz_setup(my_user.csv_dl_daysum)
+UiTools(my_user).pwd_dialog()
+#Webscraper(my_user).stromnetz_setup(my_user.csv_dl_daysum)
