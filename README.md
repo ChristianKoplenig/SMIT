@@ -16,17 +16,21 @@ tools and coding.
 - `opt` --> Folder for **not** programm related stuff (shared files, testfiles...) 
 
 ## Branches
+### main
+- Scrape data - tested on win/linux.
+- Perist date values for automated scraping workflow.
+- Move files to input directory for python analysis.
+- Modules as classes, first iteration
+- Create dataframes for further analysis. 
 ### develop
-- scrape data - tested on win/linux
-- dates handling
-- move files
-- create dataframe 
-- modules as classes
-### feature/encrypt-password
-- rsa for password
-- readme
-- pwd dialog with save option
-- init in module classes -> changed attribute `UserClass` to `user_instance`
+- Modules as classes, pep8 implemented
+- Temporarily store encrypted password in user class.
+- Readme -> added disclaimer and about
+### feature/pwd_dialog
+- Get password
+- Temporarily store encrypted password in user class.
+- Option to store encrypted password permanently in user_data.py
+
 
 
 ## About
