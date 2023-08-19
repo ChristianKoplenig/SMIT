@@ -1,12 +1,7 @@
-"""
-Tools for handling the password input/save dialog
-"""
 import tkinter as tk
 from tkinter import ttk
 
-class UiTools():
-    """Password input and save dialog
-    """
+class TkPlay():
     def __init__(self) -> None:
         self.window = tk.Tk()
         self.window.title('Password Dialog')
@@ -38,21 +33,19 @@ class UiTools():
         ttk.Checkbutton(
             self.window,
             text= 'save pwd',
-            #command= self.checkbox_action,
-            onvalue= True,
-            offvalue= False,
+            command= self.checkbox_action,
+            onvalue= 'checked',
+            offvalue= 'unchecked',
             variable= self.checkbox_value
         ).pack()
         
-    # def checkbox_action(self):
-    #     val = self.checkbox_value.get()
-    #     print(val)
+    def checkbox_action(self):
+        val = self.checkbox_value.get()
+        print(val)
         
     def button_action(self):
-        va1 = self.pwd_entry.get()
-        va2 = self.checkbox_value.get()
-        print(va1)
-        print(va2)
+        val = self.pwd_entry.get()
+        print(val)
         
     def pwd_dialog(self):
         self.tk_text('enter pwd')
@@ -62,6 +55,5 @@ class UiTools():
         self.button.pack()
         self.tk_text('disclaimer')
         self.window.mainloop()
-    
-    
-UiTools().pwd_dialog()
+
+TkPlay().pwd_dialog()        
