@@ -29,8 +29,8 @@ class RsaTools():
         self.user = user
         self.pub_path = pl.Path(self.user.public_key_path)
         self.priv_path = pl.Path(self.user.private_key_path)
-        no_public_key = not pl.Path(self.pub_path).exists()
-        no_private_key = not pl.Path(self.priv_path).exists()
+        no_public_key = not self.pub_path.exists()
+        no_private_key = not self.priv_path.exists()
         
         #If no key pair exists in keys folder generate one.
         (public_key, private_key) = rsa.newkeys(1024)
@@ -59,8 +59,7 @@ class RsaTools():
         with open(self.priv_path, 'rb') as key:
             private_key = rsa.PrivateKey.load_pkcs1(key.read())
         
-        keys = Keys(public_key, private_key)
-        return keys
+        return Keys(public_key, private_key)
         
     def encrypt_pwd(self, pwd: str) -> bytes:
         """Encrypt `pwd` with public key.
