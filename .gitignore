@@ -1,6 +1,7 @@
 # custom folder structure
 csv_raw/
 csv_workdir/
+keys/
 # shared_docs/
 # no_git/
 
