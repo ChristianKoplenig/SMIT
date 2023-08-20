@@ -7,6 +7,10 @@ is included in `.gitignore` make shure to **not expose the private key**.
 Again this is not good practice but this project is about learning different
 tools and coding.
 
+## Participating Guidlines
+- Input is appreciated
+- We want to keep the project language english, however we understand german and comments, pr's and so on in german are welcome too. 
+
 ## Folderstructure
 - `root` --> Folder for Jupyther Notebook files and `user_data.py` file
 - `csv_raw` --> Download folder for webdriver
