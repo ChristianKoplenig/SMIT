@@ -24,12 +24,12 @@ pwd = "pwd variable"
 
 # load
 ui_data = TomlTools(a).load_toml_file(toml_filename)
-print('ui_data: ' + str(ui_data))
-print('before: ' + str(ui_data['Login']))
+#print('ui_data: ' + str(ui_data))
+#print('before: ' + str(ui_data['Login']))
 
 # append pwd
 TomlTools(a).toml_append_password(ui_data, pwd)
-print('after: ' + str(ui_data['Login']))
+#print('after: ' + str(ui_data['Login']))
 
 # write to disc
 TomlTools(a).save_toml_file(toml_filename, ui_data)

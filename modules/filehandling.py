@@ -178,18 +178,19 @@ class TomlTools():
         
         Methods
         -------
-        load_toml_file():
+        load_toml_file(filename):
             Return toml object from filesystem.
-        save_toml_file():
+        save_toml_file(filename, toml_object):
             Write toml object to filesystem. 
-    
+        toml_append_password(toml_object, pwd)
+            Append password to toml object    
     """
     def __init__(self, user: user) -> None:
         self.user = user
         self.user_data = pl.Path(self.user.user_data_path)
         
     def load_toml_file(self, filename: pl.Path) -> tomlkit:
-        """Read `filename` file and return TOML object.
+        """Read `.toml` file and return Python TOML object.
 
         Parameters
         ----------
@@ -199,17 +200,15 @@ class TomlTools():
         Returns
         -------
         object
-            TOML object
+            Python TOML object
         """
         with open(filename, mode='rt', encoding='utf-8') as file:
-            data = tomlkit.load(file)
-            print('type: ' + str(type(data)))
-            print(data['Login']['username'])
+            data = tomlkit.load(file)        
         
         return data    
     
     def save_toml_file(self, filename: pl.Path, toml_object: tomlkit) -> None:
-        """Takes python toml object and writes `.toml` file to filesystem
+        """Takes python TOML object and writes `.toml` file to filesystem
 
         Parameters
         ----------
@@ -222,14 +221,14 @@ class TomlTools():
             tomlkit.dump(toml_object, file)
 
     def toml_append_password(self, toml_object: tomlkit, pwd: str) -> None:
-        """Append password entry und Login table.
+        """Append password entry to Login table in Python TOML object.
 
         Parameters
         ----------
         toml_object : tomlkit
             Python TOML object.
         pwd : str
-            Password for webscraping login
+            Password for webscraping login.
         """
         toml_object['Login'].add("password", pwd) # pylint: disable=no-member
         toml_object['Login']['password'].comment('Input from Password Dialog')
