@@ -11,6 +11,9 @@ from modules.rsahandling import RsaTools
 
 class user():
     """A class that holds all the userdefined data and settings.
+    
+    Calls RsaTools
+    In future calls UiTools
 
     Attributes
     ----------
