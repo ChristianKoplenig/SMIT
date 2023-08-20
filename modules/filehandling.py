@@ -1,9 +1,18 @@
 """
     Tools for manipulating files on os basis
+        Classes:
+        --------
+        OsInterface:
+            Os file operations
+            Generate Python data frame
+        TomlTools:
+            Read/Write `.toml` files
+            Append password
 """
 import datetime as dt
 import pathlib as pl
 import pandas as pd
+import tomlkit
 # Custom modules
 from modules.filepersistence import Persistence
 from modules.scrapedata import Webscraper
@@ -158,3 +167,69 @@ class OsInterface():
         
     def __str__(self) -> str:
         return self.user.username
+
+    
+class TomlTools():
+    """Class for handling toml files
+        Attributes
+        ----------
+        user : class instance
+            Holds user information      
+        
+        Methods
+        -------
+        load_toml_file():
+            Return toml object from filesystem.
+        save_toml_file():
+            Write toml object to filesystem. 
+    
+    """
+    def __init__(self, user: user) -> None:
+        self.user = user
+        self.user_data = pl.Path(self.user.user_data_path)
+        
+    def load_toml_file(self, filename: pl.Path) -> tomlkit:
+        """Read `filename` file and return TOML object.
+
+        Parameters
+        ----------
+        filename : pl.Path
+            Path object to the `.toml` file.
+
+        Returns
+        -------
+        object
+            TOML object
+        """
+        with open(filename, mode='rt', encoding='utf-8') as file:
+            data = tomlkit.load(file)
+            print('type: ' + str(type(data)))
+            print(data['Login']['username'])
+        
+        return data    
+    
+    def save_toml_file(self, filename: pl.Path, toml_object: tomlkit) -> None:
+        """Takes python toml object and writes `.toml` file to filesystem
+
+        Parameters
+        ----------
+        filename : pl.Path
+            Path to output file on filesystem
+        toml_object : tomlkit
+            Python TOML object
+        """
+        with open(filename, mode='wt', encoding='utf-8') as file:
+            tomlkit.dump(toml_object, file)
+
+    def toml_append_password(self, toml_object: tomlkit, pwd: str) -> None:
+        """Append password entry und Login table.
+
+        Parameters
+        ----------
+        toml_object : tomlkit
+            Python TOML object.
+        pwd : str
+            Password for webscraping login
+        """
+        toml_object['Login'].add("password", pwd) # pylint: disable=no-member
+        toml_object['Login']['password'].comment('Input from Password Dialog')
