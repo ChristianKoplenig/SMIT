@@ -1,7 +1,6 @@
 [Login] 
 login_url = 'https://webportal.stromnetz-graz.at/login'
 username = 'ch.koplenig@posteo.net'
-password = "as /n df  \n bla" # Automatic add
 
 [Meter]
 day_meter   = '199996'  # Zaehlpunktnummer Tagstrom; last six numbers
