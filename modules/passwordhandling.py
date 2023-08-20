@@ -1,9 +1,15 @@
 """
 Tools for handling the password input/save dialog
 """
+import sys
 import tkinter as tk
 from tkinter import ttk
-from modules.user import user
+import pathlib as pl
+#from modules.user import user
+if sys.version_info < (3, 11):
+    import tomli as tomlib
+else:
+    import tomlib
 from modules.rsahandling import RsaTools
 
 class UiTools():
@@ -12,6 +18,8 @@ class UiTools():
     def __init__(self, user) -> None:
         
         self.user = user
+        
+        self.user_data = pl.Path(self.user.user_data_path)
         
         self.window = tk.Tk()
         self.window.title('Password Dialog')
@@ -59,13 +67,22 @@ class UiTools():
         if self.checkbox_value.get():
             print('checked')
             print(self.user.username)
+            
+            with open(self.user_data, 'wb') as file:
+                data = tomlib.load(file)
+                data['pwd'] = 'test.pwd'
+                
+                #for key, value in data.items():
+                #     setattr(self, 'pass', 'word')
+                    #data['pwd'] = 'test.pwd'
+                #setattr(self, 'password', 'test')
+        
         else:
             print('unchecked')
-            self.user.password = self.pwd_entry.get()
+            self.user.password = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
             print(self.user.password)
             
-        va1 = self.pwd_entry.get()
-        print(va1)
+            
         self.window.destroy()
         
     def pwd_dialog(self):
