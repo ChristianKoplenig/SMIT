@@ -16,7 +16,7 @@ import tomlkit
 # Custom modules
 from modules.filepersistence import Persistence
 from modules.scrapedata import Webscraper
-from modules.user import user
+#from modules.user import user
 
 class OsInterface():
     """Methods for interacting with files on os filesystem
@@ -36,7 +36,7 @@ class OsInterface():
         scrapeandmove():
             Initiate download process and move files.
     """
-    def __init__(self, user: user) -> None:
+    def __init__(self, user: 'user') -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
@@ -44,7 +44,7 @@ class OsInterface():
         UserInstance : class type
             User data initiated via `user()` function from user module            
         """
-        user : user
+        user : 'user'
         
         self.user = user
             
@@ -183,9 +183,10 @@ class TomlTools():
         save_toml_file(filename, toml_object):
             Write toml object to filesystem. 
         toml_append_password(toml_object, pwd)
-            Append password to toml object    
+            Append password to toml object 
+        toml_save_password(toml_filename, password)   
     """
-    def __init__(self, user: user) -> None:
+    def __init__(self, user: 'user') -> None:
         self.user = user
         self.user_data = pl.Path(self.user.user_data_path)
         
@@ -228,11 +229,31 @@ class TomlTools():
         toml_object : tomlkit
             Python TOML object.
         pwd : str
-            Password for webscraping login.
+            Password for web scraping login.
         """
-        toml_object['Login'].add("password", pwd) # pylint: disable=no-member
-        toml_object['Login']['password'].comment('Input from Password Dialog')
-        
+        try:
+            if 'password' in toml_object['Login']:
+                raise KeyError('Password already saved')
+            else:
+                toml_object['Login'].add("password", pwd) # pylint: disable=no-member
+                toml_object['Login']['password'].comment('Input from Password Dialog')
+        except KeyError as e:
+            print(e)
+    
+    def toml_save_password(self, toml_filename: pl.Path, password: str) -> None:
+        """Read, append password and write `.toml` file
+
+        Parameters
+        ----------
+        toml_filename : pl.Path
+            Path to `.toml` file
+        password : str
+            Password for web scraping login.
+        """
+        user_data = TomlTools(self.user).load_toml_file(toml_filename)
+        TomlTools(self.user).toml_append_password(user_data, password)
+        TomlTools(self.user).save_toml_file(toml_filename, user_data)
+                   
     def __repr__(self) -> str:
         return str(vars(self))
         

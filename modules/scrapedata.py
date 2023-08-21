@@ -15,7 +15,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom modules
 from modules.filepersistence import Persistence
-from modules.user import user
+#from modules.user import user
 from modules.rsahandling import RsaTools
 
 class Webscraper():
@@ -47,7 +47,7 @@ class Webscraper():
         get_daysum_files(headless):
             Download data summarized by day
     """
-    def __init__(self, user: user) -> None:
+    def __init__(self, user: 'user') -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
@@ -56,7 +56,7 @@ class Webscraper():
             User data initiated via `user()` function from user module            
         """
 
-        user : user
+        user : 'user'
         
         self.user = user
             
@@ -144,7 +144,7 @@ class Webscraper():
 
         ##### login #####
         driver.find_element(By.NAME, "email").send_keys(self.user.username)
-        driver.find_element(By.NAME, "password").send_keys(RsaTools(self.user).decrypt_pwd(self.user.password))
+        driver.find_element(By.NAME, "password").send_keys(self.user.password) #RsaTools(self.user).decrypt_pwd(self.user.password))
         # login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
         # open data page                       
