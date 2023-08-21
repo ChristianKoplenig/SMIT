@@ -5,3 +5,6 @@ username = 'ch.koplenig@posteo.net'
 # Stromnetz Anlagedaten
 day_meter   = '199996'  # Zaehlpunktnummer Tagstrom; last six numbers
 night_meter = '199997'  # Zaehlpunktnummer Nachtstrom; last six numbers
+
+[Login]
+password = "Gwhwk12." # Input from Password Dialog

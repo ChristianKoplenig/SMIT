@@ -4,7 +4,7 @@ Tools to persist data
 import pickle
 from pathlib import Path
 from datetime import date, timedelta
-from modules.user import user
+#from modules.user import user
 
 class Persistence():
     """Methods to generate and access logging data.
@@ -23,7 +23,7 @@ class Persistence():
         save_dates_loggingFile():
             Saves `dates` log file 
     """
-    def __init__(self, user: user) -> None:
+    def __init__(self, user: 'user') -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
@@ -32,7 +32,7 @@ class Persistence():
             User data initiated via `user()` function from user module            
         """
         
-        user : user
+        user : 'user'
         
         self.user = user
 

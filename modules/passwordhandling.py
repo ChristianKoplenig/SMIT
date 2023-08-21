@@ -6,6 +6,8 @@ import tkinter as tk
 from tkinter import ttk
 import pathlib as pl
 #from modules.user import user
+from modules.filehandling import TomlTools
+
 if sys.version_info < (3, 11):
     import tomli as tomlib
 else:
@@ -64,28 +66,30 @@ class UiTools():
         
     def button_action(self):
         
-        if self.checkbox_value.get():
+        pwd_plain = self.pwd_entry.get()
+        pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
+        user_data_path = pl.Path(self.user.user_data_path)
+        save_pwd_activated = self.checkbox_value.get()
+        
+        if save_pwd_activated:
             print('checked')
             print(self.user.username)
-            
-            with open(self.user_data, 'wb') as file:
-                data = tomlib.load(file)
-                data['pwd'] = 'test.pwd'
-                
-                #for key, value in data.items():
-                #     setattr(self, 'pass', 'word')
-                    #data['pwd'] = 'test.pwd'
-                #setattr(self, 'password', 'test')
+
+            # Append password to user_data.toml
+            TomlTools(self.user).toml_save_password(user_data_path, pwd_plain)
+            # Append to user instance
+            self.user.password = pwd_plain
+            print(self.user.password)
         
         else:
             print('unchecked')
-            self.user.password = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
+            self.user.password = pwd_plain
             print(self.user.password)
             
             
         self.window.destroy()
         
-    def pwd_dialog(self):
+    def password_dialog(self):
         self.tk_text('Please enter your Stromnetz Graz password')
         self.entry.pack()
         self.entry.focus()
@@ -93,6 +97,3 @@ class UiTools():
         self.button.pack()
         self.tk_text('Please read the disclaimer for details on password handling')
         self.window.mainloop()
-    
-    
-#UiTools().pwd_dialog()
