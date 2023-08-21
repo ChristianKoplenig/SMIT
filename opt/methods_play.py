@@ -9,14 +9,14 @@ if sys.path[0] != str(module_dir):
 
 from modules.user import user
 from modules.scrapedata import Webscraper
-from modules.passwordhandling import UiTools
+from modules.userinput import UiTools
 from modules.filehandling import TomlTools
 #################################################################
 
 my_user = user()
-#print(vars(my_user))
+# print(vars(my_user))
 #print(my_user['Login'].password)
-Webscraper(my_user).stromnetz_setup(my_user.csv_dl_daysum)
+Webscraper(my_user).stromnetz_setup(my_user.Folder['raw_daysum'])
 #UiTools(my_user).pwd_dialog()
 #print(my_user.password)
 ############ tomlkit #########################

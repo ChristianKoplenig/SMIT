@@ -42,11 +42,11 @@ class Persistence():
         If no persisted date exists, create dict for dates and use start date from user settings.
         """
         # Initial run
-        if not Path(self.user.persist_dates).exists():
-            with open(self.user.persist_dates, 'wb') as pk:
+        if not Path(self.user.Folder['persist_dates']).exists():
+            with open(self.user.Folder['persist_dates'], 'wb') as pk:
                 dates = dict()
                 # Date format: dd-mm-yyyy
-                dates['start'] = self.user.csv_startDate 
+                dates['start'] = self.user.Init['csv_startDate'] 
                 dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
                 dates['last_scrape'] = 'never'
                 pickle.dump(dates, pk)
@@ -62,7 +62,7 @@ class Persistence():
         dict
             [start], [end] and [last scrape] dates
         """
-        with open(self.user.persist_dates, 'rb') as pk:
+        with open(self.user.Folder['persist_dates'], 'rb') as pk:
             dates = pickle.load(pk)
         return dates
 
@@ -76,7 +76,7 @@ class Persistence():
         dates : dict
             [start], [end], [last scrape]
         """
-        with open(self.user.persist_dates, 'wb') as dpk:
+        with open(self.user.Folder['persist_dates'], 'wb') as dpk:
             pickle.dump(dates, dpk)
         dpk.close()
         
@@ -84,4 +84,4 @@ class Persistence():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user.username
+        return self.user.Login['username']

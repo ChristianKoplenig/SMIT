@@ -27,8 +27,8 @@ class RsaTools():
         user : 'user'
         
         self.user = user
-        self.pub_path = pl.Path(self.user.public_key_path)
-        self.priv_path = pl.Path(self.user.private_key_path)
+        self.pub_path = pl.Path(self.user.Path['public_key'])
+        self.priv_path = pl.Path(self.user.Path['private_key'])
         no_public_key = not self.pub_path.exists()
         no_private_key = not self.priv_path.exists()
         
@@ -98,4 +98,4 @@ class RsaTools():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user.username
+        return self.user.Login['username']
