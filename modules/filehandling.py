@@ -232,3 +232,9 @@ class TomlTools():
         """
         toml_object['Login'].add("password", pwd) # pylint: disable=no-member
         toml_object['Login']['password'].comment('Input from Password Dialog')
+        
+    def __repr__(self) -> str:
+        return str(vars(self))
+        
+    def __str__(self) -> str:
+        return self.user.username
