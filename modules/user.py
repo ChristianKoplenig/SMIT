@@ -46,8 +46,8 @@ class user():
         self.__add_TOML_to_attributes(user_path, user_settings_file_name_path)
 
         # if password is not pressent open a simple gui dialog
-        # if not hasattr(self.password):
-        #     self.__ask_for_password_and_add_to_attributes()
+        if not 'password' in self.Login:
+            self.__ask_for_password_and_add_to_attributes()
 
 
     def __add_TOML_to_attributes(self, file_path : str, file_name : str):

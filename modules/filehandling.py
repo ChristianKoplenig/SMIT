@@ -236,12 +236,15 @@ class TomlTools():
                 raise KeyError('Password already saved')
             else:
                 toml_object['Login'].add("password", pwd) # pylint: disable=no-member
-                toml_object['Login']['password'].comment('Input from Password Dialog')
+                toml_object['Login']['password'].comment('Permission to store password given')
         except KeyError as e:
             print(e)
     
     def toml_save_password(self, toml_filename: pl.Path, password: str) -> None:
-        """Read, append password and write `.toml` file
+        """Routine for handling the password input.
+        
+        Store password in `.toml` file. 
+        Append password to user instance.
 
         Parameters
         ----------
@@ -250,9 +253,13 @@ class TomlTools():
         password : str
             Password for web scraping login.
         """
+        # Store password in user_data.toml
         user_data = TomlTools(self.user).load_toml_file(toml_filename)
         TomlTools(self.user).toml_append_password(user_data, password)
         TomlTools(self.user).save_toml_file(toml_filename, user_data)
+        
+        # Make password available in user instance
+        self.user.Login['password'] = password
                    
     def __repr__(self) -> str:
         return str(vars(self))

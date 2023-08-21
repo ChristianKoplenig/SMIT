@@ -78,13 +78,13 @@ class UiTools():
             # Append password to user_data.toml
             TomlTools(self.user).toml_save_password(user_data_path, pwd_plain)
             # Append to user instance
-            self.user.password = pwd_plain
-            print(self.user.password)
+            #self.user.password = pwd_plain
+            print(self.user.Login['password'])
         
         else:
             print('unchecked')
-            self.user.password = pwd_plain
-            print(self.user.password)
+            self.user.Login['password'] = pwd_plain
+            print(self.user.Login['password'])
             
             
         self.window.destroy()
