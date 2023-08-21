@@ -7,6 +7,7 @@ if sys.version_info < (3, 11):
 else:
     import tomlib
 from modules.rsahandling import RsaTools
+from modules.passwordhandling import UiTools
 
 
 class user():
@@ -45,8 +46,8 @@ class user():
         self.__add_TOML_to_attributes(user_path, user_settings_file_name_path)
 
         # if password is not pressent open a simple gui dialog
-        if not hasattr(self, 'password'):
-            self.__ask_for_password_and_add_to_attributes()
+        # if not hasattr(self.password):
+        #     self.__ask_for_password_and_add_to_attributes()
 
 
     def __add_TOML_to_attributes(self, file_path : str, file_name : str):
@@ -60,11 +61,12 @@ class user():
             setattr(self, key, value)
 
     def __ask_for_password_and_add_to_attributes(self):
-        root = tk.Tk()
-        root.withdraw()
-        password = tkinter.simpledialog.askstring('Please insert password', 'Password:', show='*')
-        root.destroy()
-        setattr(self, 'password', RsaTools(self).encrypt_pwd(password))
+        # root = tk.Tk()
+        # root.withdraw()
+        # password = tkinter.simpledialog.askstring('Please insert password', 'Password:', show='*')
+        # root.destroy()
+        # setattr(self, 'password', RsaTools(self).encrypt_pwd(password))
+        UiTools(self).password_dialog()
 
     def __repr__(self):
         """This special function gets called if you use print on a class instance.
