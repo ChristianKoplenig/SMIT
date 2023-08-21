@@ -81,8 +81,8 @@ class OsInterface():
             Day/Night meter device number
         """
         # set path variables
-        path_to_raw = pl.Path(self.user.csv_dl_daysum).absolute()
-        workdir = pl.Path(self.user.csv_wd_daysum).absolute()
+        path_to_raw = pl.Path(self.user.Folder['raw_daysum']).absolute()
+        workdir = pl.Path(self.user.Folder['work_daysum']).absolute()
 
         # select files in raw folder
         for filename in path_to_raw.glob('*.csv'):
@@ -156,9 +156,9 @@ class OsInterface():
         # scrape just once a day
         if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
 
-            Webscraper(self.user).get_daysum_files(self.user.headless_mode)
-            self.move_files(self.user.day_meter)
-            self.move_files(self.user.night_meter)
+            Webscraper(self.user).get_daysum_files(self.user.Options['headless_mode'])
+            self.move_files(self.user.Meter['day_meter'])
+            self.move_files(self.user.Meter['night_meter'])
         else:
             print('Most recent data already downloaded')
             
@@ -166,7 +166,7 @@ class OsInterface():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user.username
+        return self.user.Login['username']
 
     
 class TomlTools():
@@ -188,7 +188,7 @@ class TomlTools():
     """
     def __init__(self, user: 'user') -> None:
         self.user = user
-        self.user_data = pl.Path(self.user.user_data_path)
+        self.user_data = pl.Path(self.user.Path['user_data'])
         
     def load_toml_file(self, filename: pl.Path) -> tomlkit:
         """Read `.toml` file and return Python TOML object.
@@ -265,4 +265,4 @@ class TomlTools():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user.username
+        return self.user.Login['username']

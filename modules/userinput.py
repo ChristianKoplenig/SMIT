@@ -1,17 +1,11 @@
 """
 Tools for handling the password input/save dialog
 """
-import sys
 import tkinter as tk
 from tkinter import ttk
 import pathlib as pl
 #from modules.user import user
 from modules.filehandling import TomlTools
-
-if sys.version_info < (3, 11):
-    import tomli as tomlib
-else:
-    import tomlib
 from modules.rsahandling import RsaTools
 
 class UiTools():
@@ -21,7 +15,7 @@ class UiTools():
         
         self.user = user
         
-        self.user_data = pl.Path(self.user.user_data_path)
+        self.user_data = pl.Path(self.user.Path['user_data'])
         
         self.window = tk.Tk()
         self.window.title('Password Dialog')
@@ -68,12 +62,11 @@ class UiTools():
         
         pwd_plain = self.pwd_entry.get()
         pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
-        user_data_path = pl.Path(self.user.user_data_path)
+        user_data_path = pl.Path(self.user.Path['user_data'])
         save_pwd_activated = self.checkbox_value.get()
         
         if save_pwd_activated:
-            print('checked')
-            print(self.user.username)
+            print('UI Dialog checkbox checked')
 
             # Append password to user_data.toml
             TomlTools(self.user).toml_save_password(user_data_path, pwd_plain)
@@ -82,7 +75,7 @@ class UiTools():
             print(self.user.Login['password'])
         
         else:
-            print('unchecked')
+            print('UI Dialog checkbox unchecked')
             self.user.Login['password'] = pwd_plain
             print(self.user.Login['password'])
             
