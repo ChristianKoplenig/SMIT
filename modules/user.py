@@ -1,13 +1,9 @@
-import sys
 import pathlib as pl
-import tkinter as tk
-import tkinter.simpledialog
-if sys.version_info < (3, 11):
-    import tomli as tomlib
-else:
-    import tomlib
+# External modules
+import tomlkit
+# Custom modules
 from modules.rsahandling import RsaTools
-from modules.passwordhandling import UiTools
+from modules.userinput import UiTools
 
 
 class user():
@@ -53,7 +49,7 @@ class user():
     def __add_TOML_to_attributes(self, file_path : str, file_name : str):
         # load file
         with open(pl.Path(file_path, file_name), 'rb') as file:
-            data = tomlib.load(file)
+            data = tomlkit.load(file)
 
         # loop through all key value pairs of the config file
         # and set them as attributes of the class

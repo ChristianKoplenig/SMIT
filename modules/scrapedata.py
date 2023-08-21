@@ -137,13 +137,13 @@ class Webscraper():
             activate Firefox headless mode, by default False
         """
         global driver
-        service = Service(log_path=self.user.webdriver_logFolder)
+        service = Service(log_path=self.user.Folder['webdriver_logFolder'])
         driver = webdriver.Firefox(options=self.ff_options(dl_folder, headless), service=service)
-        driver.get(self.user.login_url)
+        driver.get(self.user.Login['url'])
         driver.maximize_window()
 
         ##### login #####
-        driver.find_element(By.NAME, "email").send_keys(self.user.username)
+        driver.find_element(By.NAME, "email").send_keys(self.user.Login['username'])
         driver.find_element(By.NAME, "password").send_keys(self.user.Login['password']) #RsaTools(self.user).decrypt_pwd(self.user.password))
         # login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
@@ -235,7 +235,7 @@ class Webscraper():
         
         # scrape just once a day
         if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 
-            self.stromnetz_setup(self.user.csv_dl_daysum, headless)
+            self.stromnetz_setup(self.user.Folder['raw_daysum'], headless)
             self.day_night_selector('night')
             self.stromnetz_fillTageswerte(dates['start'], dates['end'])
             self.stromnetz_download()
@@ -251,4 +251,4 @@ class Webscraper():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user.username
+        return self.user.Login['username']
