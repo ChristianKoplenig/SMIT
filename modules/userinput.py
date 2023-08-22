@@ -9,10 +9,35 @@ from modules.filehandling import TomlTools
 from modules.rsahandling import RsaTools
 
 class UiTools():
-    """Password input and save dialog
-    """
-    def __init__(self, user) -> None:
+    """Tools for interacting with the tkinter library.
+    
+    Attributes:
+    -----------
+    user : class instance
+        Hold user information
         
+    Methods
+    -------
+    tk_text(txt_input):
+        Generates text widget
+    tk_checkbox():
+        Generates the save password checkbox.
+    button_action():
+        Reads input from entry field, handles pwd routine.
+    password_dialog():
+        Routine for getting the user input
+    """
+    def __init__(self, user: 'user') -> None:
+        """Initialize Class with all attributes from `UserClass`
+
+        Parameters
+        ----------
+        user : class instance
+            User data initiated via `user()` function from user module            
+        """
+        
+        user: 'user'
+                
         self.user = user
         
         self.user_data = pl.Path(self.user.Path['user_data'])
@@ -36,53 +61,56 @@ class UiTools():
             show= '*'
         )
         
-    def tk_text(self, txt_input):
+    def tk_text(self, txt_input: str) -> None:
+        """Create text widget
+
+        Parameters
+        ----------
+        txt_input : str
+            Text to show
+        """
         text = tk.Label(
             text= txt_input,
             height=3
         )
         text.pack()
         
-    def tk_checkbox(self):
+    def tk_checkbox(self) -> None:
+        """Generate checkbox for password saving option.
+        """
         ttk.Checkbutton(
             self.window,
-            text= 'save pwd',
-            #state= 0,
-            #command= self.checkbox_action,
-            #onvalue= 1,
-            #offvalue= 0,
+            text= 'Save password',
             variable= self.checkbox_value
         ).pack()
         
-    # def checkbox_action(self):
-    #     val = self.checkbox_value.get()
-    #     print(val)
+    def button_action(self) -> None:
+        """Defines what to todo when accept button is pressed
         
-    def button_action(self):
-        
+        If the save password checkbox is activated then the password
+        will be added to the `user_data.toml` file and the user instance.
+        Else the password will be added just to the user instance.
+        """
         pwd_plain = self.pwd_entry.get()
-        pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
+        #pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
         user_data_path = pl.Path(self.user.Path['user_data'])
         save_pwd_activated = self.checkbox_value.get()
         
         if save_pwd_activated:
-            print('UI Dialog checkbox checked')
 
             # Append password to user_data.toml
             TomlTools(self.user).toml_save_password(user_data_path, pwd_plain)
-            # Append to user instance
-            #self.user.password = pwd_plain
-            print(self.user.Login['password'])
+            # Make password available in user instance
+            self.user.Login['password'] = pwd_plain
         
         else:
-            print('UI Dialog checkbox unchecked')
             self.user.Login['password'] = pwd_plain
-            print(self.user.Login['password'])
-            
             
         self.window.destroy()
         
-    def password_dialog(self):
+    def password_dialog(self) -> None:
+        """Start get password routine
+        """
         self.tk_text('Please enter your Stromnetz Graz password')
         self.entry.pack()
         self.entry.focus()
