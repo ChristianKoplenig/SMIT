@@ -243,8 +243,7 @@ class TomlTools():
     def toml_save_password(self, toml_filename: pl.Path, password: str) -> None:
         """Routine for handling the password input.
         
-        Store password in `.toml` file. 
-        Append password to user instance.
+        Store password in `.toml` file.
 
         Parameters
         ----------
@@ -257,10 +256,7 @@ class TomlTools():
         user_data = TomlTools(self.user).load_toml_file(toml_filename)
         TomlTools(self.user).toml_append_password(user_data, password)
         TomlTools(self.user).save_toml_file(toml_filename, user_data)
-        
-        # Make password available in user instance
-        self.user.Login['password'] = password
-                   
+                           
     def __repr__(self) -> str:
         return str(vars(self))
         
