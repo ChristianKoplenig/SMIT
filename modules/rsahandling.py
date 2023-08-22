@@ -33,13 +33,14 @@ class RsaTools():
         no_private_key = not self.priv_path.exists()
         
         #If no key pair exists in keys folder generate one.
-        (public_key, private_key) = rsa.newkeys(1024)
+        if no_public_key or no_private_key:
+            (public_key, private_key) = rsa.newkeys(1024)
         
-        if no_public_key:    
+        # Write public key    
             with open(self.pub_path, 'wb') as key:
                 key.write(public_key.save_pkcs1('PEM'))
 
-        if no_private_key:    
+        # Write private key   
             with open(self.priv_path, 'wb') as key:
                 key.write(private_key.save_pkcs1('PEM'))
 
