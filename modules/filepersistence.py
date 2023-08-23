@@ -4,7 +4,7 @@ Tools to persist data
 import pickle
 from pathlib import Path
 from datetime import date, timedelta
-from modules.user import user
+#from modules.user import user
 
 class Persistence():
     """Methods to generate and access logging data.
@@ -23,7 +23,7 @@ class Persistence():
         save_dates_loggingFile():
             Saves `dates` log file 
     """
-    def __init__(self, user: user) -> None:
+    def __init__(self, user: 'user') -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
@@ -32,7 +32,7 @@ class Persistence():
             User data initiated via `user()` function from user module            
         """
         
-        user : user
+        user : 'user'
         
         self.user = user
 
@@ -42,11 +42,11 @@ class Persistence():
         If no persisted date exists, create dict for dates and use start date from user settings.
         """
         # Initial run
-        if not Path(self.user.persist_dates).exists():
-            with open(self.user.persist_dates, 'wb') as pk:
+        if not Path(self.user.Folder['persist_dates']).exists():
+            with open(self.user.Folder['persist_dates'], 'wb') as pk:
                 dates = dict()
                 # Date format: dd-mm-yyyy
-                dates['start'] = self.user.csv_startDate 
+                dates['start'] = self.user.Init['csv_startDate'] 
                 dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
                 dates['last_scrape'] = 'never'
                 pickle.dump(dates, pk)
@@ -62,7 +62,7 @@ class Persistence():
         dict
             [start], [end] and [last scrape] dates
         """
-        with open(self.user.persist_dates, 'rb') as pk:
+        with open(self.user.Folder['persist_dates'], 'rb') as pk:
             dates = pickle.load(pk)
         return dates
 
@@ -76,7 +76,7 @@ class Persistence():
         dates : dict
             [start], [end], [last scrape]
         """
-        with open(self.user.persist_dates, 'wb') as dpk:
+        with open(self.user.Folder['persist_dates'], 'wb') as dpk:
             pickle.dump(dates, dpk)
         dpk.close()
         
@@ -84,4 +84,4 @@ class Persistence():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user.username
+        return self.user.Login['username']
