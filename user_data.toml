@@ -1,7 +1,9 @@
-# Login credentials
-login_url = 'https://webportal.stromnetz-graz.at/login'
+[Login]
+url = 'https://webportal.stromnetz-graz.at/login'
 username = 'ch.koplenig@posteo.net'
+password = "Gwhwk12." # Permission to store password given
 
+[Meter]
 # Stromnetz Anlagedaten
 day_meter   = '199996'  # Zaehlpunktnummer Tagstrom; last six numbers
 night_meter = '199997'  # Zaehlpunktnummer Nachtstrom; last six numbers
