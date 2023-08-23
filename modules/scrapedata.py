@@ -4,6 +4,8 @@ Tools for scraping data from website
 import time
 from datetime import date, timedelta
 import pathlib as pl
+# Password handling
+import base64
 # Webdriver imports
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -125,7 +127,42 @@ class Webscraper():
 
         Persistence(self.user).save_dates_loggingFile(dates)
 
+    def decode_password(self) -> str:
+        """Get encoded password retur decoded password
+        
+        The password will be send in plain text.
+        At the moment I see no other option.
 
+        Parameters
+        ----------
+        pwd_string : str
+            Encoded password 
+
+        Returns
+        -------
+        str
+            Decoded plain text password string
+        """
+        # Read encoded password 
+        pwd_enc = self.user.Login['password']
+        print('pwd_enc')
+        print(type(pwd_enc))
+        print(f"{pwd_enc}\n")
+        
+        # Decode the base64 conversion
+        b64_decode = base64.b64decode(pwd_enc)
+        print('b64_decode')
+        print(type(b64_decode))
+        print(f"{b64_decode}\n")
+        
+        # Decrypt rsa encryption
+        password = RsaTools(self.user).decrypt_pwd(b64_decode)
+        print('password')
+        print(type(password))
+        print(f"{password}\n")
+        
+        return password
+           
     def stromnetz_setup(self, dl_folder: pl.Path, headless: bool=False) -> None:
         """Login to stromnetz graz webportal and setup data page.
 
@@ -144,7 +181,7 @@ class Webscraper():
 
         ##### login #####
         driver.find_element(By.NAME, "email").send_keys(self.user.Login['username'])
-        driver.find_element(By.NAME, "password").send_keys(self.user.Login['password']) #RsaTools(self.user).decrypt_pwd(self.user.password))
+        driver.find_element(By.NAME, "password").send_keys(self.decode_password())  #self.user.Login['password']) #RsaTools(self.user).decrypt_pwd(self.user.password))
         # login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
         # open data page                       
