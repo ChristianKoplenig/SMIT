@@ -1,16 +1,16 @@
-import sys
 import pathlib as pl
-import tkinter as tk
-import tkinter.simpledialog
-if sys.version_info < (3, 11):
-    import tomli as tomlib
-else:
-    import tomlib
+# External modules
+import tomlkit
+# Custom modules
 from modules.rsahandling import RsaTools
+from modules.userinput import UiTools
 
 
 class user():
     """A class that holds all the userdefined data and settings.
+    
+    Calls RsaTools
+    In future calls UiTools
 
     Attributes
     ----------
@@ -42,14 +42,14 @@ class user():
         self.__add_TOML_to_attributes(user_path, user_settings_file_name_path)
 
         # if password is not pressent open a simple gui dialog
-        if not hasattr(self, 'password'):
+        if not 'password' in self.Login:
             self.__ask_for_password_and_add_to_attributes()
 
 
     def __add_TOML_to_attributes(self, file_path : str, file_name : str):
         # load file
         with open(pl.Path(file_path, file_name), 'rb') as file:
-            data = tomlib.load(file)
+            data = tomlkit.load(file)
 
         # loop through all key value pairs of the config file
         # and set them as attributes of the class
@@ -57,11 +57,12 @@ class user():
             setattr(self, key, value)
 
     def __ask_for_password_and_add_to_attributes(self):
-        root = tk.Tk()
-        root.withdraw()
-        password = tkinter.simpledialog.askstring('Please insert password', 'Password:', show='*')
-        root.destroy()
-        setattr(self, 'password', RsaTools(self).encrypt_pwd(password))
+        # root = tk.Tk()
+        # root.withdraw()
+        # password = tkinter.simpledialog.askstring('Please insert password', 'Password:', show='*')
+        # root.destroy()
+        # setattr(self, 'password', RsaTools(self).encrypt_pwd(password))
+        UiTools(self).password_dialog()
 
     def __repr__(self):
         """This special function gets called if you use print on a class instance.
