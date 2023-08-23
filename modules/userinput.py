@@ -4,6 +4,7 @@ Tools for handling the password input/save dialog
 import tkinter as tk
 from tkinter import ttk
 import pathlib as pl
+import base64
 #from modules.user import user
 from modules.filehandling import TomlTools
 from modules.rsahandling import RsaTools
@@ -91,20 +92,24 @@ class UiTools():
         will be added to the `user_data.toml` file and the user instance.
         Else the password will be added just to the user instance.
         """
-        pwd_plain = self.pwd_entry.get()
-        #pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
+        #pwd_plain = self.pwd_entry.get()
+        #Encrypt password with rsa keys
+        pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
+        # Convert password to str representation for storing it in `user_data.toml`
+        pwd_str = base64.b64encode(pwd_enc).decode('utf-8')
+        
         user_data_path = pl.Path(self.user.Path['user_data'])
         save_pwd_activated = self.checkbox_value.get()
         
         if save_pwd_activated:
 
             # Append password to user_data.toml
-            TomlTools(self.user).toml_save_password(user_data_path, pwd_plain)
+            TomlTools(self.user).toml_save_password(user_data_path, pwd_str)
             # Make password available in user instance
-            self.user.Login['password'] = pwd_plain
+            self.user.Login['password'] = pwd_str
         
         else:
-            self.user.Login['password'] = pwd_plain
+            self.user.Login['password'] = pwd_str
             
         self.window.destroy()
         

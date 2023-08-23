@@ -71,13 +71,18 @@ print(type(data))
 print(f"{data['Login']['password']}\n")
 
 #base64 decode
-to_dec = str(data['Login']['password'])
+to_dec = data['Login']['password']
 print('to_dec')
 print(type(to_dec))
 print(f"{to_dec}\n")
 
-b64_decode = base64.b64decode(to_dec).decode('utf-8')
-# print('b64_decode')
-# print(type(b64_decode))
-# print(f"{b64_decode}\n")
+b64_decode = base64.b64decode(to_dec)#.decode('utf-8')
+print('b64_decode')
+print(type(b64_decode))
+print(f"{b64_decode}\n")
 
+
+password = rsa.decrypt_pwd(b64_decode)
+print('password')
+print(type(password))
+print(f"{password}\n")
