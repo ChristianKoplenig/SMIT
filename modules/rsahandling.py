@@ -27,19 +27,20 @@ class RsaTools():
         user : 'user'
         
         self.user = user
-        self.pub_path = pl.Path(self.user.public_key_path)
-        self.priv_path = pl.Path(self.user.private_key_path)
+        self.pub_path = pl.Path(self.user.Path['public_key'])
+        self.priv_path = pl.Path(self.user.Path['private_key'])
         no_public_key = not self.pub_path.exists()
         no_private_key = not self.priv_path.exists()
         
         #If no key pair exists in keys folder generate one.
-        (public_key, private_key) = rsa.newkeys(1024)
+        if no_public_key or no_private_key:
+            (public_key, private_key) = rsa.newkeys(1024)
         
-        if no_public_key:    
+        # Write public key    
             with open(self.pub_path, 'wb') as key:
                 key.write(public_key.save_pkcs1('PEM'))
 
-        if no_private_key:    
+        # Write private key   
             with open(self.priv_path, 'wb') as key:
                 key.write(private_key.save_pkcs1('PEM'))
 
@@ -98,4 +99,4 @@ class RsaTools():
         return str(vars(self))
         
     def __str__(self) -> str:
-        return self.user.username
+        return self.user.Login['username']
