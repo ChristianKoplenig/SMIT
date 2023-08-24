@@ -1,11 +1,11 @@
 """
-Tools for handling the password input/save dialog
+Tools for handling the password input/storing dialog
 """
 import tkinter as tk
 from tkinter import ttk
 import pathlib as pl
 import base64
-#from modules.user import user
+# Custom Modules
 from modules.filehandling import TomlTools
 from modules.rsahandling import RsaTools
 
@@ -81,18 +81,17 @@ class UiTools():
         """
         ttk.Checkbutton(
             self.window,
-            text= 'Save password',
+            text= 'Save encrypted password in user_data',
             variable= self.checkbox_value
         ).pack()
         
     def button_action(self) -> None:
-        """Defines what to todo when accept button is pressed
+        """Defines what to todo when accept button is pressed.
         
-        If the save password checkbox is activated then the password
+        If the "save password" checkbox is activated then the password
         will be added to the `user_data.toml` file and the user instance.
         Else the password will be added just to the user instance.
         """
-        #pwd_plain = self.pwd_entry.get()
         #Encrypt password with rsa keys
         pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
         # Convert password to str representation for storing it in `user_data.toml`
@@ -109,12 +108,13 @@ class UiTools():
             self.user.Login['password'] = pwd_str
         
         else:
+            # Temporary store password in user instance 
             self.user.Login['password'] = pwd_str
             
         self.window.destroy()
         
     def password_dialog(self) -> None:
-        """Start get password routine
+        """Initiate "Enter Password" GUI
         """
         self.tk_text('Please enter your Stromnetz Graz password')
         self.entry.pack()
