@@ -7,16 +7,18 @@ headless_mode = true  # Run Firefox in headless mode, type: boolean
 
 [Folder]
 # scraping
-raw_daysum          = './csv_raw/daily'       # Download folder for Tageswerte csv files
-raw_15min           = './csv_raw/15min'       # Download folder for 15min resolution csv files
-persist_dates       = './log/dates.pkl'       # Filename for dates persistence
-webdriver_logFolder = './log/geckodriver.log' # Log folder for webdriver
+raw_daysum              = './csv_raw/daily'             # Download folder for Tageswerte csv files
+raw_15min               = './csv_raw/15min'             # Download folder for 15min resolution csv files
+persist_dates           = './log/dates.pkl'             # Filename for dates persistence
+
 # working
 work_daysum       = './csv_workdir/daily'   # Location of files to process
 work_15min        = './csv_workdir/15min'
 
 [Path]
-private_key     = './keys/private_key.pem'     # Location and file name for private key
-public_key      = './keys/public_key.pem'      # Location and file name for private key
-user_settings   = './user_settings.toml'       # Location of user settings file
-user_data       = './user_data.toml'            # Location of user data file
+geckodriver_executable  = '/snap/bin/geckodriver'       # Path to geckodriver for Firefox
+webdriver_logFolder     = './log/geckodriver.log'       # Log file for webdriver
+private_key             = './keys/private_key.pem'      # Location and file name for private key
+public_key              = './keys/public_key.pem'       # Location and file name for private key
+user_settings           = './user_settings.toml'        # Location of user settings file
+user_data               = './user_data.toml'            # Location of user data file

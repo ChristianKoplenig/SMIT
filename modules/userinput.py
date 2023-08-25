@@ -45,7 +45,7 @@ class UiTools():
         self.window.geometry('400x200')
         
         self.pwd_entry = tk.StringVar()
-        self.checkbox_value = tk.BooleanVar(False)
+        self.checkbox_value = tk.BooleanVar()
         
         self.button = tk.Button(
             text = 'Confirm',

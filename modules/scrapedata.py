@@ -90,12 +90,17 @@ class Webscraper():
         webdriver profile
             Options for Firefox webdriver.
         """
+        # Set path variables
         dl_path = str(pl.Path(dl_folder).absolute())
+        
+        # Set firefox options
         profile = Options()
         profile.set_preference("browser.download.folderList", 2)
         profile.set_preference("browser.download.alwaysOpenPanel", False)
         profile.set_preference("browser.download.dir", dl_path)
         profile.set_preference('webdriver.log.init', True)
+        profile.add_argument('--no-sandbox')
+        profile.add_argument('--disable-dev-shm-usage')
 
         if headless is True:
             profile.add_argument("-headless")
@@ -160,7 +165,8 @@ class Webscraper():
             activate Firefox headless mode, by default False
         """
         global driver
-        service = Service(log_path=self.user.Folder['webdriver_logFolder'])
+        
+        service = Service(executable_path= self.user.Path['geckodriver_executable'], log_path= self.user.Path['webdriver_logFolder'])
         driver = webdriver.Firefox(options=self.ff_options(dl_folder, headless), service=service)
         driver.get(self.user.Login['url'])
         driver.maximize_window()
