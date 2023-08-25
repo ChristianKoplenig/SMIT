@@ -15,6 +15,9 @@ persist_dates           = './log/dates.pkl'             # Filename for dates per
 work_daysum       = './csv_workdir/daily'   # Location of files to process
 work_15min        = './csv_workdir/15min'
 
+# application
+keys = './keys' # Location of Rsa Key pair
+log = './log' # Location for dates.pkl
 [Path]
 geckodriver_executable  = '/snap/bin/geckodriver'       # Path to geckodriver for Firefox
 webdriver_logFolder     = './log/geckodriver.log'       # Log file for webdriver
