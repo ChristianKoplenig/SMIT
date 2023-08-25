@@ -43,9 +43,7 @@ class OsInterface():
         ----------
         UserInstance : class type
             User data initiated via `user()` function from user module            
-        """
-        user : 'user'
-        
+        """        
         self.user = user
             
     def pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:

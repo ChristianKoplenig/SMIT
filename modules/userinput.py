@@ -35,10 +35,7 @@ class UiTools():
         ----------
         user : class instance
             User data initiated via `user()` function from user module            
-        """
-        
-        user: 'user'
-                
+        """                
         self.user = user
         
         self.user_data = pl.Path(self.user.Path['user_data'])
