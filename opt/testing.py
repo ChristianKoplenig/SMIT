@@ -16,6 +16,20 @@ from modules.user import user
 user = user()
 ################################################
 
+# Test the webdriver integration
+def test_webdriver() -> None:
+    """Open firefox instance with webdriver
+    No data from custom modules
+    """
+    from selenium import webdriver
+    from selenium.webdriver.firefox.service import Service
+    option = webdriver.FirefoxOptions()
+    option.add_argument('--no-sandbox')
+    option.add_argument('--disable-dev-shm-usage')
+    driverService = Service(executable_path='/snap/bin/geckodriver')
+    driver = webdriver.Firefox(service=driverService, options=option)
+    driver.get("https://www.google.com")
+    
 # Test Login to stromnetz graz website
 def sng_login():
     """Login to sng data page with headless mode off.
@@ -23,6 +37,7 @@ def sng_login():
     from modules.scrapedata import Webscraper
     scrape = Webscraper(user)
     scrape.stromnetz_setup(user.Folder['raw_daysum'], False)
+sng_login()
     
 # Test Tomlkit
 def load_toml_file() -> 'ClassType':
@@ -68,4 +83,4 @@ def test_rsa() -> None:
     pwd_dec = rsa.decrypt_pwd(pwd_enc)
     print('#### Dencryption ####')
     print('Decrypted pwd: ' + '\n' + str(pwd_dec) + '\n')
-    print('Type: ' + str(type(pwd_dec)) + '\n')  
+    print('Type: ' + str(type(pwd_dec)) + '\n')
