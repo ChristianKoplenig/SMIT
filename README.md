@@ -17,6 +17,10 @@ is included in `.gitignore` make shure to **not expose the private key**.
 Again this is not good practice but this project is about learning different
 tools and coding.
 
+## Requirements
+The virtual environment was created with **Python 3.11** as base.
+See `requirements.txt` for all needed dependencies. 
+
 ## Participating Guidlines
 - Input is appreciated
 - We want to keep the project language english, however we understand german and comments, pr's and so on in german are welcome too. 
