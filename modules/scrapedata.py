@@ -57,10 +57,7 @@ class Webscraper():
         ----------
         user : class instance
             User data initiated via `user()` function from user module            
-        """
-
-        user : 'user'
-        
+        """        
         self.user = user
             
     def wait_and_click(self, elementXpath: str) -> None:
