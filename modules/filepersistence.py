@@ -30,10 +30,7 @@ class Persistence():
         ----------
         user : class instance
             User data initiated via `user()` function from user module            
-        """
-        
-        user : 'user'
-        
+        """        
         self.user = user
 
     def initialize_dates_log(self) -> None:
