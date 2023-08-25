@@ -24,8 +24,6 @@ class RsaTools():
         UserClass : class type
             User data initiated via `user()` function from user module. 
         """        
-        user : 'user'
-        
         self.user = user
         self.pub_path = pl.Path(self.user.Path['public_key'])
         self.priv_path = pl.Path(self.user.Path['private_key'])
