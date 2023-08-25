@@ -4,6 +4,8 @@ Tools for scraping data from website
 import time
 from datetime import date, timedelta
 import pathlib as pl
+# Password handling
+import base64
 # Webdriver imports
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -15,7 +17,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom modules
 from modules.filepersistence import Persistence
-#from modules.user import user
 from modules.rsahandling import RsaTools
 
 class Webscraper():
@@ -45,7 +46,9 @@ class Webscraper():
         day_night_selector(day_night):
             Switch between day/night meter.
         get_daysum_files(headless):
-            Download data summarized by day
+            Download data summarized by day.
+        decode_password():
+            Decode password from user instance and return plain text string.
     """
     def __init__(self, user: 'user') -> None:
         """Initialize Class with all attributes from `UserClass`
@@ -54,10 +57,7 @@ class Webscraper():
         ----------
         user : class instance
             User data initiated via `user()` function from user module            
-        """
-
-        user : 'user'
-        
+        """        
         self.user = user
             
     def wait_and_click(self, elementXpath: str) -> None:
@@ -125,7 +125,30 @@ class Webscraper():
 
         Persistence(self.user).save_dates_loggingFile(dates)
 
+    def decode_password(self) -> str:
+        """Get encoded password return decoded password.
+        
+        The password will be send in plain text.
+        At the moment I see no other option.
 
+        Parameters
+        ----------
+        pwd_string : str
+            Encoded password 
+
+        Returns
+        -------
+        str
+            Decoded plain text password string
+        """
+        # Read encoded password 
+        pwd_enc = self.user.Login['password']
+        # Decode the base64 conversion
+        b64_decode = base64.b64decode(pwd_enc)
+        # Decrypt rsa encryption
+        password = RsaTools(self.user).decrypt_pwd(b64_decode)
+        return password
+           
     def stromnetz_setup(self, dl_folder: pl.Path, headless: bool=False) -> None:
         """Login to stromnetz graz webportal and setup data page.
 
@@ -144,7 +167,7 @@ class Webscraper():
 
         ##### login #####
         driver.find_element(By.NAME, "email").send_keys(self.user.Login['username'])
-        driver.find_element(By.NAME, "password").send_keys(self.user.Login['password']) #RsaTools(self.user).decrypt_pwd(self.user.password))
+        driver.find_element(By.NAME, "password").send_keys(self.decode_password())
         # login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
         # open data page                       
@@ -196,7 +219,7 @@ class Webscraper():
         time.sleep(3) # wait for element to load
 
     def stromnetz_download(self) -> None:
-        """Click download web-element.
+        """Click download button web-element.
         """
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
 
@@ -227,7 +250,7 @@ class Webscraper():
         Parameters
         ----------
         headless : bool, optional
-            run Firefox in headless mode, by default False
+            Run Firefox in headless mode defaults to `False`.
         """
         Persistence(self.user).initialize_dates_log()
         dates = Persistence(self.user).create_dates_var()
