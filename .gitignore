@@ -9,6 +9,7 @@ keys/
 __pycache__/
 .ipynb_checkpoints/
 *.log
+.venv/
 
 # developement files
 testcode.py
