@@ -1,10 +1,11 @@
 """
-Tools for handling the password input/save dialog
+Tools for handling the password input/storing dialog
 """
 import tkinter as tk
 from tkinter import ttk
 import pathlib as pl
-#from modules.user import user
+import base64
+# Custom Modules
 from modules.filehandling import TomlTools
 from modules.rsahandling import RsaTools
 
@@ -34,10 +35,7 @@ class UiTools():
         ----------
         user : class instance
             User data initiated via `user()` function from user module            
-        """
-        
-        user: 'user'
-                
+        """                
         self.user = user
         
         self.user_data = pl.Path(self.user.Path['user_data'])
@@ -80,36 +78,40 @@ class UiTools():
         """
         ttk.Checkbutton(
             self.window,
-            text= 'Save password',
+            text= 'Save encrypted password in user_data',
             variable= self.checkbox_value
         ).pack()
         
     def button_action(self) -> None:
-        """Defines what to todo when accept button is pressed
+        """Defines what to todo when accept button is pressed.
         
-        If the save password checkbox is activated then the password
+        If the "save password" checkbox is activated then the password
         will be added to the `user_data.toml` file and the user instance.
         Else the password will be added just to the user instance.
         """
-        pwd_plain = self.pwd_entry.get()
-        #pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
+        #Encrypt password with rsa keys
+        pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
+        # Convert password to str representation for storing it in `user_data.toml`
+        pwd_str = base64.b64encode(pwd_enc).decode('utf-8')
+        
         user_data_path = pl.Path(self.user.Path['user_data'])
         save_pwd_activated = self.checkbox_value.get()
         
         if save_pwd_activated:
 
             # Append password to user_data.toml
-            TomlTools(self.user).toml_save_password(user_data_path, pwd_plain)
+            TomlTools(self.user).toml_save_password(user_data_path, pwd_str)
             # Make password available in user instance
-            self.user.Login['password'] = pwd_plain
+            self.user.Login['password'] = pwd_str
         
         else:
-            self.user.Login['password'] = pwd_plain
+            # Temporary store password in user instance 
+            self.user.Login['password'] = pwd_str
             
         self.window.destroy()
         
     def password_dialog(self) -> None:
-        """Start get password routine
+        """Initiate "Enter Password" GUI
         """
         self.tk_text('Please enter your Stromnetz Graz password')
         self.entry.pack()
