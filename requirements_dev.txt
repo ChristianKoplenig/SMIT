@@ -58,3 +58,8 @@ tzdata==2023.3
 urllib3==2.0.4
 wcwidth==0.2.6
 wsproto==1.2.0
+flake8==6.1.0
+tox==4.10.0
+pytest==7.4.0
+pytest-cov==4.0.0
+mypy==1.5.1

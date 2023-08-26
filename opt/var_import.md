@@ -1,6 +1,6 @@
 ```python
 
-from modules.user import user
+from SMIT.user import user
 
 # I tought this is the better approach because we can see 
 # which variable is the attribute for the class.

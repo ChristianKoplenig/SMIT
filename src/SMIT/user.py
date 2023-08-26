@@ -2,8 +2,8 @@ import pathlib as pl
 # External modules
 import tomlkit
 # Custom modules
-from modules.rsahandling import RsaTools
-from modules.userinput import UiTools
+from SMIT.rsahandling import RsaTools
+from SMIT.userinput import UiTools
 
 
 class user():

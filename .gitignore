@@ -10,6 +10,10 @@ __pycache__/
 .ipynb_checkpoints/
 *.log
 .venv/
+*.egg-info
+.tox
+.mypy_cache
+.pytest_cache
 
 # developement files
 testcode.py
