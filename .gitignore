@@ -11,6 +11,9 @@ __pycache__/
 *.log
 .venv/
 *.egg-info
+.tox
+.mypy_cache
+.pytest_cache
 
 # developement files
 testcode.py
