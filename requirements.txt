@@ -1,3 +1,4 @@
+-e.
 asttokens==2.2.1
 attrs==23.1.0
 backcall==0.2.0
