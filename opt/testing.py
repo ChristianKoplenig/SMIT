@@ -12,7 +12,7 @@ if sys.path[0] != str(module_dir):
     sys.path.insert(0, str(module_dir))
 ################################################
 # Setup
-from modules.user import user
+from SMIT.user import user
 user = user()
 ################################################
 
@@ -34,7 +34,7 @@ def test_webdriver() -> None:
 def sng_login():
     """Login to sng data page with headless mode off.
     """
-    from modules.scrapedata import Webscraper
+    from SMIT.scrapedata import Webscraper
     scrape = Webscraper(user)
     scrape.stromnetz_setup(user.Folder['raw_daysum'], False)
 sng_login()
@@ -48,7 +48,7 @@ def load_toml_file() -> 'ClassType':
     Class
         TOMLDokument with user data
     """
-    from modules.filehandling import TomlTools
+    from SMIT.filehandling import TomlTools
     toml = TomlTools(user)
     toml_filename = pl.Path(user.Path['user_data'])
     user_data = toml.load_toml_file(toml_filename)
@@ -62,7 +62,7 @@ def password_dialog() -> None:
     WARNING: Changes affect the `user_data` attributes and 
             `user_data.toml` file
     """
-    from modules.userinput import UiTools
+    from SMIT.userinput import UiTools
     ui = UiTools(user)
     ui.password_dialog()
     
@@ -70,7 +70,7 @@ def password_dialog() -> None:
 def test_rsa() -> None:
     """Test rsa encrypt/decrypt workflow.
     """
-    from modules.rsahandling import RsaTools
+    from SMIT.rsahandling import RsaTools
     rsa = RsaTools(user)
     test_pwd = 'String to test Rsa functionality'
     print('#### Input ####')
