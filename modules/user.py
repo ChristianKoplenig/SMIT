@@ -76,9 +76,4 @@ class user():
         str
             Returns a string representation of the class.
         """
-        return self.username
-
-if __name__ == '__main__':
-    User = user('../')
-    print(User.username)
-    print(User)
+        return self.Login['username']
