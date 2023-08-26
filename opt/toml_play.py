@@ -8,7 +8,7 @@ module_dir = pl.Path("__file__").resolve().parent
 if sys.path[0] != str(module_dir):
     sys.path.insert(0, str(module_dir))
 
-from modules.user import user
+from SMIT.user import user
 
 #print(tomlkit.__version__)
 #########################

@@ -11,9 +11,9 @@ if sys.path[0] != str(module_dir):
     sys.path.insert(0, str(module_dir))
 ################################################
 # Setup
-from modules.user import user
-from modules.rsahandling import RsaTools
-from modules.filehandling import TomlTools
+from SMIT.user import user
+from SMIT.rsahandling import RsaTools
+from SMIT.filehandling import TomlTools
 user = user() 
 ################################################
 rsa = RsaTools(user)
