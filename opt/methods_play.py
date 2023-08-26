@@ -7,10 +7,10 @@ module_dir = pl.Path("__file__").resolve().parent
 if sys.path[0] != str(module_dir):
     sys.path.insert(0, str(module_dir))
 
-from modules.user import user
-from modules.scrapedata import Webscraper
-from modules.userinput import UiTools
-from modules.filehandling import TomlTools
+from SMIT.user import user
+from SMIT.scrapedata import Webscraper
+from SMIT.userinput import UiTools
+from SMIT.filehandling import TomlTools
 #################################################################
 
 user = user()
