@@ -1,4 +1,12 @@
-[Init]
+[Login]
+url = 'https://webportal.stromnetz-graz.at/login'
+username = 'ch.koplenig@posteo.net'
+password = "FnepEncCs0lbp+iE4ro4dGPde5gI7FpNtfUNmOAYm6SRyBdqKOBvtWumfijT1pkYliwumtscPdBrYZaICTkonYVMWePyasdSltEstljILjjreDietzEoO8J05ReQfH7U+nyjV210+XuExB/w2HWrI8ACfjSKbZXtZzlof+tDBaE=" # Permission to store password given
+
+[Meter]
+# Stromnetz Anlagedaten
+day_meter   = '199996'  # Zaehlpunktnummer Tagstrom; last six numbers
+night_meter = '199997'  # Zaehlpunktnummer Nachtstrom; last six numbers[Init]
 csv_startDate = '01-01-2023'  # Start date for initial run
 
 [Options]
