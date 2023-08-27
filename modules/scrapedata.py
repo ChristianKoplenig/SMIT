@@ -17,7 +17,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom modules
 from modules.filepersistence import Persistence
-from modules.rsahandling import RsaTools
+#from modules.rsahandling import RsaTools
 
 class Webscraper():
     """Methods for interacting with webdriver module
@@ -151,7 +151,9 @@ class Webscraper():
         # Decode the base64 conversion
         b64_decode = base64.b64decode(pwd_enc)
         # Decrypt rsa encryption
-        password = RsaTools(self.user).decrypt_pwd(b64_decode)
+        #password = RsaTools(self.user).decrypt_pwd(b64_decode)
+        password = self.user.rsa.decrypt_pwd(b64_decode)
+        print(type(self.user.rsa))
         return password
            
     def stromnetz_setup(self, dl_folder: pl.Path, headless: bool=False) -> None:
@@ -277,7 +279,7 @@ class Webscraper():
             self.start_date_updater(dates)
         
     def __repr__(self) -> str:
-        return str(vars(self))
+        return f"Class {self.__class__.__name__}"
         
     def __str__(self) -> str:
         return self.user.Login['username']

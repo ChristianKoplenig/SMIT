@@ -120,3 +120,6 @@ class UiTools():
         self.button.pack()
         self.tk_text('Please read the disclaimer for details on password handling')
         self.window.mainloop()
+        
+    def __repr__(self) -> str:
+        return f"Class {self.__class__.__name__}"
