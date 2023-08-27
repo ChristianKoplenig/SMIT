@@ -1,6 +1,7 @@
 import sys
 import pathlib as pl
 import tomlkit
+from pprint import pprint
 # Add custom modules path to sys.path and import
 module_dir = pl.Path("__file__").resolve().parent
 
@@ -25,7 +26,14 @@ class Application:
         # and set them as attributes of the class            
         for key, value in user_data.items():
             setattr(self, key, value)
-    
+            
+        # loop throught modlues and assign to self
+        for key, value in self.load_modules().items():
+            setattr(self, key, value)
+        
+        
+        
+        #print(vars(self))
     # user as dict    
     def user_dict(self) -> dict:
         """assignes all self attributes to dict
@@ -44,14 +52,20 @@ class Application:
         from modules.filehandling import OsInterface, TomlTools
         from modules.userinput import UiTools
         
-        gui = UiTools(self)
-        rsa = RsaTools(self)
-        toml_tools = TomlTools(self)
-        os_tools = OsInterface(self)
-        persistence = Persistence(self)
-        scrape = Webscraper(self)
-        return gui, rsa, toml_tools, os_tools, persistence, scrape
-        
+        modules = dict([
+            ('gui', UiTools(self)),
+            ('rsa', RsaTools(self)),
+            ('toml_tools', TomlTools(self)),
+            ('os_tools', OsInterface(self)),
+            ('persistence', Persistence(self)),
+            ('scrape', Webscraper(self))          
+        ])
+        return modules
+
+
+
+
+################### testing ######################        
 app = Application()
 user = app.user_dict()
 #scrape = app.load_modules()['scrape']
@@ -61,16 +75,27 @@ modules = app.load_modules()
 #     print(item.__class__.__name__)
 #     modules[item] = item 
 #     #print(value)
+pprint(user, indent=4)
+print('###################')
+print('gui: ' + str(type(modules['gui'])))
+print('rsa: ' + str(type(modules['rsa'])))
+print('####################')
+#print(dict(modules))
+#print('rsa: ' + str(modules['rsa']))
+#gui, rsa, toml_tools, os_tools, persistence, scrape = modules
 
-gui, rsa, toml_tools, os_tools, persistence, scrape = modules
+# gui = modules['rsa']
+# print(gui.__class__)
+# print(str(gui.encrypt_pwd('test')))
 
-print(type(os_tools))
-print(modules)
 
-scrape.stromnetz_setup(user['Folder']['raw_daysum'], False)
+# print(type(os_tools))
+# print(modules)
+
+# scrape.stromnetz_setup(user['Folder']['raw_daysum'], False)
 
 #print(str(modules))
 #print(type(scrape))
 
 #print(user['Folder']['raw_daysum'], False)
-#scrape.stromnetz_setup(user['Folder']['raw_daysum'], False)
+#modules['scrape'].stromnetz_setup(user['Folder']['raw_daysum'], False)

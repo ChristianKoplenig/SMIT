@@ -94,7 +94,7 @@ class RsaTools():
         return pwd_decrypt.decode('utf8')
         
     def __repr__(self) -> str:
-        return str(vars(self))
+        return f"Class {self.__class__.__name__}"
         
     def __str__(self) -> str:
         return self.user.Login['username']
