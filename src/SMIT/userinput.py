@@ -6,8 +6,8 @@ from tkinter import ttk
 import pathlib as pl
 import base64
 # Custom Modules
-from SMIT.filehandling import TomlTools
-from SMIT.rsahandling import RsaTools
+# from SMIT.filehandling import TomlTools
+# from SMIT.rsahandling import RsaTools
 
 class UiTools():
     """Tools for interacting with the tkinter library.
@@ -90,7 +90,7 @@ class UiTools():
         Else the password will be added just to the user instance.
         """
         #Encrypt password with rsa keys
-        pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
+        pwd_enc = self.user.rsa.encrypt_pwd(self.pwd_entry.get())
         # Convert password to str representation for storing it in `user_data.toml`
         pwd_str = base64.b64encode(pwd_enc).decode('utf-8')
         
@@ -100,7 +100,7 @@ class UiTools():
         if save_pwd_activated:
 
             # Append password to user_data.toml
-            TomlTools(self.user).toml_save_password(user_data_path, pwd_str)
+            self.user.toml_tools.toml_save_password(user_data_path, pwd_str)
             # Make password available in user instance
             self.user.Login['password'] = pwd_str
         
@@ -122,4 +122,4 @@ class UiTools():
         self.window.mainloop()
         
     def __repr__(self) -> str:
-        return f"Class {self.__class__.__name__}"
+        return f"Module Class {self.__class__.__name__}"

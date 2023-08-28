@@ -14,8 +14,8 @@ import pathlib as pl
 import pandas as pd
 import tomlkit
 # Custom modules
-from SMIT.filepersistence import Persistence
-from SMIT.scrapedata import Webscraper
+#from SMIT.filepersistence import Persistence
+#from SMIT.scrapedata import Webscraper
 #from modules.user import user
 
 class OsInterface():
@@ -148,20 +148,20 @@ class OsInterface():
         Call :func: `get_daysum_files`
         For each meter call :func: `move_files`
         """
-        Persistence(self.user).initialize_dates_log()
-        dates = Persistence(self.user).create_dates_var()
+        self.user.persistence.initialize_dates_log()
+        dates = self.user.persistence.create_dates_var()
         
         # scrape just once a day
         if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
 
-            Webscraper(self.user).get_daysum_files(self.user.Options['headless_mode'])
+            self.user.scrape.get_daysum_files(self.user.Options['headless_mode'])
             self.move_files(self.user.Meter['day_meter'])
             self.move_files(self.user.Meter['night_meter'])
         else:
             print('Most recent data already downloaded')
             
     def __repr__(self) -> str:
-        return str(vars(self))
+        return f"Module Class {self.__class__.__name__}"
         
     def __str__(self) -> str:
         return self.user.Login['username']
@@ -256,7 +256,7 @@ class TomlTools():
         TomlTools(self.user).save_toml_file(toml_filename, user_data)
                            
     def __repr__(self) -> str:
-        return str(vars(self))
+        return f"Module Class {self.__class__.__name__}"
         
     def __str__(self) -> str:
         return self.user.Login['username']

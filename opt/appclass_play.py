@@ -44,13 +44,13 @@ class Application:
         return user
     
     def load_modules(self):
-        """load custom modules and instaniate
+        """load custom modules and instantiate
         """
-        from modules.scrapedata import Webscraper
-        from modules.filepersistence import Persistence
-        from modules.rsahandling import RsaTools
-        from modules.filehandling import OsInterface, TomlTools
-        from modules.userinput import UiTools
+        from SMIT.scrapedata import Webscraper
+        from SMIT.filepersistence import Persistence
+        from SMIT.rsahandling import RsaTools
+        from SMIT.filehandling import OsInterface, TomlTools
+        from SMIT.userinput import UiTools
         
         modules = dict([
             ('gui', UiTools(self)),
@@ -98,4 +98,4 @@ print('####################')
 #print(type(scrape))
 
 #print(user['Folder']['raw_daysum'], False)
-#modules['scrape'].stromnetz_setup(user['Folder']['raw_daysum'], False)
+modules['scrape'].stromnetz_setup(user['Folder']['raw_daysum'], False)

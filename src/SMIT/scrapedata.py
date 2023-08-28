@@ -16,8 +16,8 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom modules
-from SMIT.filepersistence import Persistence
-from SMIT.rsahandling import RsaTools
+#from SMIT.filepersistence import Persistence
+#from SMIT.rsahandling import RsaTools
 
 class Webscraper():
     """Methods for interacting with webdriver module
@@ -128,7 +128,7 @@ class Webscraper():
         dates['last_scrape'] = date.today().strftime('%d-%m-%Y')
         dates['start'] = date.today().strftime('%d-%m-%Y')
 
-        Persistence(self.user).save_dates_loggingFile(dates)
+        self.user.persistence.save_dates_loggingFile(dates)
 
     def decode_password(self) -> str:
         """Get encoded password return decoded password.
@@ -153,7 +153,6 @@ class Webscraper():
         # Decrypt rsa encryption
         #password = RsaTools(self.user).decrypt_pwd(b64_decode)
         password = self.user.rsa.decrypt_pwd(b64_decode)
-        print(type(self.user.rsa))
         return password
            
     def stromnetz_setup(self, dl_folder: pl.Path, headless: bool=False) -> None:
@@ -260,8 +259,8 @@ class Webscraper():
         headless : bool, optional
             Run Firefox in headless mode defaults to `False`.
         """
-        Persistence(self.user).initialize_dates_log()
-        dates = Persistence(self.user).create_dates_var()
+        self.user.persistence.initialize_dates_log()
+        dates = self.user.persistence.create_dates_var()
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
         
         # scrape just once a day
@@ -279,7 +278,7 @@ class Webscraper():
             self.start_date_updater(dates)
         
     def __repr__(self) -> str:
-        return f"Class {self.__class__.__name__}"
+        return f"Module Class {self.__class__.__name__}"
         
     def __str__(self) -> str:
         return self.user.Login['username']
