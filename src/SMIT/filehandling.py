@@ -251,9 +251,9 @@ class TomlTools():
             Password for web scraping login.
         """
         # Store password in user_data.toml
-        user_data = TomlTools(self.user).load_toml_file(toml_filename)
-        TomlTools(self.user).toml_append_password(user_data, password)
-        TomlTools(self.user).save_toml_file(toml_filename, user_data)
+        user_data = self.load_toml_file(toml_filename)
+        self.toml_append_password(user_data, password)
+        self.save_toml_file(toml_filename, user_data)
                            
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
