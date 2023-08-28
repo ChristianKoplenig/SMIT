@@ -161,7 +161,7 @@ class OsInterface():
             print('Most recent data already downloaded')
             
     def __repr__(self) -> str:
-        return f"Module Class {self.__class__.__name__}"
+        return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
         
     def __str__(self) -> str:
         return self.user.Login['username']
@@ -256,7 +256,7 @@ class TomlTools():
         TomlTools(self.user).save_toml_file(toml_filename, user_data)
                            
     def __repr__(self) -> str:
-        return f"Module Class {self.__class__.__name__}"
+        return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
         
     def __str__(self) -> str:
         return self.user.Login['username']
