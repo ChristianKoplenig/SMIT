@@ -97,6 +97,8 @@ class Application:
             ('scrape', Webscraper(self))          
         ])
         print('Modules loaded')
+        for key, value in modules.items():
+            print(f"{key} - {value}")
         print('##############')
         return modules
     
