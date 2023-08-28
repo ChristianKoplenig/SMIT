@@ -122,4 +122,4 @@ class UiTools():
         self.window.mainloop()
         
     def __repr__(self) -> str:
-        return f"Module Class {self.__class__.__name__}"
+        return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
