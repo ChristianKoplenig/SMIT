@@ -1,12 +1,16 @@
 import sys
+import os
 import pathlib as pl
 import tomlkit
 from pprint import pprint
+
+#####################################################
 # Add custom modules path to sys.path and import
 module_dir = pl.Path("__file__").resolve().parent
 
 if sys.path[0] != str(module_dir):
     sys.path.insert(0, str(module_dir))
+#####################################################
 
 class Application:
     """Init user
@@ -16,25 +20,67 @@ class Application:
         print('################')
         
         # path to input file
-        user_file = pl.Path('config/user_file.toml')
+        user_data = pl.Path('config/user_data.toml')
+        user_settings = pl.Path('config/user_settings.toml')
         
-        # set self attributes
-        with open(user_file, 'rb') as file:
-            user_data = tomlkit.load(file)
-        
-        # loop through all key value pairs of the config file
-        # and set them as attributes of the class            
-        for key, value in user_data.items():
-            setattr(self, key, value)
-            
+        self.__add_TOML_to_attributes(user_data)    
+        self.__add_TOML_to_attributes(user_settings)
+        self.__initialize_folder_structure()
+        self.__add_Modules_to_attributes()
+        self.__ask_for_password_if_not_stored()
+    
+    def __add_Modules_to_attributes(self) -> None:        
         # loop throught modlues and assign to self
         for key, value in self.load_modules().items():
             setattr(self, key, value)
+        print('Modules added to self')
+        print('#####################')
+            
+    def __add_TOML_to_attributes(self, file_path):
+        # load file
+        with open(file_path, 'rb') as file:
+            data = tomlkit.load(file)
+        # loop through all key value pairs of the config file
+        # and set them as attributes of the class
+        for key, value in data.items():
+            setattr(self, key, value)
+        print('TOML added to self')
+        print('##################')
         
+    def __ask_for_password_if_not_stored(self):
+        """Start password dialog if the password is not stored in `user_data`
+        """
+        # pylint: disable=no-member
+        if not 'password' in self.Login:    
+            self.gui.password_dialog()      
+
+
+    ################## Folders ########################
+    def __initialize_folder_structure(self):
+        """Create all needed folders
+        """
+        # pylint: disable=no-member
+        folders = [
+            self.Folder['raw_daysum'],
+            self.Folder['raw_15min'],
+            self.Folder['log'],
+            self.Folder['work_daysum'],
+            self.Folder['work_15min'],        
+            self.Folder['config']            
+        ]
         
+        print('folder_init loaded')
+        # print(f"folder list: {folders}")
+        print('##################')
         
-        #print(vars(self))
-    # user as dict    
+        for folder in folders:
+            os.makedirs(folder, exist_ok= True)
+            print(f"folder checked: {folder}")
+        
+        print('\n')
+        
+                        
+    # user as dict, maybe just for developing   
     def user_dict(self) -> dict:
         """assignes all self attributes to dict
         """
@@ -60,6 +106,8 @@ class Application:
             ('persistence', Persistence(self)),
             ('scrape', Webscraper(self))          
         ])
+        print('Modules loaded')
+        print('##############')
         return modules
 
 
