@@ -78,7 +78,7 @@ class Persistence():
         dpk.close()
         
     def __repr__(self) -> str:
-        return str(vars(self))
+        return f"Module Class {self.__class__.__name__}"
         
     def __str__(self) -> str:
         return self.user.Login['username']

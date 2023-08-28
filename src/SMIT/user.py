@@ -1,9 +1,13 @@
-import pathlib as pl
-# External modules
-import tomlkit
-# Custom modules
-from SMIT.rsahandling import RsaTools
-from SMIT.userinput import UiTools
+    """
+    NOT NEEDED ANYMORE?
+    """
+
+# import pathlib as pl
+# # External modules
+# import tomlkit
+# # Custom modules
+# # from SMIT.rsahandling import RsaTools
+# # from SMIT.userinput import UiTools
 
 
 class user():
