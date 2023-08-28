@@ -16,8 +16,8 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Custom modules
-from modules.filepersistence import Persistence
-from modules.rsahandling import RsaTools
+from SMIT.filepersistence import Persistence
+from SMIT.rsahandling import RsaTools
 
 class Webscraper():
     """Methods for interacting with webdriver module

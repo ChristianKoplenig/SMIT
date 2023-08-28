@@ -14,8 +14,8 @@ import pathlib as pl
 import pandas as pd
 import tomlkit
 # Custom modules
-from modules.filepersistence import Persistence
-from modules.scrapedata import Webscraper
+from SMIT.filepersistence import Persistence
+from SMIT.scrapedata import Webscraper
 #from modules.user import user
 
 class OsInterface():
