@@ -2,8 +2,8 @@ import pathlib as pl
 # External modules
 import tomlkit
 # Custom modules
-from modules.rsahandling import RsaTools
-from modules.userinput import UiTools
+from SMIT.rsahandling import RsaTools
+from SMIT.userinput import UiTools
 
 
 class user():
@@ -76,9 +76,4 @@ class user():
         str
             Returns a string representation of the class.
         """
-        return self.username
-
-if __name__ == '__main__':
-    User = user('../')
-    print(User.username)
-    print(User)
+        return self.Login['username']

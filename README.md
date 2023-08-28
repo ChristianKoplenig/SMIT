@@ -1,4 +1,6 @@
-# <p align="center">**SMI Tool** </p>  
+![Tests](https://github.com/tmpck/strom/actions/workflows/tests.yml/badge.svg)
+
+# <p align="center">**SMI Tool** </p>
 **<p align='center'> Smart Meter Interface Tool </p>**   
 <p align='center'> Conveniently show and update your power usage </p>
 
