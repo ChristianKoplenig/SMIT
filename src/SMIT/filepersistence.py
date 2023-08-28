@@ -79,6 +79,3 @@ class Persistence():
         
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
-        
-    def __str__(self) -> str:
-        return self.user.Login['username']
