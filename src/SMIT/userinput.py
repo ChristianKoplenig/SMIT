@@ -6,8 +6,8 @@ from tkinter import ttk
 import pathlib as pl
 import base64
 # Custom Modules
-from modules.filehandling import TomlTools
-from modules.rsahandling import RsaTools
+from SMIT.filehandling import TomlTools
+from SMIT.rsahandling import RsaTools
 
 class UiTools():
     """Tools for interacting with the tkinter library.
