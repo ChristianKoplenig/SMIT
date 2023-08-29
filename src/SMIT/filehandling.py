@@ -13,18 +13,19 @@ import datetime as dt
 import pathlib as pl
 import pandas as pd
 import tomlkit
-# Custom modules
-#from SMIT.filepersistence import Persistence
-#from SMIT.scrapedata import Webscraper
-#from modules.user import user
+# Type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SMIT.application import Application
 
 class OsInterface():
     """Methods for interacting with files on os filesystem
         
         Attributes
         ----------
-        user : class instance
-            Holds user information      
+        app : class instance
+            Holds user information   
+           
         Methods
         -------
         pathlib_move(src, dest, appendix):
@@ -36,15 +37,15 @@ class OsInterface():
         scrapeandmove():
             Initiate download process and move files.
     """
-    def __init__(self, user: 'user') -> None:
+    def __init__(self, app: 'Application') -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
         ----------
-        UserInstance : class type
-            User data initiated via `user()` function from user module            
+        app : class instance
+            Holds the configuration data for program run.           
         """        
-        self.user = user
+        self.user = app
             
     def pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
@@ -181,11 +182,18 @@ class TomlTools():
             Append password to toml object 
         toml_save_password(toml_filename, password)   
     """
-    def __init__(self, user: 'user') -> None:
-        self.user = user
+    def __init__(self, app: 'Application') -> None:
+        """Initialize class with all attributes from user config files.
+
+        Parameters
+        ----------
+        app : class instance
+            Holds the configuration data for program run.         
+        """
+        self.user = app
         self.user_data = pl.Path(self.user.Path['user_data'])
         
-    def load_toml_file(self, filename: pl.Path) -> tomlkit:
+    def load_toml_file(self, filename: pl.Path) -> tomlkit.TOMLDocument:
         """Read `.toml` file and return Python TOML object.
 
         Parameters
@@ -203,7 +211,7 @@ class TomlTools():
         
         return data    
     
-    def save_toml_file(self, filename: pl.Path, toml_object: tomlkit) -> None:
+    def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -> None:
         """Takes python TOML object and writes `.toml` file to filesystem
 
         Parameters
@@ -216,7 +224,7 @@ class TomlTools():
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
 
-    def toml_append_password(self, toml_object: tomlkit, pwd: str) -> None:
+    def toml_append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
         """Append password entry to Login table in Python TOML object.
 
         Parameters

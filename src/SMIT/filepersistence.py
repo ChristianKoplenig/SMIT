@@ -4,8 +4,11 @@ Tools to persist data
 import pickle
 from pathlib import Path
 from datetime import date, timedelta
-#from modules.user import user
-
+# Type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SMIT.application import Application
+    
 class Persistence():
     """Methods to generate and access logging data.
 
@@ -23,15 +26,15 @@ class Persistence():
         save_dates_loggingFile():
             Saves `dates` log file 
     """
-    def __init__(self, user: 'user') -> None:
-        """Initialize Class with all attributes from `UserClass`
+    def __init__(self, app: 'Application') -> None:
+        """Initialize class with all attributes from user config files.
 
         Parameters
         ----------
-        user : class instance
-            User data initiated via `user()` function from user module            
-        """        
-        self.user = user
+        app : class instance
+            Holds the configuration data for program run.         
+        """       
+        self.user = app
 
     def initialize_dates_log(self) -> None:
         """Create log file for managing scraping dates.
