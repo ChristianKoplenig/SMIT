@@ -32,8 +32,10 @@ See `requirements.txt` for all needed dependencies.
 - `csv_raw` --> Download folder for webdriver
 - `csv_workdir` --> Python working directory
 - `log` --> Folder to store log-files
-- `modules` --> Folder for `module.py` files
+- `modules` --> Folder for `module.py` files --> **Outdated**
 - `opt` --> Folder for **not** programm related stuff (shared files, testfiles...) 
+- `src` --> not so sure what to put in there to not interfere with testing routine
+- `config` --> config files, user_data; user_settings; rsa-keys
 
 ## Branches
 ### main

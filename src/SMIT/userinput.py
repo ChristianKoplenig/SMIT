@@ -5,16 +5,17 @@ import tkinter as tk
 from tkinter import ttk
 import pathlib as pl
 import base64
-# Custom Modules
-from SMIT.filehandling import TomlTools
-from SMIT.rsahandling import RsaTools
+# Type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SMIT.application import Application
 
 class UiTools():
     """Tools for interacting with the tkinter library.
     
     Attributes:
     -----------
-    user : class instance
+    app : class instance
         Hold user information
         
     Methods
@@ -28,15 +29,15 @@ class UiTools():
     password_dialog():
         Routine for getting the user input
     """
-    def __init__(self, user: 'user') -> None:
-        """Initialize Class with all attributes from `UserClass`
+    def __init__(self, app: 'Application') -> None:
+        """Initialize class with all attributes from user config files.
 
         Parameters
         ----------
-        user : class instance
-            User data initiated via `user()` function from user module            
+        app : class instance
+            Holds the configuration data for program run.         
         """                
-        self.user = user
+        self.user = app
         
         self.user_data = pl.Path(self.user.Path['user_data'])
         
@@ -90,7 +91,7 @@ class UiTools():
         Else the password will be added just to the user instance.
         """
         #Encrypt password with rsa keys
-        pwd_enc = RsaTools(self.user).encrypt_pwd(self.pwd_entry.get())
+        pwd_enc = self.user.rsa.encrypt_pwd(self.pwd_entry.get())
         # Convert password to str representation for storing it in `user_data.toml`
         pwd_str = base64.b64encode(pwd_enc).decode('utf-8')
         
@@ -100,7 +101,7 @@ class UiTools():
         if save_pwd_activated:
 
             # Append password to user_data.toml
-            TomlTools(self.user).toml_save_password(user_data_path, pwd_str)
+            self.user.toml_tools.toml_save_password(user_data_path, pwd_str)
             # Make password available in user instance
             self.user.Login['password'] = pwd_str
         
@@ -113,6 +114,7 @@ class UiTools():
     def password_dialog(self) -> None:
         """Initiate "Enter Password" GUI
         """
+        self.window.lift()
         self.tk_text('Please enter your Stromnetz Graz password')
         self.entry.pack()
         self.entry.focus()
@@ -120,3 +122,6 @@ class UiTools():
         self.button.pack()
         self.tk_text('Please read the disclaimer for details on password handling')
         self.window.mainloop()
+        
+    def __repr__(self) -> str:
+        return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
