@@ -4,43 +4,54 @@ Tools for dealing with cryptography
 from collections import namedtuple
 import pathlib as pl
 import rsa
-
+# Type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SMIT.application import Application
+    
 class RsaTools():
     """Methods for accessing the rsa library
     
     Attributes
     ----------
-    UserClass : class type
+    app : class type
         Holds user information      
     Methods
     -------
-    
+    load_keys():
+        Make keys available for signing.
+    encrypt_pwd(pwd):
+        Encrypt pwd string with public key.
+    decrypt_pwd(pwd):
+        Decrypt pwd bytes object with private key.
     """    
-    def __init__(self, user: 'user') -> None:
-        """Initialize user class variables, set path variables for rsa keys.
+    def __init__(self, app: 'Application') -> None:
+        """Initialize class with all attributes from user config files.
 
         Parameters
         ----------
-        UserClass : class type
-            User data initiated via `user()` function from user module. 
+        app : class instance
+            Holds the configuration data for program run.         
         """        
-        self.user = user
+        self.user = app
         self.pub_path = pl.Path(self.user.Path['public_key'])
         self.priv_path = pl.Path(self.user.Path['private_key'])
         no_public_key = not self.pub_path.exists()
         no_private_key = not self.priv_path.exists()
         
-        #If no key pair exists in keys folder generate one.
+        #If no key pair exists in config folder generate one.
         if no_public_key or no_private_key:
             (public_key, private_key) = rsa.newkeys(1024)
+            print('No Rsa key pair found')
         
         # Write public key    
             with open(self.pub_path, 'wb') as key:
                 key.write(public_key.save_pkcs1('PEM'))
-
+                print('Public key written')
         # Write private key   
             with open(self.priv_path, 'wb') as key:
                 key.write(private_key.save_pkcs1('PEM'))
+                print('Private key written')
 
     def load_keys(self) -> tuple[rsa.PrivateKey, rsa.PublicKey]:
         """Load keys from `keys` folder
@@ -94,7 +105,4 @@ class RsaTools():
         return pwd_decrypt.decode('utf8')
         
     def __repr__(self) -> str:
-        return str(vars(self))
-        
-    def __str__(self) -> str:
-        return self.user.Login['username']
+        return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
