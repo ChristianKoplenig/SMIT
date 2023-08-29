@@ -16,7 +16,7 @@ work_15min        = './csv_workdir/15min'
 
 # application
 config = './config'     # Files to preserve
-keys = './keys' # Location of Rsa Key pair
+# keys = './keys' # Location of Rsa Key pair
 log = './log' # Location for dates.pkl
 
 [Path]

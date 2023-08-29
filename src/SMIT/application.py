@@ -2,6 +2,13 @@ import os
 import pathlib as pl
 import tomlkit
 
+# Import Modules
+from SMIT.scrapedata import Webscraper
+from SMIT.filepersistence import Persistence
+from SMIT.rsahandling import RsaTools
+from SMIT.filehandling import OsInterface, TomlTools
+from SMIT.userinput import UiTools
+
 class Application:
     """Init user
     """
@@ -50,21 +57,21 @@ class Application:
         """Create all needed folders
         """
         # pylint: disable=no-member
-        folders = [
-            self.Folder['raw_daysum'],
-            self.Folder['raw_15min'],
-            self.Folder['log'],
-            self.Folder['work_daysum'],
-            self.Folder['work_15min'],        
-            self.Folder['config']            
-        ]
+        # folders = [
+        #     self.Folder['raw_daysum'],
+        #     self.Folder['raw_15min'],
+        #     self.Folder['log'],
+        #     self.Folder['work_daysum'],
+        #     self.Folder['work_15min'],        
+        #     self.Folder['config']            
+        # ]
         
         print('folder_init loaded')
         # print(f"folder list: {folders}")
         print('##################')
         
-        for folder in folders:
-            os.makedirs(folder, exist_ok= True)
+        for folder, folder_path in self.Folder.items():
+            os.makedirs(folder_path, exist_ok= True)
             print(f"folder checked: {folder}")
         
         print('\n')
@@ -82,11 +89,6 @@ class Application:
     def load_modules(self):
         """load custom modules and instantiate
         """
-        from SMIT.scrapedata import Webscraper
-        from SMIT.filepersistence import Persistence
-        from SMIT.rsahandling import RsaTools
-        from SMIT.filehandling import OsInterface, TomlTools
-        from SMIT.userinput import UiTools
         
         modules = dict([
             ('gui', UiTools(self)),
