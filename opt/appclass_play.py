@@ -4,13 +4,13 @@ import pathlib as pl
 import tomlkit
 from pprint import pprint
 
-#####################################################
-# Add custom modules path to sys.path and import
-module_dir = pl.Path("__file__").resolve().parent
+# #####################################################
+# # Add custom modules path to sys.path and import
+# module_dir = pl.Path("__file__").resolve().parent
 
-if sys.path[0] != str(module_dir):
-    sys.path.insert(0, str(module_dir))
-#####################################################
+# if sys.path[0] != str(module_dir):
+#     sys.path.insert(0, str(module_dir))
+# #####################################################
 
 class Application:
     """Init user
@@ -25,9 +25,9 @@ class Application:
         
         self.__add_TOML_to_attributes(user_data)    
         self.__add_TOML_to_attributes(user_settings)
-        self.__initialize_folder_structure()
+        #self.__initialize_folder_structure()
         self.__add_Modules_to_attributes()
-        self.__ask_for_password_if_not_stored()
+        #self.__ask_for_password_if_not_stored()
     
     def __add_Modules_to_attributes(self) -> None:        
         # loop throught modlues and assign to self
@@ -117,7 +117,7 @@ class Application:
 app = Application()
 user = app.user_dict()
 #scrape = app.load_modules()['scrape']
-modules = app.load_modules()
+#modules = app.load_modules()
 # for item in app.load_modules():
 #     #print(type(item))
 #     print(item.__class__.__name__)
@@ -125,8 +125,8 @@ modules = app.load_modules()
 #     #print(value)
 pprint(user, indent=4)
 print('###################')
-print('gui: ' + str(type(modules['gui'])))
-print('rsa: ' + str(type(modules['rsa'])))
+#print('gui: ' + str(type(modules['gui'])))
+#print('rsa: ' + str(type(modules['rsa'])))
 print('####################')
 #print(dict(modules))
 #print('rsa: ' + str(modules['rsa']))
@@ -146,4 +146,4 @@ print('####################')
 #print(type(scrape))
 
 #print(user['Folder']['raw_daysum'], False)
-modules['scrape'].stromnetz_setup(user['Folder']['raw_daysum'], False)
+#modules['scrape'].stromnetz_setup(user['Folder']['raw_daysum'], False)

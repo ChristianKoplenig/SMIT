@@ -3,8 +3,9 @@ csv_raw/
 csv_workdir/
 
 # SAFETY
-*.pem   # Rsa keys
-user_file.toml
+config/user_file.toml
+config/private_key.pem
+config/public_key.pem
 
 # system specific
 __pycache__/
