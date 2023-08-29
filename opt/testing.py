@@ -1,19 +1,13 @@
 """
 Collection of usefull snipets 
 """
-# Imports to make custom modules work
-import sys
+# pylint: disable=no-member
+# pylint: disable=import-outside-toplevel
 import pathlib as pl
 
-# Add custom modules path to sys.path and import
-module_dir = pl.Path("__file__").resolve().parent
-
-if sys.path[0] != str(module_dir):
-    sys.path.insert(0, str(module_dir))
-################################################
 # Setup
-from SMIT.user import user
-user = user()
+from SMIT.application import Application
+user = Application()
 ################################################
 
 # Test the webdriver integration
@@ -37,7 +31,6 @@ def sng_login():
     from SMIT.scrapedata import Webscraper
     scrape = Webscraper(user)
     scrape.stromnetz_setup(user.Folder['raw_daysum'], False)
-sng_login()
     
 # Test Tomlkit
 def load_toml_file() -> 'ClassType':
