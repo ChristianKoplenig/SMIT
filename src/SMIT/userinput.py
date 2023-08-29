@@ -113,6 +113,7 @@ class UiTools():
     def password_dialog(self) -> None:
         """Initiate "Enter Password" GUI
         """
+        self.window.lift()
         self.tk_text('Please enter your Stromnetz Graz password')
         self.entry.pack()
         self.entry.focus()
