@@ -5,16 +5,17 @@ import tkinter as tk
 from tkinter import ttk
 import pathlib as pl
 import base64
-# Custom Modules
-# from SMIT.filehandling import TomlTools
-# from SMIT.rsahandling import RsaTools
+# Type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SMIT.application import Application
 
 class UiTools():
     """Tools for interacting with the tkinter library.
     
     Attributes:
     -----------
-    user : class instance
+    app : class instance
         Hold user information
         
     Methods
@@ -28,15 +29,15 @@ class UiTools():
     password_dialog():
         Routine for getting the user input
     """
-    def __init__(self, user: 'user') -> None:
-        """Initialize Class with all attributes from `UserClass`
+    def __init__(self, app: 'Application') -> None:
+        """Initialize class with all attributes from user config files.
 
         Parameters
         ----------
-        user : class instance
-            User data initiated via `user()` function from user module            
+        app : class instance
+            Holds the configuration data for program run.         
         """                
-        self.user = user
+        self.user = app
         
         self.user_data = pl.Path(self.user.Path['user_data'])
         

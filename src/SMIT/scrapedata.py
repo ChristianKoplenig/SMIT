@@ -4,6 +4,8 @@ Tools for scraping data from website
 import time
 from datetime import date, timedelta
 import pathlib as pl
+# Type hints
+from typing import TYPE_CHECKING
 # Password handling
 import base64
 # Webdriver imports
@@ -15,16 +17,16 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-# Custom modules
-#from SMIT.filepersistence import Persistence
-#from SMIT.rsahandling import RsaTools
+# Import just for type hints
+if TYPE_CHECKING:
+    from SMIT.application import Application
 
 class Webscraper():
     """Methods for interacting with webdriver module
         
         Attributes
         ----------
-        user : class instance
+        app : class instance
             Holds user information      
         
         Methods
@@ -50,15 +52,15 @@ class Webscraper():
         decode_password():
             Decode password from user instance and return plain text string.
     """
-    def __init__(self, user: 'user') -> None:
-        """Initialize Class with all attributes from `UserClass`
+    def __init__(self, app: 'Application') -> None:
+        """Initialize class with all attributes from user config files.
 
         Parameters
         ----------
-        user : class instance
-            User data initiated via `user()` function from user module            
+        app : class instance
+            Holds the configuration data for program run.         
         """        
-        self.user = user
+        self.user = app
             
     def wait_and_click(self, elementXpath: str) -> None:
         """Wait for web element and click.
@@ -151,7 +153,6 @@ class Webscraper():
         # Decode the base64 conversion
         b64_decode = base64.b64decode(pwd_enc)
         # Decrypt rsa encryption
-        #password = RsaTools(self.user).decrypt_pwd(b64_decode)
         password = self.user.rsa.decrypt_pwd(b64_decode)
         return password
            
