@@ -1,9 +1,10 @@
 # custom folder structure
 csv_raw/
 csv_workdir/
-keys/
-# shared_docs/
-# no_git/
+
+# SAFETY
+*.pem   # Rsa keys
+user_file.toml
 
 # system specific
 __pycache__/
@@ -20,4 +21,4 @@ testcode.py
 test_nb.ipynb
 
 # excluded for security issues
-user_data.toml
+user_data.tomldebug.log
