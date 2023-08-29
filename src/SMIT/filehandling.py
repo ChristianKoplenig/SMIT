@@ -13,18 +13,19 @@ import datetime as dt
 import pathlib as pl
 import pandas as pd
 import tomlkit
-# Custom modules
-from SMIT.filepersistence import Persistence
-from SMIT.scrapedata import Webscraper
-#from modules.user import user
+# Type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SMIT.application import Application
 
 class OsInterface():
     """Methods for interacting with files on os filesystem
         
         Attributes
         ----------
-        user : class instance
-            Holds user information      
+        app : class instance
+            Holds user information   
+           
         Methods
         -------
         pathlib_move(src, dest, appendix):
@@ -36,15 +37,15 @@ class OsInterface():
         scrapeandmove():
             Initiate download process and move files.
     """
-    def __init__(self, user: 'user') -> None:
+    def __init__(self, app: 'Application') -> None:
         """Initialize Class with all attributes from `UserClass`
 
         Parameters
         ----------
-        UserInstance : class type
-            User data initiated via `user()` function from user module            
+        app : class instance
+            Holds the configuration data for program run.           
         """        
-        self.user = user
+        self.user = app
             
     def pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
@@ -148,23 +149,20 @@ class OsInterface():
         Call :func: `get_daysum_files`
         For each meter call :func: `move_files`
         """
-        Persistence(self.user).initialize_dates_log()
-        dates = Persistence(self.user).create_dates_var()
+        self.user.persistence.initialize_dates_log()
+        dates = self.user.persistence.create_dates_var()
         
         # scrape just once a day
         if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
 
-            Webscraper(self.user).get_daysum_files(self.user.Options['headless_mode'])
+            self.user.scrape.get_daysum_files(self.user.Options['headless_mode'])
             self.move_files(self.user.Meter['day_meter'])
             self.move_files(self.user.Meter['night_meter'])
         else:
             print('Most recent data already downloaded')
             
     def __repr__(self) -> str:
-        return str(vars(self))
-        
-    def __str__(self) -> str:
-        return self.user.Login['username']
+        return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
 
     
 class TomlTools():
@@ -184,11 +182,18 @@ class TomlTools():
             Append password to toml object 
         toml_save_password(toml_filename, password)   
     """
-    def __init__(self, user: 'user') -> None:
-        self.user = user
+    def __init__(self, app: 'Application') -> None:
+        """Initialize class with all attributes from user config files.
+
+        Parameters
+        ----------
+        app : class instance
+            Holds the configuration data for program run.         
+        """
+        self.user = app
         self.user_data = pl.Path(self.user.Path['user_data'])
         
-    def load_toml_file(self, filename: pl.Path) -> tomlkit:
+    def load_toml_file(self, filename: pl.Path) -> tomlkit.TOMLDocument:
         """Read `.toml` file and return Python TOML object.
 
         Parameters
@@ -206,7 +211,7 @@ class TomlTools():
         
         return data    
     
-    def save_toml_file(self, filename: pl.Path, toml_object: tomlkit) -> None:
+    def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -> None:
         """Takes python TOML object and writes `.toml` file to filesystem
 
         Parameters
@@ -219,7 +224,7 @@ class TomlTools():
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
 
-    def toml_append_password(self, toml_object: tomlkit, pwd: str) -> None:
+    def toml_append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
         """Append password entry to Login table in Python TOML object.
 
         Parameters
@@ -251,12 +256,9 @@ class TomlTools():
             Password for web scraping login.
         """
         # Store password in user_data.toml
-        user_data = TomlTools(self.user).load_toml_file(toml_filename)
-        TomlTools(self.user).toml_append_password(user_data, password)
-        TomlTools(self.user).save_toml_file(toml_filename, user_data)
+        user_data = self.load_toml_file(toml_filename)
+        self.toml_append_password(user_data, password)
+        self.save_toml_file(toml_filename, user_data)
                            
     def __repr__(self) -> str:
-        return str(vars(self))
-        
-    def __str__(self) -> str:
-        return self.user.Login['username']
+        return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
