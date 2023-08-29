@@ -4,27 +4,36 @@ Tools for dealing with cryptography
 from collections import namedtuple
 import pathlib as pl
 import rsa
-
+# Type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SMIT.application import Application
+    
 class RsaTools():
     """Methods for accessing the rsa library
     
     Attributes
     ----------
-    UserClass : class type
+    app : class type
         Holds user information      
     Methods
     -------
-    
+    load_keys():
+        Make keys available for signing.
+    encrypt_pwd(pwd):
+        Encrypt pwd string with public key.
+    decrypt_pwd(pwd):
+        Decrypt pwd bytes object with private key.
     """    
-    def __init__(self, user: 'user') -> None:
-        """Initialize user class variables, set path variables for rsa keys.
+    def __init__(self, app: 'Application') -> None:
+        """Initialize class with all attributes from user config files.
 
         Parameters
         ----------
-        UserClass : class type
-            User data initiated via `user()` function from user module. 
+        app : class instance
+            Holds the configuration data for program run.         
         """        
-        self.user = user
+        self.user = app
         self.pub_path = pl.Path(self.user.Path['public_key'])
         self.priv_path = pl.Path(self.user.Path['private_key'])
         no_public_key = not self.pub_path.exists()
@@ -43,8 +52,6 @@ class RsaTools():
             with open(self.priv_path, 'wb') as key:
                 key.write(private_key.save_pkcs1('PEM'))
                 print('Private key written')
-                       
-            print('#####################')
 
     def load_keys(self) -> tuple[rsa.PrivateKey, rsa.PublicKey]:
         """Load keys from `keys` folder
