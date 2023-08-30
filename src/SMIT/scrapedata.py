@@ -33,23 +33,23 @@ class Webscraper():
         -------
         wait_and_click(elementXpath):
             Wait for web element and click.
-        __ff_options(dl_folder, headless):
+        _ff_options(dl_folder, headless):
             Set options for firefox webdriver.
         start_date_updater(dates):
             Update runtime dates in dates dict.
-        __sng_input_dates(input_date):
+        _sng_input_dates(input_date):
             Fill dates in date-input web element.
         sng_login(dl_folder, headless):
             Login to stromnetz graz webportal and setup data page.
-        __sng_fill_dates_element(start, end):
+        _sng_fill_dates_element(start, end):
             Activate day sum web-element and fill start/end dates.
-        __sng_start_download():
+        _sng_start_download():
             Start download from webpage.
-        __sng_switch_day_night_meassurements(day_night):
+        _sng_switch_day_night_meassurements(day_night):
             Switch between day/night meter.
         get_daysum_files(headless):
             Download data summarized by day.
-        __decode_password():
+        _decode_password():
             Decode password from user instance and return plain text string.
     """
     def __init__(self, app: 'Application') -> None:
@@ -78,7 +78,7 @@ class Webscraper():
         )
         switchName.click()   
 
-    def __ff_options(self, dl_folder: str,
+    def _ff_options(self, dl_folder: str,
                      headless: bool) -> webdriver.FirefoxOptions:
         """Set options for firefox webdriver.
 
@@ -134,7 +134,7 @@ class Webscraper():
 
         self.user.persistence.save_dates_log(dates)
 
-    def __decode_password(self) -> str:
+    def _decode_password(self) -> str:
         """Get encoded password return decoded password.
         
         The password will be send in plain text.
@@ -171,14 +171,14 @@ class Webscraper():
         """
         service = Service(executable_path= self.user.Path['geckodriver_executable'],
                           log_path= self.user.Path['webdriver_logFolder'])
-        self.driver = webdriver.Firefox(options=self.__ff_options(dl_folder, headless),
+        self.driver = webdriver.Firefox(options=self._ff_options(dl_folder, headless),
                                    service=service)
         # Load Url        
         self.driver.get(self.user.Login['url'])
         self.driver.maximize_window()
         ##### login #####
         self.driver.find_element(By.NAME, "email").send_keys(self.user.Login['username'])
-        self.driver.find_element(By.NAME, "password").send_keys(self.__decode_password())
+        self.driver.find_element(By.NAME, "password").send_keys(self._decode_password())
         # login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
         # open data page                       
@@ -186,7 +186,7 @@ class Webscraper():
         # set unit to [Wh]                       
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      
     
-    def __sng_input_dates(self, input_date: str) -> None:
+    def _sng_input_dates(self, input_date: str) -> None:
         """Pass start/end date to Stromnetz Graz website.
         
         Fill in start/end date and click trough web form.
@@ -210,7 +210,7 @@ class Webscraper():
         actions.send_keys(Keys.TAB)
         actions.perform()
     
-    def __sng_fill_dates_element(self, start: str, end: str) -> None:
+    def _sng_fill_dates_element(self, start: str, end: str) -> None:
         """Activate day sum web-element and fill start/end dates.
 
         Parameters
@@ -224,19 +224,19 @@ class Webscraper():
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')
         # set cursor in start date input field                           
         self.wait_and_click('//*[@id="fromDayOverviewDate"]')                                                                                        
-        self.__sng_input_dates(start)    # start date
-        self.__sng_input_dates(end)      # end date
+        self._sng_input_dates(start)    # start date
+        self._sng_input_dates(end)      # end date
         # confirm date selections
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  
 
         time.sleep(3) # wait for element to load
 
-    def __sng_start_download(self) -> None:
+    def _sng_start_download(self) -> None:
         """Click download button web-element.
         """
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
 
-    def __sng_switch_day_night_meassurements(self, day_night: str) -> None:
+    def _sng_switch_day_night_meassurements(self, day_night: str) -> None:
         """Switch between day/night meassurements.
 
         Defaults to day meassurements.
@@ -272,12 +272,12 @@ class Webscraper():
         # scrape just once a day
         if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 
             self.sng_login(self.user.Folder['raw_daysum'], headless)
-            self.__sng_switch_day_night_meassurements('night')
-            self.__sng_fill_dates_element(dates['start'], dates['end'])
-            self.__sng_start_download()
-            self.__sng_switch_day_night_meassurements('day')
-            self.__sng_fill_dates_element(dates['start'], dates['end'])
-            self.__sng_start_download()
+            self._sng_switch_day_night_meassurements('night')
+            self._sng_fill_dates_element(dates['start'], dates['end'])
+            self._sng_start_download()
+            self._sng_switch_day_night_meassurements('day')
+            self._sng_fill_dates_element(dates['start'], dates['end'])
+            self._sng_start_download()
             print('Downloaded data with the following arguments:')
             print('Start date: ' + dates['start'])
             print('End date: ' + dates['end'])
