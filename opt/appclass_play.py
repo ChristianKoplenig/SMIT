@@ -23,23 +23,23 @@ class Application:
         user_data = pl.Path('config/user_data.toml')
         user_settings = pl.Path('config/user_settings.toml')
         
-        self.__add_TOML_to_attributes(user_data)    
-        self.__add_TOML_to_attributes(user_settings)
-        self.__initialize_folder_structure()
-        self.__add_Modules_to_attributes()
-        self.__ask_for_password_if_not_stored()
+        self._add_TOML_to_attributes(user_data)    
+        self._add_TOML_to_attributes(user_settings)
+        self._initialize_folder_structure()
+        self._add_modules_to_attributes()
+        self._ask_for_password_if_not_stored()
     
-    def __add_Modules_to_attributes(self) -> None:
+    def _add_modules_to_attributes(self) -> None:
         """Read modules dict and assign it to self.
         
-        Calls function __load_modules()
+        Calls function _load_modules()
         In modules dict the custom modules are stored as key, value pairs.
         Loading the modules dict makes the custom methods easy accessible. 
         """ 
-        for key, value in self.__load_modules().items():
+        for key, value in self._load_modules().items():
             setattr(self, key, value)
             
-    def __add_TOML_to_attributes(self, file_path: pl.Path) -> None:
+    def _add_TOML_to_attributes(self, file_path: pl.Path) -> None:
         """Read config file and assign parameters to self.
         
         Call `tomlkit` library and read parameters from a `.toml` file.
@@ -57,14 +57,14 @@ class Application:
         for key, value in data.items():
             setattr(self, key, value)
         
-    def __ask_for_password_if_not_stored(self) -> None:
+    def _ask_for_password_if_not_stored(self) -> None:
         """Start password dialog if the password is not stored in `user_data.toml`.
         """
         # pylint: disable=no-member
         if not 'password' in self.Login:    
             self.gui.password_dialog()      
             
-    def __initialize_folder_structure(self) -> None:
+    def _initialize_folder_structure(self) -> None:
         """Create folder structure.
         
         If the needed folders do not exist they will be created.
@@ -74,7 +74,7 @@ class Application:
         for folder, folder_path in self.Folder.items():
             os.makedirs(folder_path, exist_ok= True)
             
-    def __load_modules(self) -> dict:
+    def _load_modules(self) -> dict:
         """Create a dict with all loaded modules.
         
         Assign trivial names to instantiated modules.
