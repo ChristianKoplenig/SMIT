@@ -96,4 +96,4 @@ class Application:
 
 ##################### run ##############################    
 app = Application()
-#app.scrape.stromnetz_setup(app.Folder['raw_daysum'])
+#app.scrape.sng_login(app.Folder['raw_daysum'])
