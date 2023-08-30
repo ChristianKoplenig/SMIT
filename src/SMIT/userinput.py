@@ -20,11 +20,11 @@ class UiTools():
         
     Methods
     -------
-    __text(txt_input):
+    _text(txt_input):
         Generates text widget
-    __checkbox_save_pwd():
+    _checkbox_save_pwd():
         Generates the save password checkbox.
-    __button_accept():
+    _button_accept():
         Reads input from entry field, handles pwd routine.
     password_dialog():
         Routine for getting the user input
@@ -48,7 +48,7 @@ class UiTools():
         
         self.button = tk.Button(
             text = 'Confirm',
-            command= self.__button_accept
+            command= self._button_accept
         )
         
         self.entry = tk.Entry(
@@ -58,7 +58,7 @@ class UiTools():
             show= '*'
         )
         
-    def __text(self, txt_input: str) -> None:
+    def _text(self, txt_input: str) -> None:
         """Create text widget
 
         Parameters
@@ -72,7 +72,7 @@ class UiTools():
         )
         text.pack()
         
-    def __checkbox_save_pwd(self) -> None:
+    def _checkbox_save_pwd(self) -> None:
         """Generate checkbox for password saving option.
         """
         ttk.Checkbutton(
@@ -81,7 +81,7 @@ class UiTools():
             variable= self.save_password
         ).pack()
         
-    def __button_accept(self) -> None:
+    def _button_accept(self) -> None:
         """Defines what to todo when accept button is pressed.
         
         If the "save password" checkbox is activated then the password
@@ -113,12 +113,12 @@ class UiTools():
         """Initiate "Enter Password" dialog.
         """
         self.window.lift()
-        self.__text('Please enter your Stromnetz Graz password')
+        self._text('Please enter your Stromnetz Graz password')
         self.entry.pack()
         self.entry.focus()
-        self.__checkbox_save_pwd()
+        self._checkbox_save_pwd()
         self.button.pack()
-        self.__text('Please read the disclaimer for details on password handling')
+        self._text('Please read the disclaimer for details on password handling')
         self.window.mainloop()
         
     def __repr__(self) -> str:

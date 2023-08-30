@@ -107,14 +107,14 @@ In `root` folder create:
 
 ### `filehandling.py`
 **Functions to deal with operating system folders**
-- `__pathlib_move(src, dest, appendix)`
+- `_pathlib_move(src, dest, appendix)`
 	- Move and rename files
 	- **Input:** source filepath, destination filepath, text to append
 - `move_files_to_workdir.py(meter_number)`
 	- Select files in webdriver download folder
 	- Filter files with creation date today
 	- Distinguish between files with different meter numbers
-	- Call `__pathlib_move()`
+	- Call `_pathlib_move()`
 	- **Input:** number for power meter
 - `scrapeandmove()`
 	- Start downloading `csv` files from web portal
@@ -153,7 +153,7 @@ In `root` folder create:
 - `start_date_updater(dates)`
 	- Set and update start date for automated scraping
 	- **Input:** `dates` dict
-- `__sng_input_dates(input_date)`
+- `_sng_input_dates(input_date)`
 	- Input start/end dates in web element
 	- **Input:** date for `csv` file
 - `sng_login(dl_folder, headless)`
@@ -163,13 +163,13 @@ In `root` folder create:
 	- Go to data page
 	- Set units
 	- **Input:** path to download folder, headless mode for firefox
-- `__sng_fill_dates_element(start, end)`
+- `_sng_fill_dates_element(start, end)`
 	- Activate web element for `daysum` download
-	- use `__sng_input_dates()` to populate date fields
+	- use `_sng_input_dates()` to populate date fields
 	- **Input:** start/end dates for file download
-- `__sng_start_download()`
+- `_sng_start_download()`
 	- Push download button
-- `__sng_switch_day_night_meassurements(day_night)`
+- `_sng_switch_day_night_meassurements(day_night)`
 	- Make dropdown menu for power meter input active
 	- Choose second entry if input is `night_meter`, else choose first entry
 	- **Input:** either day or night meter number

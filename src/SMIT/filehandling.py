@@ -28,10 +28,10 @@ class OsInterface():
            
         Methods
         -------
-        __pathlib_move(src, dest, appendix):
+        _pathlib_move(src, dest, appendix):
             Move and rename files.
         move_files_to_workdir(meter_number):
-            Filter files and run __pathlib_move().
+            Filter files and run _pathlib_move().
         create_dataframe(workdir, metertype):
             Create initial dataframe.
         scrapeandmove():
@@ -47,7 +47,7 @@ class OsInterface():
         """        
         self.user = app
             
-    def __pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
+    def _pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
 
         Move the file from `src` to `dest` and rename it to todays date (yyyy-mm-dd) folowed by '_appendix.csv'.
@@ -72,7 +72,7 @@ class OsInterface():
         Iterate over all '.csv' files in webdriver download folder.
         Select files with creation date of today.
         Select files with `meter_number` in filename.
-        For selected files run :func: `__pathlib_move`.
+        For selected files run :func: `_pathlib_move`.
 
         Parameters
         ----------
@@ -93,7 +93,7 @@ class OsInterface():
 
                 #filter for input files
                 if meter_number in str(filename):
-                    self.__pathlib_move(filename, workdir, meter_number)              
+                    self._pathlib_move(filename, workdir, meter_number)              
 
     def create_dataframe(self, workdir: pl.Path, metertype: str) -> pd.DataFrame:
         """Create basic dataframe for further analysis.
@@ -178,7 +178,7 @@ class TomlTools():
             Return toml object from filesystem.
         save_toml_file(filename, toml_object):
             Write toml object to filesystem. 
-        __append_password(toml_object, pwd)
+        _append_password(toml_object, pwd)
             Append password to toml object 
         add_password_to_toml(toml_filename, password)   
     """
@@ -224,7 +224,7 @@ class TomlTools():
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
 
-    def __append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
+    def _append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
         """Append password entry to Login table in Python TOML object.
 
         Parameters
@@ -255,7 +255,7 @@ class TomlTools():
         """
         # Store password in user_data.toml
         user_data = self.load_toml_file(toml_filename)
-        self.__append_password(user_data, password)
+        self._append_password(user_data, password)
         self.save_toml_file(toml_filename, user_data)
                            
     def __repr__(self) -> str:
