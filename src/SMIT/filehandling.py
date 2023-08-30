@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from SMIT.application import Application
 
 class OsInterface():
-    """Methods for interacting with files on os filesystem
+    """Methods for interacting with files on os filesystem.
         
         Attributes
         ----------
@@ -28,10 +28,10 @@ class OsInterface():
            
         Methods
         -------
-        pathlib_move(src, dest, appendix):
+        __pathlib_move(src, dest, appendix):
             Move and rename files.
-        move_files(meter_number):
-            Filter files and run pathlib_move().
+        move_files_to_workdir(meter_number):
+            Filter files and run __pathlib_move().
         create_dataframe(workdir, metertype):
             Create initial dataframe.
         scrapeandmove():
@@ -47,7 +47,7 @@ class OsInterface():
         """        
         self.user = app
             
-    def pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
+    def __pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
 
         Move the file from `src` to `dest` and rename it to todays date (yyyy-mm-dd) folowed by '_appendix.csv'.
@@ -66,13 +66,13 @@ class OsInterface():
         new_filename = dest / str(str(dt.date.today().strftime('%Y%m%d') + '_' + str(appendix)) + '.csv')
         path.rename(new_filename)      
 
-    def move_files(self, meter_number: str) -> None:
-        """Copy files to work directory.
+    def move_files_to_workdir(self, meter_number: str) -> None:
+        """Move files from download dir to work dir.
 
         Iterate over all '.csv' files in webdriver download folder.
         Select files with creation date of today.
         Select files with `meter_number` in filename.
-        For selected files run :func: `pathlib_move`.
+        For selected files run :func: `__pathlib_move`.
 
         Parameters
         ----------
@@ -93,7 +93,7 @@ class OsInterface():
 
                 #filter for input files
                 if meter_number in str(filename):
-                    self.pathlib_move(filename, workdir, meter_number)              
+                    self.__pathlib_move(filename, workdir, meter_number)              
 
     def create_dataframe(self, workdir: pl.Path, metertype: str) -> pd.DataFrame:
         """Create basic dataframe for further analysis.
@@ -143,11 +143,11 @@ class OsInterface():
         df_return.drop_duplicates(subset='date', keep='first', inplace=True)
         return df_return
 
-    def scrapandmove(self) -> None:
+    def sng_scrape_and_move(self) -> None:
         """Scrape data and move '.csv' files to workdir.
 
         Call :func: `get_daysum_files`
-        For each meter call :func: `move_files`
+        For each meter call :func: `move_files_to_workdir`
         """
         self.user.persistence.initialize_dates_log()
         dates = self.user.persistence.create_dates_var()
@@ -156,8 +156,8 @@ class OsInterface():
         if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
 
             self.user.scrape.get_daysum_files(self.user.Options['headless_mode'])
-            self.move_files(self.user.Meter['day_meter'])
-            self.move_files(self.user.Meter['night_meter'])
+            self.move_files_to_workdir(self.user.Meter['day_meter'])
+            self.move_files_to_workdir(self.user.Meter['night_meter'])
         else:
             print('Most recent data already downloaded')
             

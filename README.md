@@ -107,14 +107,14 @@ In `root` folder create:
 
 ### `filehandling.py`
 **Functions to deal with operating system folders**
-- `pathlib_move(src, dest, appendix)`
+- `__pathlib_move(src, dest, appendix)`
 	- Move and rename files
 	- **Input:** source filepath, destination filepath, text to append
-- `move_files.py(meter_number)`
+- `move_files_to_workdir.py(meter_number)`
 	- Select files in webdriver download folder
 	- Filter files with creation date today
 	- Distinguish between files with different meter numbers
-	- Call `pathlib_move()`
+	- Call `__pathlib_move()`
 	- **Input:** number for power meter
 - `scrapeandmove()`
 	- Start downloading `csv` files from web portal
