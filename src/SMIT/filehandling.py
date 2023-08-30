@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from SMIT.application import Application
 
 class OsInterface():
-    """Methods for interacting with files on os filesystem
+    """Methods for interacting with files on os filesystem.
         
         Attributes
         ----------
@@ -28,10 +28,10 @@ class OsInterface():
            
         Methods
         -------
-        pathlib_move(src, dest, appendix):
+        _pathlib_move(src, dest, appendix):
             Move and rename files.
-        move_files(meter_number):
-            Filter files and run pathlib_move().
+        move_files_to_workdir(meter_number):
+            Filter files and run _pathlib_move().
         create_dataframe(workdir, metertype):
             Create initial dataframe.
         scrapeandmove():
@@ -47,7 +47,7 @@ class OsInterface():
         """        
         self.user = app
             
-    def pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
+    def _pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
 
         Move the file from `src` to `dest` and rename it to todays date (yyyy-mm-dd) folowed by '_appendix.csv'.
@@ -66,13 +66,13 @@ class OsInterface():
         new_filename = dest / str(str(dt.date.today().strftime('%Y%m%d') + '_' + str(appendix)) + '.csv')
         path.rename(new_filename)      
 
-    def move_files(self, meter_number: str) -> None:
-        """Copy files to work directory.
+    def move_files_to_workdir(self, meter_number: str) -> None:
+        """Move files from download dir to work dir.
 
         Iterate over all '.csv' files in webdriver download folder.
         Select files with creation date of today.
         Select files with `meter_number` in filename.
-        For selected files run :func: `pathlib_move`.
+        For selected files run :func: `_pathlib_move`.
 
         Parameters
         ----------
@@ -93,7 +93,7 @@ class OsInterface():
 
                 #filter for input files
                 if meter_number in str(filename):
-                    self.pathlib_move(filename, workdir, meter_number)              
+                    self._pathlib_move(filename, workdir, meter_number)              
 
     def create_dataframe(self, workdir: pl.Path, metertype: str) -> pd.DataFrame:
         """Create basic dataframe for further analysis.
@@ -143,21 +143,21 @@ class OsInterface():
         df_return.drop_duplicates(subset='date', keep='first', inplace=True)
         return df_return
 
-    def scrapandmove(self) -> None:
+    def sng_scrape_and_move(self) -> None:
         """Scrape data and move '.csv' files to workdir.
 
         Call :func: `get_daysum_files`
-        For each meter call :func: `move_files`
+        For each meter call :func: `move_files_to_workdir`
         """
         self.user.persistence.initialize_dates_log()
-        dates = self.user.persistence.create_dates_var()
+        dates = self.user.persistence.load_dates_log()
         
         # scrape just once a day
         if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
 
             self.user.scrape.get_daysum_files(self.user.Options['headless_mode'])
-            self.move_files(self.user.Meter['day_meter'])
-            self.move_files(self.user.Meter['night_meter'])
+            self.move_files_to_workdir(self.user.Meter['day_meter'])
+            self.move_files_to_workdir(self.user.Meter['night_meter'])
         else:
             print('Most recent data already downloaded')
             
@@ -178,9 +178,9 @@ class TomlTools():
             Return toml object from filesystem.
         save_toml_file(filename, toml_object):
             Write toml object to filesystem. 
-        toml_append_password(toml_object, pwd)
+        _append_password(toml_object, pwd)
             Append password to toml object 
-        toml_save_password(toml_filename, password)   
+        add_password_to_toml(toml_filename, password)   
     """
     def __init__(self, app: 'Application') -> None:
         """Initialize class with all attributes from user config files.
@@ -224,7 +224,7 @@ class TomlTools():
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
 
-    def toml_append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
+    def _append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
         """Append password entry to Login table in Python TOML object.
 
         Parameters
@@ -243,10 +243,8 @@ class TomlTools():
         except KeyError as e:
             print(e)
     
-    def toml_save_password(self, toml_filename: pl.Path, password: str) -> None:
-        """Routine for handling the password input.
-        
-        Store password in `.toml` file.
+    def add_password_to_toml(self, toml_filename: pl.Path, password: str) -> None:
+        """Add password to `user_data.toml`.
 
         Parameters
         ----------
@@ -257,7 +255,7 @@ class TomlTools():
         """
         # Store password in user_data.toml
         user_data = self.load_toml_file(toml_filename)
-        self.toml_append_password(user_data, password)
+        self._append_password(user_data, password)
         self.save_toml_file(toml_filename, user_data)
                            
     def __repr__(self) -> str:
