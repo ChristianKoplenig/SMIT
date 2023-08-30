@@ -135,10 +135,10 @@ In `root` folder create:
 - `initialize_dates_log()
 	- Create `dates` dict and fill for first run
 	- Save `dates` dict to log folder
-- `create_dates_var()`
+- `load_dates_log()`
 	- Load `dates` dict from storage to namespace
 	- **Return:** `dates`
-- `save_dates_loggingFile(dates)`
+- `save_dates_log(dates)`
 	- Save `dates` dict to log folder
 	- **Input:** File to save
 

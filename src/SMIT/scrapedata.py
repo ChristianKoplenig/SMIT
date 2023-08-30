@@ -132,7 +132,7 @@ class Webscraper():
         dates['last_scrape'] = date.today().strftime('%d-%m-%Y')
         dates['start'] = date.today().strftime('%d-%m-%Y')
 
-        self.user.persistence.save_dates_loggingFile(dates)
+        self.user.persistence.save_dates_log(dates)
 
     def __decode_password(self) -> str:
         """Get encoded password return decoded password.
@@ -266,7 +266,7 @@ class Webscraper():
             Run Firefox in headless mode defaults to `False`.
         """
         self.user.persistence.initialize_dates_log()
-        dates = self.user.persistence.create_dates_var()
+        dates = self.user.persistence.load_dates_log()
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
         
         # scrape just once a day

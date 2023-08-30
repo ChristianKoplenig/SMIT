@@ -21,9 +21,9 @@ class Persistence():
         -------
         initialize_dates_log():
             Create `dates` log on first run
-        create_dates_var():
+        load_dates_log():
             Make `dates` dict accessible
-        save_dates_loggingFile():
+        save_dates_log():
             Saves `dates` log file 
     """
     def __init__(self, app: 'Application') -> None:
@@ -52,7 +52,7 @@ class Persistence():
                 pickle.dump(dates, pk)
             pk.close()
 
-    def create_dates_var(self) -> dict:
+    def load_dates_log(self) -> dict:
         """Load dates log dict.
         
         Loads the date logging variable from disc. 
@@ -66,7 +66,7 @@ class Persistence():
             dates = pickle.load(pk)
         return dates
 
-    def save_dates_loggingFile(self, dates: dict):
+    def save_dates_log(self, dates: dict):
         """Persist dates in log dict.
         
         Writes the dates logging variable to the disc.
