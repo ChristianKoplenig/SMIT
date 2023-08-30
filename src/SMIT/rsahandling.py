@@ -18,7 +18,7 @@ class RsaTools():
         Holds user information      
     Methods
     -------
-    load_keys():
+    __load_rsa_keys():
         Make keys available for signing.
     encrypt_pwd(pwd):
         Encrypt pwd string with public key.
@@ -53,7 +53,7 @@ class RsaTools():
                 key.write(private_key.save_pkcs1('PEM'))
                 print('Private key written')
 
-    def load_keys(self) -> tuple[rsa.PrivateKey, rsa.PublicKey]:
+    def __load_rsa_keys(self) -> tuple[rsa.PrivateKey, rsa.PublicKey]:
         """Load keys from `keys` folder
 
         Returns
@@ -85,7 +85,7 @@ class RsaTools():
             Encrypted input.
         """
         pwd_enc = pwd.encode('utf8')
-        pwd_crypt = rsa.encrypt(pwd_enc, self.load_keys().public_key)
+        pwd_crypt = rsa.encrypt(pwd_enc, self.__load_rsa_keys().public_key)
         return pwd_crypt
     
     def decrypt_pwd(self, pwd: bytes) -> str:
@@ -101,7 +101,7 @@ class RsaTools():
         str
             Decrypted input.
         """
-        pwd_decrypt = rsa.decrypt(pwd, self.load_keys().private_key)
+        pwd_decrypt = rsa.decrypt(pwd, self.__load_rsa_keys().private_key)
         return pwd_decrypt.decode('utf8')
         
     def __repr__(self) -> str:
