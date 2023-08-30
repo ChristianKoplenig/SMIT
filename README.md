@@ -153,23 +153,23 @@ In `root` folder create:
 - `start_date_updater(dates)`
 	- Set and update start date for automated scraping
 	- **Input:** `dates` dict
-- `date_selector(input_date)`
+- `__sng_input_dates(input_date)`
 	- Input start/end dates in web element
 	- **Input:** date for `csv` file
-- `stromnetz_setup(dl_folder, headless)`
+- `sng_login(dl_folder, headless)`
 	- Load firefox instance
 	- Open website
 	- Login
 	- Go to data page
 	- Set units
 	- **Input:** path to download folder, headless mode for firefox
-- `stromnetz_fillTageswerte(start, end)`
+- `__sng_fill_dates_element(start, end)`
 	- Activate web element for `daysum` download
-	- use `date_selector()` to populate date fields
+	- use `__sng_input_dates()` to populate date fields
 	- **Input:** start/end dates for file download
-- `stromnetz_download()`
+- `__sng_start_download()`
 	- Push download button
-- `day_night_selector(day_night)`
+- `__sng_switch_day_night_meassurements(day_night)`
 	- Make dropdown menu for power meter input active
 	- Choose second entry if input is `night_meter`, else choose first entry
 	- **Input:** either day or night meter number
