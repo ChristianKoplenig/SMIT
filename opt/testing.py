@@ -31,7 +31,6 @@ def sng_login():
     from SMIT.scrapedata import Webscraper
     scrape = Webscraper(user)
     scrape.sng_login(user.Folder['raw_daysum'], False)
-sng_login()
     
 # Test Tomlkit
 def load_toml_file() -> 'ClassType':
@@ -59,6 +58,7 @@ def password_dialog() -> None:
     from SMIT.userinput import UiTools
     ui = UiTools(user)
     ui.password_dialog()
+password_dialog()
     
 # Test crypto
 def test_rsa() -> None:
