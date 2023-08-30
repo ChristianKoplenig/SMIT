@@ -150,7 +150,7 @@ class OsInterface():
         For each meter call :func: `move_files_to_workdir`
         """
         self.user.persistence.initialize_dates_log()
-        dates = self.user.persistence.create_dates_var()
+        dates = self.user.persistence.load_dates_log()
         
         # scrape just once a day
         if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
