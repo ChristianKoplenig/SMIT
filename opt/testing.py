@@ -30,7 +30,8 @@ def sng_login():
     """
     from SMIT.scrapedata import Webscraper
     scrape = Webscraper(user)
-    scrape.stromnetz_setup(user.Folder['raw_daysum'], False)
+    scrape.sng_login(user.Folder['raw_daysum'], False)
+sng_login()
     
 # Test Tomlkit
 def load_toml_file() -> 'ClassType':

@@ -107,14 +107,14 @@ In `root` folder create:
 
 ### `filehandling.py`
 **Functions to deal with operating system folders**
-- `pathlib_move(src, dest, appendix)`
+- `_pathlib_move(src, dest, appendix)`
 	- Move and rename files
 	- **Input:** source filepath, destination filepath, text to append
-- `move_files.py(meter_number)`
+- `move_files_to_workdir.py(meter_number)`
 	- Select files in webdriver download folder
 	- Filter files with creation date today
 	- Distinguish between files with different meter numbers
-	- Call `pathlib_move()`
+	- Call `_pathlib_move()`
 	- **Input:** number for power meter
 - `scrapeandmove()`
 	- Start downloading `csv` files from web portal
@@ -135,10 +135,10 @@ In `root` folder create:
 - `initialize_dates_log()
 	- Create `dates` dict and fill for first run
 	- Save `dates` dict to log folder
-- `create_dates_var()`
+- `load_dates_log()`
 	- Load `dates` dict from storage to namespace
 	- **Return:** `dates`
-- `save_dates_loggingFile(dates)`
+- `save_dates_log(dates)`
 	- Save `dates` dict to log folder
 	- **Input:** File to save
 
@@ -153,23 +153,23 @@ In `root` folder create:
 - `start_date_updater(dates)`
 	- Set and update start date for automated scraping
 	- **Input:** `dates` dict
-- `date_selector(input_date)`
+- `_sng_input_dates(input_date)`
 	- Input start/end dates in web element
 	- **Input:** date for `csv` file
-- `stromnetz_setup(dl_folder, headless)`
+- `sng_login(dl_folder, headless)`
 	- Load firefox instance
 	- Open website
 	- Login
 	- Go to data page
 	- Set units
 	- **Input:** path to download folder, headless mode for firefox
-- `stromnetz_fillTageswerte(start, end)`
+- `_sng_fill_dates_element(start, end)`
 	- Activate web element for `daysum` download
-	- use `date_selector()` to populate date fields
+	- use `_sng_input_dates()` to populate date fields
 	- **Input:** start/end dates for file download
-- `stromnetz_download()`
+- `_sng_start_download()`
 	- Push download button
-- `day_night_selector(day_night)`
+- `_sng_switch_day_night_meassurements(day_night)`
 	- Make dropdown menu for power meter input active
 	- Choose second entry if input is `night_meter`, else choose first entry
 	- **Input:** either day or night meter number
