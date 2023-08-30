@@ -178,9 +178,9 @@ class TomlTools():
             Return toml object from filesystem.
         save_toml_file(filename, toml_object):
             Write toml object to filesystem. 
-        toml_append_password(toml_object, pwd)
+        __append_password(toml_object, pwd)
             Append password to toml object 
-        toml_save_password(toml_filename, password)   
+        add_password_to_toml(toml_filename, password)   
     """
     def __init__(self, app: 'Application') -> None:
         """Initialize class with all attributes from user config files.
@@ -224,7 +224,7 @@ class TomlTools():
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
 
-    def toml_append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
+    def __append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
         """Append password entry to Login table in Python TOML object.
 
         Parameters
@@ -243,10 +243,8 @@ class TomlTools():
         except KeyError as e:
             print(e)
     
-    def toml_save_password(self, toml_filename: pl.Path, password: str) -> None:
-        """Routine for handling the password input.
-        
-        Store password in `.toml` file.
+    def add_password_to_toml(self, toml_filename: pl.Path, password: str) -> None:
+        """Add password to `user_data.toml`.
 
         Parameters
         ----------
@@ -257,7 +255,7 @@ class TomlTools():
         """
         # Store password in user_data.toml
         user_data = self.load_toml_file(toml_filename)
-        self.toml_append_password(user_data, password)
+        self.__append_password(user_data, password)
         self.save_toml_file(toml_filename, user_data)
                            
     def __repr__(self) -> str:
