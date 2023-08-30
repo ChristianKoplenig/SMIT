@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from SMIT.application import Application
 
 class Webscraper():
-    """Methods for interacting with webdriver module
+    """Methods for interacting with webdriver module.
         
         Attributes
         ----------
@@ -33,23 +33,23 @@ class Webscraper():
         -------
         wait_and_click(elementXpath):
             Wait for web element and click.
-        ff_options(dl_folder, headless):
+        _ff_options(dl_folder, headless):
             Set options for firefox webdriver.
         start_date_updater(dates):
             Update runtime dates in dates dict.
-        date_selector(input_date):
+        _sng_input_dates(input_date):
             Fill dates in date-input web element.
-        stromnetz_setup(dl_folder, headless):
+        sng_login(dl_folder, headless):
             Login to stromnetz graz webportal and setup data page.
-        stromnetz_FillTageswerte(start, end):
+        _sng_fill_dates_element(start, end):
             Activate day sum web-element and fill start/end dates.
-        stromnetz_download():
+        _sng_start_download():
             Start download from webpage.
-        day_night_selector(day_night):
+        _sng_switch_day_night_meassurements(day_night):
             Switch between day/night meter.
         get_daysum_files(headless):
             Download data summarized by day.
-        decode_password():
+        _decode_password():
             Decode password from user instance and return plain text string.
     """
     def __init__(self, app: 'Application') -> None:
@@ -61,6 +61,7 @@ class Webscraper():
             Holds the configuration data for program run.         
         """        
         self.user = app
+        self.driver = None
             
     def wait_and_click(self, elementXpath: str) -> None:
         """Wait for web element and click.
@@ -72,12 +73,13 @@ class Webscraper():
         elementXpath : XPATH
             `xpath` of the element to click on
         """
-        switchName = WebDriverWait(driver, 10).until(
+        switchName = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, elementXpath))
         )
         switchName.click()   
 
-    def ff_options(self, dl_folder: str, headless: bool = False) -> webdriver.FirefoxOptions:
+    def _ff_options(self, dl_folder: str,
+                     headless: bool) -> webdriver.FirefoxOptions:
         """Set options for firefox webdriver.
 
         Parameters
@@ -85,12 +87,12 @@ class Webscraper():
         dl_folder : folder path
             Target donwload directory for Firefox webdriver.
         headless : bool, optional
-            activate Firefox headless mode, by default False
+            Activate Firefox headless mode.
 
         Returns
         -------
         webdriver profile
-            Options for Firefox webdriver.
+            Options for Firefox webdriver instance.
         """
         # Set path variables
         dl_path = str(pl.Path(dl_folder).absolute())
@@ -130,9 +132,9 @@ class Webscraper():
         dates['last_scrape'] = date.today().strftime('%d-%m-%Y')
         dates['start'] = date.today().strftime('%d-%m-%Y')
 
-        self.user.persistence.save_dates_loggingFile(dates)
+        self.user.persistence.save_dates_log(dates)
 
-    def decode_password(self) -> str:
+    def _decode_password(self) -> str:
         """Get encoded password return decoded password.
         
         The password will be send in plain text.
@@ -141,12 +143,12 @@ class Webscraper():
         Parameters
         ----------
         pwd_string : str
-            Encoded password 
+            Encoded password. 
 
         Returns
         -------
         str
-            Decoded plain text password string
+            Decoded plain text password string.
         """
         # Read encoded password 
         pwd_enc = self.user.Login['password']
@@ -154,10 +156,11 @@ class Webscraper():
         b64_decode = base64.b64decode(pwd_enc)
         # Decrypt rsa encryption
         password = self.user.rsa.decrypt_pwd(b64_decode)
-        return password
+        return password        
            
-    def stromnetz_setup(self, dl_folder: pl.Path, headless: bool=False) -> None:
-        """Login to stromnetz graz webportal and setup data page.
+    def sng_login(self, dl_folder: pl.Path, 
+                  headless: bool=False) -> None:
+        """Login to Stromnetz Graz webportal and setup data page.
 
         Parameters
         ----------
@@ -166,33 +169,35 @@ class Webscraper():
         headless : bool, optional
             activate Firefox headless mode, by default False
         """
-        global driver
-        
-        service = Service(executable_path= self.user.Path['geckodriver_executable'], log_path= self.user.Path['webdriver_logFolder'])
-        driver = webdriver.Firefox(options=self.ff_options(dl_folder, headless), service=service)
-        driver.get(self.user.Login['url'])
-        driver.maximize_window()
-
+        service = Service(executable_path= self.user.Path['geckodriver_executable'],
+                          log_path= self.user.Path['webdriver_logFolder'])
+        self.driver = webdriver.Firefox(options=self._ff_options(dl_folder, headless),
+                                   service=service)
+        # Load Url        
+        self.driver.get(self.user.Login['url'])
+        self.driver.maximize_window()
         ##### login #####
-        driver.find_element(By.NAME, "email").send_keys(self.user.Login['username'])
-        driver.find_element(By.NAME, "password").send_keys(self.decode_password())
+        self.driver.find_element(By.NAME, "email").send_keys(self.user.Login['username'])
+        self.driver.find_element(By.NAME, "password").send_keys(self._decode_password())
         # login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
         # open data page                       
         self.wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')
         # set unit to [Wh]                       
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      
-
-    def date_selector(self, input_date: str) -> None:
-        """Fill dates in date-input web element.
-
+    
+    def _sng_input_dates(self, input_date: str) -> None:
+        """Pass start/end date to Stromnetz Graz website.
+        
+        Fill in start/end date and click trough web form.
+        
         Parameters
         ----------
         input_date : string
             Date with format dd-mm-yyyy
         """
-        language = driver.execute_script("return navigator.language;")
-        actions = ActionChains(driver)
+        language = self.driver.execute_script("return navigator.language;")
+        actions = ActionChains(self.driver)
         
         if language == 'de':
             actions.send_keys(input_date[ :2]) #day
@@ -205,7 +210,7 @@ class Webscraper():
         actions.send_keys(Keys.TAB)
         actions.perform()
     
-    def stromnetz_fillTageswerte(self, start: str, end: str) -> None:
+    def _sng_fill_dates_element(self, start: str, end: str) -> None:
         """Activate day sum web-element and fill start/end dates.
 
         Parameters
@@ -219,19 +224,19 @@ class Webscraper():
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')
         # set cursor in start date input field                           
         self.wait_and_click('//*[@id="fromDayOverviewDate"]')                                                                                        
-        self.date_selector(start)    # start date
-        self.date_selector(end)      # end date
+        self._sng_input_dates(start)    # start date
+        self._sng_input_dates(end)      # end date
         # confirm date selections
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  
 
         time.sleep(3) # wait for element to load
 
-    def stromnetz_download(self) -> None:
+    def _sng_start_download(self) -> None:
         """Click download button web-element.
         """
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
 
-    def day_night_selector(self, day_night: str) -> None:
+    def _sng_switch_day_night_meassurements(self, day_night: str) -> None:
         """Switch between day/night meassurements.
 
         Defaults to day meassurements.
@@ -261,18 +266,18 @@ class Webscraper():
             Run Firefox in headless mode defaults to `False`.
         """
         self.user.persistence.initialize_dates_log()
-        dates = self.user.persistence.create_dates_var()
+        dates = self.user.persistence.load_dates_log()
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
         
         # scrape just once a day
         if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 
-            self.stromnetz_setup(self.user.Folder['raw_daysum'], headless)
-            self.day_night_selector('night')
-            self.stromnetz_fillTageswerte(dates['start'], dates['end'])
-            self.stromnetz_download()
-            self.day_night_selector('day')
-            self.stromnetz_fillTageswerte(dates['start'], dates['end'])
-            self.stromnetz_download()
+            self.sng_login(self.user.Folder['raw_daysum'], headless)
+            self._sng_switch_day_night_meassurements('night')
+            self._sng_fill_dates_element(dates['start'], dates['end'])
+            self._sng_start_download()
+            self._sng_switch_day_night_meassurements('day')
+            self._sng_fill_dates_element(dates['start'], dates['end'])
+            self._sng_start_download()
             print('Downloaded data with the following arguments:')
             print('Start date: ' + dates['start'])
             print('End date: ' + dates['end'])
