@@ -46,6 +46,8 @@ class OsInterface():
             Holds the configuration data for program run.           
         """        
         self.user = app
+        self.logger = app.logger
+        self.logger.debug('Module initialized successfully.')
             
     def _pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.

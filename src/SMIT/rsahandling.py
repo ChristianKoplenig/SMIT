@@ -34,6 +34,7 @@ class RsaTools():
             Holds the configuration data for program run.         
         """        
         self.user = app
+        self.logger = app.logger
         self.pub_path = pl.Path(self.user.Path['public_key'])
         self.priv_path = pl.Path(self.user.Path['private_key'])
         no_public_key = not self.pub_path.exists()
@@ -42,16 +43,17 @@ class RsaTools():
         #If no key pair exists in config folder generate one.
         if no_public_key or no_private_key:
             (public_key, private_key) = rsa.newkeys(1024)
-            print('No Rsa key pair found')
+            self.logger.warning('No Rsa key pair found')
         
         # Write public key    
             with open(self.pub_path, 'wb') as key:
                 key.write(public_key.save_pkcs1('PEM'))
-                print('Public key written')
+                self.logger.info('Public key written')
         # Write private key   
             with open(self.priv_path, 'wb') as key:
                 key.write(private_key.save_pkcs1('PEM'))
-                print('Private key written')
+                self.logger.info('Private key written')
+        self.logger.debug('Module initialized successfully.')
 
     def _load_rsa_keys(self) -> tuple[rsa.PrivateKey, rsa.PublicKey]:
         """Load keys from `keys` folder

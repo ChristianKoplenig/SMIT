@@ -35,6 +35,8 @@ class Persistence():
             Holds the configuration data for program run.         
         """       
         self.user = app
+        self.logger = app.logger
+        self.logger.debug('Module initialized successfully.')
 
     def initialize_dates_log(self) -> None:
         """Create log file for managing scraping dates.
