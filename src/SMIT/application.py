@@ -1,6 +1,8 @@
 import os
-import pathlib as pl
 import tomlkit
+import logging
+import pathlib as pl
+import sys
 
 # Import Custom Modules
 from SMIT.scrapedata import Webscraper
@@ -25,6 +27,7 @@ class Application:
         
         self._add_TOML_to_attributes(user_data)    
         self._add_TOML_to_attributes(user_settings)
+        self._setup_logger()
         self._initialize_folder_structure()
         self._add_modules_to_attributes()
         self._ask_for_password_if_not_stored()
@@ -88,6 +91,30 @@ class Application:
             ('scrape', Webscraper(self))          
         ])
         return modules
+    
+    def _setup_logger(self):
+        # Setup logging as shown in the previous example
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+
+        file_handler = logging.FileHandler('app.log')
+        file_handler.setLevel(logging.DEBUG)
+
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.WARNING)
+
+        formatter = logging.Formatter('%(asctime)s :: %(levelname)-8s :: [%(module)s:%(lineno)d] :: %(message)s')
+        file_handler.setFormatter(formatter)
+        console_handler.setFormatter(formatter)
+
+        self.logger.addHandler(file_handler)
+        self.logger.addHandler(console_handler)
+
+        #self.logger.debug('DEBUG Testing Levels')
+        #self.logger.info('INFO Testing Levels')
+        #self.logger.warning('WARNING Testing Levels')
+        #self.logger.error('ERROR Testing Levels')
+        #self.logger.critical('CRITICAL Testing Levels')
     
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
