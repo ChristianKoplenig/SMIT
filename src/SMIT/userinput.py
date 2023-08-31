@@ -38,17 +38,19 @@ class UiTools():
             Holds the configuration data for program run.         
         """                
         self.user = app
-        
-        self.window = tk.Tk()
-        self.window.title('Password Dialog')
-        self.window.geometry('400x200')
-        
-        self.pwd_entry = tk.StringVar()
-        self.save_password = tk.BooleanVar()
-        
+        self.window = None
+    
+    def _dev_widgets(self) -> None:
+        """Assign widgets to self.
+        """
         self.button = tk.Button(
             text = 'Confirm',
             command= self._button_accept
+        )
+        
+        self.checkbox = ttk.Checkbutton(
+            text= 'Save encrypted password in user_data',
+            variable= self.save_password
         )
         
         self.entry = tk.Entry(
@@ -57,6 +59,12 @@ class UiTools():
             textvariable= self.pwd_entry,
             show= '*'
         )
+        
+    def _def_variables(self) -> None:
+        """Assign variables to self.
+        """
+        self.pwd_entry = tk.StringVar()
+        self.save_password = tk.BooleanVar()
         
     def _text(self, txt_input: str) -> None:
         """Create text widget
@@ -71,15 +79,6 @@ class UiTools():
             height=3
         )
         text.pack()
-        
-    def _checkbox_save_pwd(self) -> None:
-        """Generate checkbox for password saving option.
-        """
-        ttk.Checkbutton(
-            self.window,
-            text= 'Save encrypted password in user_data',
-            variable= self.save_password
-        ).pack()
         
     def _button_accept(self) -> None:
         """Defines what to todo when accept button is pressed.
@@ -109,16 +108,25 @@ class UiTools():
             
         self.window.destroy()
         
-    def password_dialog(self) -> None:
-        """Initiate "Enter Password" dialog.
-        """
-        self.window.lift()
+    def _window_setup(self) -> None:
         self._text('Please enter your Stromnetz Graz password')
         self.entry.pack()
         self.entry.focus()
-        self._checkbox_save_pwd()
+        self.checkbox.pack()
         self.button.pack()
         self._text('Please read the disclaimer for details on password handling')
+            
+    def password_dialog(self) -> None:
+        """Initiate "Enter Password" dialog.
+        """
+        self.window = tk.Tk()
+        self.window.title('Password Dialog')
+        self.window.geometry('400x200')
+        
+        self._def_variables()
+        self._dev_widgets()
+        self._window_setup()
+        
         self.window.mainloop()
         
     def __repr__(self) -> str:
