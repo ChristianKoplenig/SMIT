@@ -39,6 +39,8 @@ class UiTools():
         """                
         self.user = app
         self.window = None
+        self.logger = app.logger
+        self.logger.debug('Module initialized successfully.')
     
     def _dev_widgets(self) -> None:
         """Assign widgets to self.
