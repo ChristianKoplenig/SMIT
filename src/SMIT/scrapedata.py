@@ -62,6 +62,9 @@ class Webscraper():
         """        
         self.user = app
         self.driver = None
+        self.logger = app.logger
+        self.logger.debug('Module initialized successfully.')
+
             
     def wait_and_click(self, elementXpath: str) -> None:
         """Wait for web element and click.
@@ -108,7 +111,7 @@ class Webscraper():
 
         if headless is True:
             profile.add_argument("-headless")
-            print('Firefox headless mode activated')
+            self.logger.info('Firefox headless mode activated')
 
         return profile
 
@@ -278,9 +281,9 @@ class Webscraper():
             self._sng_switch_day_night_meassurements('day')
             self._sng_fill_dates_element(dates['start'], dates['end'])
             self._sng_start_download()
-            print('Downloaded data with the following arguments:')
-            print('Start date: ' + dates['start'])
-            print('End date: ' + dates['end'])
+            self.logger.info('Downloaded data with the following arguments:')
+            self.logger.info('Start date: ' + dates['start'])
+            self.logger.info('End date: ' + dates['end'])
             self.start_date_updater(dates)
         
     def __repr__(self) -> str:
