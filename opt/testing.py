@@ -58,8 +58,8 @@ def password_dialog() -> None:
     from SMIT.userinput import UiTools
     ui = UiTools(user)
     ui.password_dialog()
-password_dialog()
-    
+    #print(vars(ui))
+password_dialog()    
 # Test crypto
 def test_rsa() -> None:
     """Test rsa encrypt/decrypt workflow.
