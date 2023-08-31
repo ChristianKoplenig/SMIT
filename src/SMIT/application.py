@@ -93,23 +93,22 @@ class Application:
         return modules
     
     def _setup_logger(self):
-        # Setup logging as shown in the previous example
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
+        
+        formatter = logging.Formatter('%(asctime)s :: %(levelname)-8s :: [%(module)s:%(lineno)d] :: %(message)s')
 
         file_handler = logging.FileHandler('app.log')
         file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
 
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.WARNING)
-
-        formatter = logging.Formatter('%(asctime)s :: %(levelname)-8s :: [%(module)s:%(lineno)d] :: %(message)s')
-        file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
-
-        self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
 
+        # These are the different log levels. Comment can be deleted before merge!
         #self.logger.debug('DEBUG Testing Levels')
         #self.logger.info('INFO Testing Levels')
         #self.logger.warning('WARNING Testing Levels')
