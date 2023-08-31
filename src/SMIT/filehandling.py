@@ -161,7 +161,7 @@ class OsInterface():
             self.move_files_to_workdir(self.user.Meter['day_meter'])
             self.move_files_to_workdir(self.user.Meter['night_meter'])
         else:
-            print('Most recent data already downloaded')
+            self.logger.info('Most recent data already downloaded')
             
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
@@ -243,7 +243,7 @@ class TomlTools():
                 toml_object['Login'].add("password", pwd) # pylint: disable=no-member
                 toml_object['Login']['password'].comment('Permission to store password given')
         except KeyError as e:
-            print(e)
+            self.logger.error(e)
     
     def add_password_to_toml(self, toml_filename: pl.Path, password: str) -> None:
         """Add password to `user_data.toml`.
