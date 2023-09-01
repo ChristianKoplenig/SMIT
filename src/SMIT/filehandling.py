@@ -47,7 +47,10 @@ class OsInterface():
         """
         self.user = app
         self.logger = app.logger
-        self.logger.debug('Module initialized successfully.')
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
 
     def _pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
@@ -195,7 +198,10 @@ class TomlTools():
         self.user = app
         self.user_data = pl.Path(self.user.Path['user_data'])
         self.logger = app.logger
-        self.logger.debug('Module initialized successfully.')
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
 
     def load_toml_file(self, filename: pl.Path) -> tomlkit.TOMLDocument:
         """Read `.toml` file and return Python TOML object.
