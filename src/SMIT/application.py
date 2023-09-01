@@ -17,17 +17,26 @@ class Application:
     Instantiate all custom modules.
     Set/store password according to user preference.
     """
-    def __init__(self) -> None:
+    def __init__(self, dummy: bool=False) -> None:
         
-        # Load paths to user configuration files
-        user_data = pl.Path('config/user_data.toml')
-        user_settings = pl.Path('config/user_settings.toml')
+        if dummy is False:
+            # Load paths to user configuration files
+            user_data = pl.Path('config/user_data.toml')
+            user_settings = pl.Path('config/user_settings.toml')
+        else:
+            # Set path to dummy configuration
+            user_data = pl.Path('config/dummy_data.toml')
+            user_settings = pl.Path('config/dummy_settings.toml')
+            print('Dummy configuration loaded')
         
         self._add_TOML_to_attributes(user_data)    
         self._add_TOML_to_attributes(user_settings)
         self._initialize_folder_structure()
         self._add_modules_to_attributes()
-        self._ask_for_password_if_not_stored()
+        
+        if dummy is False:
+            # No need for password entry in dummy configuration
+            self._ask_for_password_if_not_stored()
     
     def _add_modules_to_attributes(self) -> None:
         """Read modules dict and assign it to self.
