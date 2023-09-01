@@ -55,11 +55,11 @@ def password_dialog() -> None:
     WARNING: Changes affect the `user_data` attributes and 
             `user_data.toml` file
     """
-    from SMIT.userinput import UiTools
-    ui = UiTools(user)
+    #from SMIT.userinput import UiTools
+    ui = user.gui
     ui.password_dialog()
     #print(vars(ui))
-password_dialog()    
+       
 # Test crypto
 def test_rsa() -> None:
     """Test rsa encrypt/decrypt workflow.
@@ -78,3 +78,7 @@ def test_rsa() -> None:
     print('#### Dencryption ####')
     print('Decrypted pwd: ' + '\n' + str(pwd_dec) + '\n')
     print('Type: ' + str(type(pwd_dec)) + '\n')
+    
+############## load test #######################
+password_dialog()
+################################################
