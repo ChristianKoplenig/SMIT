@@ -23,12 +23,12 @@ if TYPE_CHECKING:
 
 class Webscraper():
     """Methods for interacting with webdriver module.
-        
+
         Attributes
         ----------
         app : class instance
-            Holds user information      
-        
+            Holds user information
+
         Methods
         -------
         wait_and_click(elementXpath):
@@ -58,14 +58,17 @@ class Webscraper():
         Parameters
         ----------
         app : class instance
-            Holds the configuration data for program run.         
-        """        
+            Holds the configuration data for program run.
+        """
         self.user = app
         self.driver = None
         self.logger = app.logger
-        self.logger.debug('Module initialized successfully.')
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
 
-            
+
     def wait_and_click(self, elementXpath: str) -> None:
         """Wait for web element and click.
 
@@ -79,7 +82,7 @@ class Webscraper():
         switchName = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, elementXpath))
         )
-        switchName.click()   
+        switchName.click()
 
     def _ff_options(self, dl_folder: str,
                      headless: bool) -> webdriver.FirefoxOptions:
@@ -99,7 +102,7 @@ class Webscraper():
         """
         # Set path variables
         dl_path = str(pl.Path(dl_folder).absolute())
-        
+
         # Set firefox options
         profile = Options()
         profile.set_preference("browser.download.folderList", 2)
@@ -126,10 +129,10 @@ class Webscraper():
             Dict with parameters for date management
         """
         # update dates after first run
-        if dates['last_scrape'] == 'never':                                                                         
+        if dates['last_scrape'] == 'never':
             dates['start'] = date.today().strftime('%d-%m-%Y')
         # update start/end dates
-        if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):   
+        if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):
             dates['start'] = dates['last_scrape']
 
         dates['last_scrape'] = date.today().strftime('%d-%m-%Y')
@@ -139,29 +142,29 @@ class Webscraper():
 
     def _decode_password(self) -> str:
         """Get encoded password return decoded password.
-        
+
         The password will be send in plain text.
         At the moment I see no other option.
 
         Parameters
         ----------
         pwd_string : str
-            Encoded password. 
+            Encoded password.
 
         Returns
         -------
         str
             Decoded plain text password string.
         """
-        # Read encoded password 
+        # Read encoded password
         pwd_enc = self.user.Login['password']
         # Decode the base64 conversion
         b64_decode = base64.b64decode(pwd_enc)
         # Decrypt rsa encryption
         password = self.user.rsa.decrypt_pwd(b64_decode)
-        return password        
-           
-    def sng_login(self, dl_folder: pl.Path, 
+        return password
+
+    def sng_login(self, dl_folder: pl.Path,
                   headless: bool=False) -> None:
         """Login to Stromnetz Graz webportal and setup data page.
 
@@ -176,7 +179,7 @@ class Webscraper():
                           log_path= self.user.Path['webdriver_logFolder'])
         self.driver = webdriver.Firefox(options=self._ff_options(dl_folder, headless),
                                    service=service)
-        # Load Url        
+        # Load Url
         self.driver.get(self.user.Login['url'])
         self.driver.maximize_window()
         ##### login #####
@@ -184,16 +187,16 @@ class Webscraper():
         self.driver.find_element(By.NAME, "password").send_keys(self._decode_password())
         # login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
-        # open data page                       
+        # open data page
         self.wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')
-        # set unit to [Wh]                       
-        self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')      
-    
+        # set unit to [Wh]
+        self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')
+
     def _sng_input_dates(self, input_date: str) -> None:
         """Pass start/end date to Stromnetz Graz website.
-        
+
         Fill in start/end date and click trough web form.
-        
+
         Parameters
         ----------
         input_date : string
@@ -201,7 +204,7 @@ class Webscraper():
         """
         language = self.driver.execute_script("return navigator.language;")
         actions = ActionChains(self.driver)
-        
+
         if language == 'de':
             actions.send_keys(input_date[ :2]) #day
             actions.send_keys(input_date[3:5]) #month
@@ -212,7 +215,7 @@ class Webscraper():
         actions.send_keys(Keys.TAB)
         actions.send_keys(Keys.TAB)
         actions.perform()
-    
+
     def _sng_fill_dates_element(self, start: str, end: str) -> None:
         """Activate day sum web-element and fill start/end dates.
 
@@ -225,12 +228,12 @@ class Webscraper():
         """
         # select daily sum measurements
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')
-        # set cursor in start date input field                           
-        self.wait_and_click('//*[@id="fromDayOverviewDate"]')                                                                                        
+        # set cursor in start date input field
+        self.wait_and_click('//*[@id="fromDayOverviewDate"]')
         self._sng_input_dates(start)    # start date
         self._sng_input_dates(end)      # end date
         # confirm date selections
-        self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')  
+        self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')
 
         time.sleep(3) # wait for element to load
 
@@ -250,17 +253,17 @@ class Webscraper():
             either `day` or `night`
         """
         # make dropdown active
-        self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')              
+        self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')
         # choose night measurements
         if day_night == 'night':
-            self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a') 
+            self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a')
         # choose day measurements
         else:
-            self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a') 
+            self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a')
 
         time.sleep(3)
- 
-    def get_daysum_files(self, headless: bool=False) -> None: 
+
+    def get_daysum_files(self, headless: bool=False) -> None:
         """Initiate '.csv' files download for day sum files.
 
         Parameters
@@ -271,9 +274,9 @@ class Webscraper():
         self.user.persistence.initialize_dates_log()
         dates = self.user.persistence.load_dates_log()
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
-        
+
         # scrape just once a day
-        if not dates['start'] == date.today().strftime('%d-%m-%Y'):                 
+        if not dates['start'] == date.today().strftime('%d-%m-%Y'):
             self.sng_login(self.user.Folder['raw_daysum'], headless)
             self._sng_switch_day_night_meassurements('night')
             self._sng_fill_dates_element(dates['start'], dates['end'])
@@ -285,6 +288,6 @@ class Webscraper():
             self.logger.info('Start date: ' + dates['start'])
             self.logger.info('End date: ' + dates['end'])
             self.start_date_updater(dates)
-        
+
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
