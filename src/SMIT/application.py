@@ -2,7 +2,6 @@ import os
 import tomlkit
 import logging
 import pathlib as pl
-import sys
 
 # Import Custom Modules
 from SMIT.scrapedata import Webscraper
@@ -31,6 +30,7 @@ class Application:
         self._initialize_folder_structure()
         self._add_modules_to_attributes()
         self._ask_for_password_if_not_stored()
+        self.logger.debug('Application class successfully initialized')
     
     def _add_modules_to_attributes(self) -> None:
         """Read modules dict and assign it to self.
@@ -98,7 +98,7 @@ class Application:
         
         formatter = logging.Formatter('%(asctime)s :: %(levelname)-8s :: [%(module)s:%(lineno)d] :: %(message)s')
 
-        file_handler = logging.FileHandler('app.log')
+        file_handler = logging.FileHandler(self.Path['log_file'])
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)

@@ -191,6 +191,7 @@ class Webscraper():
         self.wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')
         # set unit to [Wh]
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')
+        self.logger.debug('Login to Stromnetz Graz successful')
 
     def _sng_input_dates(self, input_date: str) -> None:
         """Pass start/end date to Stromnetz Graz website.
