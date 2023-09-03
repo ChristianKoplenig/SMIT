@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>SMIT.filehandling API documentation</title>
+<meta name="description" content="Tools for manipulating files on os basis
+Classes:
+--------
+OsInterface:
+Os file operations
+Generate Python data frame
+…" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>SMIT.filehandling</code></h1>
+</header>
+<section id="section-intro">
+<p>Tools for manipulating files on os basis
+Classes:
+--------
+OsInterface:
+Os file operations
+Generate Python data frame
+TomlTools:
+Read/Write <code>.toml</code> files
+Append password</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+    Tools for manipulating files on os basis
+        Classes:
+        --------
+        OsInterface:
+            Os file operations
+            Generate Python data frame
+        TomlTools:
+            Read/Write `.toml` files
+            Append password
+&#34;&#34;&#34;
+import datetime as dt
+import pathlib as pl
+import pandas as pd
+import tomlkit
+# Type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SMIT.application import Application
+
+class OsInterface():
+    &#34;&#34;&#34;Methods for interacting with files on os filesystem.
+
+        Attributes
+        ----------
+        app : class instance
+            Holds user information
+
+        Methods
+        -------
+        _pathlib_move(src, dest, appendix):
+            Move and rename files.
+        move_files_to_workdir(meter_number):
+            Filter files and run _pathlib_move().
+        create_dataframe(workdir, metertype):
+            Create initial dataframe.
+        scrapeandmove():
+            Initiate download process and move files.
+    &#34;&#34;&#34;
+    def __init__(self, app: &#39;Application&#39;) -&gt; None:
+        &#34;&#34;&#34;Initialize Class with all attributes from `UserClass`
+
+        Parameters
+        ----------
+        app : class instance
+            Holds the configuration data for program run.
+        &#34;&#34;&#34;
+        self.user = app
+        self.logger = app.logger
+        msg  = f&#39;Class {self.__class__.__name__} of the &#39;
+        msg += f&#39;module {self.__class__.__module__} &#39;
+        msg +=  &#39;successfully initialized.&#39;
+        self.logger.debug(msg)
+
+    def _pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -&gt; None:
+        &#34;&#34;&#34;Use pathlib to move and rename file.
+
+        Move the file from `src` to `dest` and rename it to todays date (yyyy-mm-dd) folowed by &#39;_appendix.csv&#39;.
+        File will get a &#39;.csv&#39; extension.
+
+        Parameters
+        ----------
+        src : pathlib path
+            Path to source file
+        dest : pathlib path
+            Path to destination file
+        appendix : string
+            String to append to filename
+        &#34;&#34;&#34;
+        path = pl.Path(src)
+        new_filename = dest / str(str(dt.date.today().strftime(&#39;%Y%m%d&#39;) + &#39;_&#39; + str(appendix)) + &#39;.csv&#39;)
+        path.rename(new_filename)
+
+    def move_files_to_workdir(self, meter_number: str) -&gt; None:
+        &#34;&#34;&#34;Move files from download dir to work dir.
+
+        Iterate over all &#39;.csv&#39; files in webdriver download folder.
+        Select files with creation date of today.
+        Select files with `meter_number` in filename.
+        For selected files run :func: `_pathlib_move`.
+
+        Parameters
+        ----------
+        meter_number : string
+            Day/Night meter device number
+        &#34;&#34;&#34;
+        # set path variables
+        path_to_raw = pl.Path(self.user.Folder[&#39;raw_daysum&#39;]).absolute()
+        workdir = pl.Path(self.user.Folder[&#39;work_daysum&#39;]).absolute()
+
+        # select files in raw folder
+        for filename in path_to_raw.glob(&#39;*.csv&#39;):
+            filename_cdate = filename.stat().st_ctime
+            cdate = dt.datetime.fromtimestamp(filename_cdate).strftime(&#39;%Y-%m-%d&#39;)
+
+            # just process downloaded files from today
+            if cdate == dt.date.today().strftime(&#39;%Y-%m-%d&#39;):
+
+                #filter for input files
+                if meter_number in str(filename):
+                    self._pathlib_move(filename, workdir, meter_number)
+                    self.logger.debug(f&#39;Moved file for meter: {meter_number} to workdir&#39;)
+
+    def create_dataframe(self, workdir: pl.Path, metertype: str) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Create basic dataframe for further analysis.
+
+        Concat all files in `workdir` with same `metertype`.
+        Delete unused columns.
+        Convert date format.
+        Set column dtype formats.
+        Sort values by date.
+        Drop duplicates.
+
+        Parameters
+        ----------
+        workdir : pathlib path
+            Path to directory with files to import.
+        metertype : string
+            Day/Night meter device number.
+
+        Returns
+        -------
+        dataframe
+            Pandas dataframe with values per meter.
+        &#34;&#34;&#34;
+        path = pl.Path(workdir)
+        df_return = pd.DataFrame()
+
+        filelist = [filename for filename in path.glob(&#39;*.csv&#39;) if str(metertype) in filename.name]
+
+        df_return = pd.concat(
+                (pd.read_csv(
+                    file,
+                    sep=&#39;;&#39;,
+                    decimal=&#39;,&#39;,
+                    header=0,
+                    parse_dates=[&#39;date&#39;],
+                    converters={&#39;date&#39;: lambda t: dt.datetime.strptime(t, &#39;%Y-%m-%dT%H:%M:%S.%f%z&#39;).date()},
+                    names=[&#39;date&#39;, &#39;zaehlerstand&#39;, &#39;1&#39;, &#39;2&#39;, &#39;verbrauch&#39;, &#39;3&#39;, &#39;4&#39;],
+                    usecols=lambda x: x in [&#39;date&#39;, &#39;zaehlerstand&#39;, &#39;verbrauch&#39;],
+                ) for file in filelist
+            )
+        )
+
+        df_return[&#39;zaehlerstand&#39;] = df_return[&#39;zaehlerstand&#39;].astype(float)
+        df_return[&#39;verbrauch&#39;] = df_return[&#39;verbrauch&#39;].astype(float)
+        df_return.sort_values(by=&#39;date&#39;, inplace=True)
+        df_return.reset_index(drop=True, inplace=True)
+        df_return.drop_duplicates(subset=&#39;date&#39;, keep=&#39;first&#39;, inplace=True)
+        self.logger.debug(f&#39;Created pandas dataframe for meter: {metertype}&#39;)
+        return df_return
+
+    def sng_scrape_and_move(self) -&gt; None:
+        &#34;&#34;&#34;Scrape data and move &#39;.csv&#39; files to workdir.
+
+        Call :func: `get_daysum_files`
+        For each meter call :func: `move_files_to_workdir`
+        &#34;&#34;&#34;
+        self.user.persistence.initialize_dates_log()
+        dates = self.user.persistence.load_dates_log()
+
+        # scrape just once a day
+        if not dates[&#39;start&#39;] == dt.date.today().strftime(&#39;%d-%m-%Y&#39;):
+
+            self.user.scrape.get_daysum_files(self.user.Options[&#39;headless_mode&#39;])
+            self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
+            self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])
+        else:
+            self.logger.info(&#39;Most recent data already downloaded&#39;)
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;
+
+
+class TomlTools():
+    &#34;&#34;&#34;Class for handling toml files
+        Attributes
+        ----------
+        user : class instance
+            Holds user information
+
+        Methods
+        -------
+        load_toml_file(filename):
+            Return toml object from filesystem.
+        save_toml_file(filename, toml_object):
+            Write toml object to filesystem.
+        _append_password(toml_object, pwd)
+            Append password to toml object
+        add_password_to_toml(toml_filename, password)
+    &#34;&#34;&#34;
+    def __init__(self, app: &#39;Application&#39;) -&gt; None:
+        &#34;&#34;&#34;Initialize class with all attributes from user config files.
+
+        Parameters
+        ----------
+        app : class instance
+            Holds the configuration data for program run.
+        &#34;&#34;&#34;
+        self.user = app
+        self.user_data = pl.Path(self.user.Path[&#39;user_data&#39;])
+        self.logger = app.logger
+        msg  = f&#39;Class {self.__class__.__name__} of the &#39;
+        msg += f&#39;module {self.__class__.__module__} &#39;
+        msg +=  &#39;successfully initialized.&#39;
+        self.logger.debug(msg)
+
+    def load_toml_file(self, filename: pl.Path) -&gt; tomlkit.TOMLDocument:
+        &#34;&#34;&#34;Read `.toml` file and return Python TOML object.
+
+        Parameters
+        ----------
+        filename : pl.Path
+            Path object to the `.toml` file.
+
+        Returns
+        -------
+        object
+            Python TOML object
+        &#34;&#34;&#34;
+        with open(filename, mode=&#39;rt&#39;, encoding=&#39;utf-8&#39;) as file:
+            data = tomlkit.load(file)
+        return data
+
+    def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -&gt; None:
+        &#34;&#34;&#34;Takes python TOML object and writes `.toml` file to filesystem
+
+        Parameters
+        ----------
+        filename : pl.Path
+            Path to output file on filesystem
+        toml_object : tomlkit
+            Python TOML object
+        &#34;&#34;&#34;
+        with open(filename, mode=&#39;wt&#39;, encoding=&#39;utf-8&#39;) as file:
+            tomlkit.dump(toml_object, file)
+
+    def _append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -&gt; None:
+        &#34;&#34;&#34;Append password entry to Login table in Python TOML object.
+
+        Parameters
+        ----------
+        toml_object : tomlkit
+            Python TOML object.
+        pwd : str
+            Password for web scraping login.
+        &#34;&#34;&#34;
+        try:
+            if &#39;password&#39; in toml_object[&#39;Login&#39;]:
+                raise KeyError(&#39;Password already saved&#39;)
+            else:
+                toml_object[&#39;Login&#39;].add(&#34;password&#34;, pwd) # pylint: disable=no-member
+                toml_object[&#39;Login&#39;][&#39;password&#39;].comment(&#39;Permission to store password given&#39;)
+        except KeyError as e:
+            self.logger.error(e)
+
+    def add_password_to_toml(self, toml_filename: pl.Path, password: str) -&gt; None:
+        &#34;&#34;&#34;Add password to `user_data.toml`.
+
+        Parameters
+        ----------
+        toml_filename : pl.Path
+            Path to `.toml` file
+        password : str
+            Password for web scraping login.
+        &#34;&#34;&#34;
+        # Store password in user_data.toml
+        user_data = self.load_toml_file(toml_filename)
+        self._append_password(user_data, password)
+        self.save_toml_file(toml_filename, user_data)
+        self.logger.debug(&#39;Password added to user data&#39;)
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="SMIT.filehandling.OsInterface"><code class="flex name class">
+<span>class <span class="ident">OsInterface</span></span>
+<span>(</span><span>app: Application)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Methods for interacting with files on os filesystem.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>app</code></strong> :&ensp;<code>class instance</code></dt>
+<dd>Holds user information</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p>_pathlib_move(src, dest, appendix):
+Move and rename files.
+move_files_to_workdir(meter_number):
+Filter files and run _pathlib_move().
+create_dataframe(workdir, metertype):
+Create initial dataframe.
+scrapeandmove():
+Initiate download process and move files.</p>
+<p>Initialize Class with all attributes from <code>UserClass</code></p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>app</code></strong> :&ensp;<code>class instance</code></dt>
+<dd>Holds the configuration data for program run.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class OsInterface():
+    &#34;&#34;&#34;Methods for interacting with files on os filesystem.
+
+        Attributes
+        ----------
+        app : class instance
+            Holds user information
+
+        Methods
+        -------
+        _pathlib_move(src, dest, appendix):
+            Move and rename files.
+        move_files_to_workdir(meter_number):
+            Filter files and run _pathlib_move().
+        create_dataframe(workdir, metertype):
+            Create initial dataframe.
+        scrapeandmove():
+            Initiate download process and move files.
+    &#34;&#34;&#34;
+    def __init__(self, app: &#39;Application&#39;) -&gt; None:
+        &#34;&#34;&#34;Initialize Class with all attributes from `UserClass`
+
+        Parameters
+        ----------
+        app : class instance
+            Holds the configuration data for program run.
+        &#34;&#34;&#34;
+        self.user = app
+        self.logger = app.logger
+        msg  = f&#39;Class {self.__class__.__name__} of the &#39;
+        msg += f&#39;module {self.__class__.__module__} &#39;
+        msg +=  &#39;successfully initialized.&#39;
+        self.logger.debug(msg)
+
+    def _pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -&gt; None:
+        &#34;&#34;&#34;Use pathlib to move and rename file.
+
+        Move the file from `src` to `dest` and rename it to todays date (yyyy-mm-dd) folowed by &#39;_appendix.csv&#39;.
+        File will get a &#39;.csv&#39; extension.
+
+        Parameters
+        ----------
+        src : pathlib path
+            Path to source file
+        dest : pathlib path
+            Path to destination file
+        appendix : string
+            String to append to filename
+        &#34;&#34;&#34;
+        path = pl.Path(src)
+        new_filename = dest / str(str(dt.date.today().strftime(&#39;%Y%m%d&#39;) + &#39;_&#39; + str(appendix)) + &#39;.csv&#39;)
+        path.rename(new_filename)
+
+    def move_files_to_workdir(self, meter_number: str) -&gt; None:
+        &#34;&#34;&#34;Move files from download dir to work dir.
+
+        Iterate over all &#39;.csv&#39; files in webdriver download folder.
+        Select files with creation date of today.
+        Select files with `meter_number` in filename.
+        For selected files run :func: `_pathlib_move`.
+
+        Parameters
+        ----------
+        meter_number : string
+            Day/Night meter device number
+        &#34;&#34;&#34;
+        # set path variables
+        path_to_raw = pl.Path(self.user.Folder[&#39;raw_daysum&#39;]).absolute()
+        workdir = pl.Path(self.user.Folder[&#39;work_daysum&#39;]).absolute()
+
+        # select files in raw folder
+        for filename in path_to_raw.glob(&#39;*.csv&#39;):
+            filename_cdate = filename.stat().st_ctime
+            cdate = dt.datetime.fromtimestamp(filename_cdate).strftime(&#39;%Y-%m-%d&#39;)
+
+            # just process downloaded files from today
+            if cdate == dt.date.today().strftime(&#39;%Y-%m-%d&#39;):
+
+                #filter for input files
+                if meter_number in str(filename):
+                    self._pathlib_move(filename, workdir, meter_number)
+                    self.logger.debug(f&#39;Moved file for meter: {meter_number} to workdir&#39;)
+
+    def create_dataframe(self, workdir: pl.Path, metertype: str) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Create basic dataframe for further analysis.
+
+        Concat all files in `workdir` with same `metertype`.
+        Delete unused columns.
+        Convert date format.
+        Set column dtype formats.
+        Sort values by date.
+        Drop duplicates.
+
+        Parameters
+        ----------
+        workdir : pathlib path
+            Path to directory with files to import.
+        metertype : string
+            Day/Night meter device number.
+
+        Returns
+        -------
+        dataframe
+            Pandas dataframe with values per meter.
+        &#34;&#34;&#34;
+        path = pl.Path(workdir)
+        df_return = pd.DataFrame()
+
+        filelist = [filename for filename in path.glob(&#39;*.csv&#39;) if str(metertype) in filename.name]
+
+        df_return = pd.concat(
+                (pd.read_csv(
+                    file,
+                    sep=&#39;;&#39;,
+                    decimal=&#39;,&#39;,
+                    header=0,
+                    parse_dates=[&#39;date&#39;],
+                    converters={&#39;date&#39;: lambda t: dt.datetime.strptime(t, &#39;%Y-%m-%dT%H:%M:%S.%f%z&#39;).date()},
+                    names=[&#39;date&#39;, &#39;zaehlerstand&#39;, &#39;1&#39;, &#39;2&#39;, &#39;verbrauch&#39;, &#39;3&#39;, &#39;4&#39;],
+                    usecols=lambda x: x in [&#39;date&#39;, &#39;zaehlerstand&#39;, &#39;verbrauch&#39;],
+                ) for file in filelist
+            )
+        )
+
+        df_return[&#39;zaehlerstand&#39;] = df_return[&#39;zaehlerstand&#39;].astype(float)
+        df_return[&#39;verbrauch&#39;] = df_return[&#39;verbrauch&#39;].astype(float)
+        df_return.sort_values(by=&#39;date&#39;, inplace=True)
+        df_return.reset_index(drop=True, inplace=True)
+        df_return.drop_duplicates(subset=&#39;date&#39;, keep=&#39;first&#39;, inplace=True)
+        self.logger.debug(f&#39;Created pandas dataframe for meter: {metertype}&#39;)
+        return df_return
+
+    def sng_scrape_and_move(self) -&gt; None:
+        &#34;&#34;&#34;Scrape data and move &#39;.csv&#39; files to workdir.
+
+        Call :func: `get_daysum_files`
+        For each meter call :func: `move_files_to_workdir`
+        &#34;&#34;&#34;
+        self.user.persistence.initialize_dates_log()
+        dates = self.user.persistence.load_dates_log()
+
+        # scrape just once a day
+        if not dates[&#39;start&#39;] == dt.date.today().strftime(&#39;%d-%m-%Y&#39;):
+
+            self.user.scrape.get_daysum_files(self.user.Options[&#39;headless_mode&#39;])
+            self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
+            self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])
+        else:
+            self.logger.info(&#39;Most recent data already downloaded&#39;)
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="SMIT.filehandling.OsInterface.create_dataframe"><code class="name flex">
+<span>def <span class="ident">create_dataframe</span></span>(<span>self, workdir: pathlib.Path, metertype: str) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create basic dataframe for further analysis.</p>
+<p>Concat all files in <code>workdir</code> with same <code>metertype</code>.
+Delete unused columns.
+Convert date format.
+Set column dtype formats.
+Sort values by date.
+Drop duplicates.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>workdir</code></strong> :&ensp;<code>pathlib path</code></dt>
+<dd>Path to directory with files to import.</dd>
+<dt><strong><code>metertype</code></strong> :&ensp;<code>string</code></dt>
+<dd>Day/Night meter device number.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dataframe</code></dt>
+<dd>Pandas dataframe with values per meter.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_dataframe(self, workdir: pl.Path, metertype: str) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Create basic dataframe for further analysis.
+
+    Concat all files in `workdir` with same `metertype`.
+    Delete unused columns.
+    Convert date format.
+    Set column dtype formats.
+    Sort values by date.
+    Drop duplicates.
+
+    Parameters
+    ----------
+    workdir : pathlib path
+        Path to directory with files to import.
+    metertype : string
+        Day/Night meter device number.
+
+    Returns
+    -------
+    dataframe
+        Pandas dataframe with values per meter.
+    &#34;&#34;&#34;
+    path = pl.Path(workdir)
+    df_return = pd.DataFrame()
+
+    filelist = [filename for filename in path.glob(&#39;*.csv&#39;) if str(metertype) in filename.name]
+
+    df_return = pd.concat(
+            (pd.read_csv(
+                file,
+                sep=&#39;;&#39;,
+                decimal=&#39;,&#39;,
+                header=0,
+                parse_dates=[&#39;date&#39;],
+                converters={&#39;date&#39;: lambda t: dt.datetime.strptime(t, &#39;%Y-%m-%dT%H:%M:%S.%f%z&#39;).date()},
+                names=[&#39;date&#39;, &#39;zaehlerstand&#39;, &#39;1&#39;, &#39;2&#39;, &#39;verbrauch&#39;, &#39;3&#39;, &#39;4&#39;],
+                usecols=lambda x: x in [&#39;date&#39;, &#39;zaehlerstand&#39;, &#39;verbrauch&#39;],
+            ) for file in filelist
+        )
+    )
+
+    df_return[&#39;zaehlerstand&#39;] = df_return[&#39;zaehlerstand&#39;].astype(float)
+    df_return[&#39;verbrauch&#39;] = df_return[&#39;verbrauch&#39;].astype(float)
+    df_return.sort_values(by=&#39;date&#39;, inplace=True)
+    df_return.reset_index(drop=True, inplace=True)
+    df_return.drop_duplicates(subset=&#39;date&#39;, keep=&#39;first&#39;, inplace=True)
+    self.logger.debug(f&#39;Created pandas dataframe for meter: {metertype}&#39;)
+    return df_return</code></pre>
+</details>
+</dd>
+<dt id="SMIT.filehandling.OsInterface.move_files_to_workdir"><code class="name flex">
+<span>def <span class="ident">move_files_to_workdir</span></span>(<span>self, meter_number: str) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Move files from download dir to work dir.</p>
+<p>Iterate over all '.csv' files in webdriver download folder.
+Select files with creation date of today.
+Select files with <code>meter_number</code> in filename.
+For selected files run :func: <code>_pathlib_move</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>meter_number</code></strong> :&ensp;<code>string</code></dt>
+<dd>Day/Night meter device number</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def move_files_to_workdir(self, meter_number: str) -&gt; None:
+    &#34;&#34;&#34;Move files from download dir to work dir.
+
+    Iterate over all &#39;.csv&#39; files in webdriver download folder.
+    Select files with creation date of today.
+    Select files with `meter_number` in filename.
+    For selected files run :func: `_pathlib_move`.
+
+    Parameters
+    ----------
+    meter_number : string
+        Day/Night meter device number
+    &#34;&#34;&#34;
+    # set path variables
+    path_to_raw = pl.Path(self.user.Folder[&#39;raw_daysum&#39;]).absolute()
+    workdir = pl.Path(self.user.Folder[&#39;work_daysum&#39;]).absolute()
+
+    # select files in raw folder
+    for filename in path_to_raw.glob(&#39;*.csv&#39;):
+        filename_cdate = filename.stat().st_ctime
+        cdate = dt.datetime.fromtimestamp(filename_cdate).strftime(&#39;%Y-%m-%d&#39;)
+
+        # just process downloaded files from today
+        if cdate == dt.date.today().strftime(&#39;%Y-%m-%d&#39;):
+
+            #filter for input files
+            if meter_number in str(filename):
+                self._pathlib_move(filename, workdir, meter_number)
+                self.logger.debug(f&#39;Moved file for meter: {meter_number} to workdir&#39;)</code></pre>
+</details>
+</dd>
+<dt id="SMIT.filehandling.OsInterface.sng_scrape_and_move"><code class="name flex">
+<span>def <span class="ident">sng_scrape_and_move</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Scrape data and move '.csv' files to workdir.</p>
+<p>Call :func: <code>get_daysum_files</code>
+For each meter call :func: <code>move_files_to_workdir</code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sng_scrape_and_move(self) -&gt; None:
+    &#34;&#34;&#34;Scrape data and move &#39;.csv&#39; files to workdir.
+
+    Call :func: `get_daysum_files`
+    For each meter call :func: `move_files_to_workdir`
+    &#34;&#34;&#34;
+    self.user.persistence.initialize_dates_log()
+    dates = self.user.persistence.load_dates_log()
+
+    # scrape just once a day
+    if not dates[&#39;start&#39;] == dt.date.today().strftime(&#39;%d-%m-%Y&#39;):
+
+        self.user.scrape.get_daysum_files(self.user.Options[&#39;headless_mode&#39;])
+        self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
+        self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])
+    else:
+        self.logger.info(&#39;Most recent data already downloaded&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="SMIT.filehandling.TomlTools"><code class="flex name class">
+<span>class <span class="ident">TomlTools</span></span>
+<span>(</span><span>app: Application)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class for handling toml files
+Attributes</p>
+<hr>
+<dl>
+<dt><strong><code>user</code></strong> :&ensp;<code>class instance</code></dt>
+<dd>Holds user information</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p>load_toml_file(filename):
+Return toml object from filesystem.
+save_toml_file(filename, toml_object):
+Write toml object to filesystem.
+_append_password(toml_object, pwd)
+Append password to toml object
+add_password_to_toml(toml_filename, password)</p>
+<p>Initialize class with all attributes from user config files.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>app</code></strong> :&ensp;<code>class instance</code></dt>
+<dd>Holds the configuration data for program run.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TomlTools():
+    &#34;&#34;&#34;Class for handling toml files
+        Attributes
+        ----------
+        user : class instance
+            Holds user information
+
+        Methods
+        -------
+        load_toml_file(filename):
+            Return toml object from filesystem.
+        save_toml_file(filename, toml_object):
+            Write toml object to filesystem.
+        _append_password(toml_object, pwd)
+            Append password to toml object
+        add_password_to_toml(toml_filename, password)
+    &#34;&#34;&#34;
+    def __init__(self, app: &#39;Application&#39;) -&gt; None:
+        &#34;&#34;&#34;Initialize class with all attributes from user config files.
+
+        Parameters
+        ----------
+        app : class instance
+            Holds the configuration data for program run.
+        &#34;&#34;&#34;
+        self.user = app
+        self.user_data = pl.Path(self.user.Path[&#39;user_data&#39;])
+        self.logger = app.logger
+        msg  = f&#39;Class {self.__class__.__name__} of the &#39;
+        msg += f&#39;module {self.__class__.__module__} &#39;
+        msg +=  &#39;successfully initialized.&#39;
+        self.logger.debug(msg)
+
+    def load_toml_file(self, filename: pl.Path) -&gt; tomlkit.TOMLDocument:
+        &#34;&#34;&#34;Read `.toml` file and return Python TOML object.
+
+        Parameters
+        ----------
+        filename : pl.Path
+            Path object to the `.toml` file.
+
+        Returns
+        -------
+        object
+            Python TOML object
+        &#34;&#34;&#34;
+        with open(filename, mode=&#39;rt&#39;, encoding=&#39;utf-8&#39;) as file:
+            data = tomlkit.load(file)
+        return data
+
+    def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -&gt; None:
+        &#34;&#34;&#34;Takes python TOML object and writes `.toml` file to filesystem
+
+        Parameters
+        ----------
+        filename : pl.Path
+            Path to output file on filesystem
+        toml_object : tomlkit
+            Python TOML object
+        &#34;&#34;&#34;
+        with open(filename, mode=&#39;wt&#39;, encoding=&#39;utf-8&#39;) as file:
+            tomlkit.dump(toml_object, file)
+
+    def _append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -&gt; None:
+        &#34;&#34;&#34;Append password entry to Login table in Python TOML object.
+
+        Parameters
+        ----------
+        toml_object : tomlkit
+            Python TOML object.
+        pwd : str
+            Password for web scraping login.
+        &#34;&#34;&#34;
+        try:
+            if &#39;password&#39; in toml_object[&#39;Login&#39;]:
+                raise KeyError(&#39;Password already saved&#39;)
+            else:
+                toml_object[&#39;Login&#39;].add(&#34;password&#34;, pwd) # pylint: disable=no-member
+                toml_object[&#39;Login&#39;][&#39;password&#39;].comment(&#39;Permission to store password given&#39;)
+        except KeyError as e:
+            self.logger.error(e)
+
+    def add_password_to_toml(self, toml_filename: pl.Path, password: str) -&gt; None:
+        &#34;&#34;&#34;Add password to `user_data.toml`.
+
+        Parameters
+        ----------
+        toml_filename : pl.Path
+            Path to `.toml` file
+        password : str
+            Password for web scraping login.
+        &#34;&#34;&#34;
+        # Store password in user_data.toml
+        user_data = self.load_toml_file(toml_filename)
+        self._append_password(user_data, password)
+        self.save_toml_file(toml_filename, user_data)
+        self.logger.debug(&#39;Password added to user data&#39;)
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="SMIT.filehandling.TomlTools.add_password_to_toml"><code class="name flex">
+<span>def <span class="ident">add_password_to_toml</span></span>(<span>self, toml_filename: pathlib.Path, password: str) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add password to <code>user_data.toml</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>toml_filename</code></strong> :&ensp;<code>pl.Path</code></dt>
+<dd>Path to <code>.toml</code> file</dd>
+<dt><strong><code>password</code></strong> :&ensp;<code>str</code></dt>
+<dd>Password for web scraping login.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_password_to_toml(self, toml_filename: pl.Path, password: str) -&gt; None:
+    &#34;&#34;&#34;Add password to `user_data.toml`.
+
+    Parameters
+    ----------
+    toml_filename : pl.Path
+        Path to `.toml` file
+    password : str
+        Password for web scraping login.
+    &#34;&#34;&#34;
+    # Store password in user_data.toml
+    user_data = self.load_toml_file(toml_filename)
+    self._append_password(user_data, password)
+    self.save_toml_file(toml_filename, user_data)
+    self.logger.debug(&#39;Password added to user data&#39;)</code></pre>
+</details>
+</dd>
+<dt id="SMIT.filehandling.TomlTools.load_toml_file"><code class="name flex">
+<span>def <span class="ident">load_toml_file</span></span>(<span>self, filename: pathlib.Path) ‑> tomlkit.toml_document.TOMLDocument</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read <code>.toml</code> file and return Python TOML object.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filename</code></strong> :&ensp;<code>pl.Path</code></dt>
+<dd>Path object to the <code>.toml</code> file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>object</code></dt>
+<dd>Python TOML object</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_toml_file(self, filename: pl.Path) -&gt; tomlkit.TOMLDocument:
+    &#34;&#34;&#34;Read `.toml` file and return Python TOML object.
+
+    Parameters
+    ----------
+    filename : pl.Path
+        Path object to the `.toml` file.
+
+    Returns
+    -------
+    object
+        Python TOML object
+    &#34;&#34;&#34;
+    with open(filename, mode=&#39;rt&#39;, encoding=&#39;utf-8&#39;) as file:
+        data = tomlkit.load(file)
+    return data</code></pre>
+</details>
+</dd>
+<dt id="SMIT.filehandling.TomlTools.save_toml_file"><code class="name flex">
+<span>def <span class="ident">save_toml_file</span></span>(<span>self, filename: pathlib.Path, toml_object: tomlkit.toml_document.TOMLDocument) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Takes python TOML object and writes <code>.toml</code> file to filesystem</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filename</code></strong> :&ensp;<code>pl.Path</code></dt>
+<dd>Path to output file on filesystem</dd>
+<dt><strong><code>toml_object</code></strong> :&ensp;<code>tomlkit</code></dt>
+<dd>Python TOML object</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -&gt; None:
+    &#34;&#34;&#34;Takes python TOML object and writes `.toml` file to filesystem
+
+    Parameters
+    ----------
+    filename : pl.Path
+        Path to output file on filesystem
+    toml_object : tomlkit
+        Python TOML object
+    &#34;&#34;&#34;
+    with open(filename, mode=&#39;wt&#39;, encoding=&#39;utf-8&#39;) as file:
+        tomlkit.dump(toml_object, file)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="SMIT" href="index.html">SMIT</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="SMIT.filehandling.OsInterface" href="#SMIT.filehandling.OsInterface">OsInterface</a></code></h4>
+<ul class="">
+<li><code><a title="SMIT.filehandling.OsInterface.create_dataframe" href="#SMIT.filehandling.OsInterface.create_dataframe">create_dataframe</a></code></li>
+<li><code><a title="SMIT.filehandling.OsInterface.move_files_to_workdir" href="#SMIT.filehandling.OsInterface.move_files_to_workdir">move_files_to_workdir</a></code></li>
+<li><code><a title="SMIT.filehandling.OsInterface.sng_scrape_and_move" href="#SMIT.filehandling.OsInterface.sng_scrape_and_move">sng_scrape_and_move</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="SMIT.filehandling.TomlTools" href="#SMIT.filehandling.TomlTools">TomlTools</a></code></h4>
+<ul class="">
+<li><code><a title="SMIT.filehandling.TomlTools.add_password_to_toml" href="#SMIT.filehandling.TomlTools.add_password_to_toml">add_password_to_toml</a></code></li>
+<li><code><a title="SMIT.filehandling.TomlTools.load_toml_file" href="#SMIT.filehandling.TomlTools.load_toml_file">load_toml_file</a></code></li>
+<li><code><a title="SMIT.filehandling.TomlTools.save_toml_file" href="#SMIT.filehandling.TomlTools.save_toml_file">save_toml_file</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
