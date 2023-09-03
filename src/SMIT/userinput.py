@@ -106,10 +106,12 @@ class UiTools():
             self.user.toml_tools.add_password_to_toml(user_data_path, pwd_str)
             # Make password available in user instance
             self.user.Login['password'] = pwd_str
+            self.logger.debug('Password permanently added to user data')
 
         else:
             # Temporary store password in user instance
             self.user.Login['password'] = pwd_str
+            self.logger.debug('Password temporarily added to user attributes')
 
         self.window.destroy()
 
