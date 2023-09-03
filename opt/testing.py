@@ -78,7 +78,14 @@ def test_rsa() -> None:
     print('#### Dencryption ####')
     print('Decrypted pwd: ' + '\n' + str(pwd_dec) + '\n')
     print('Type: ' + str(type(pwd_dec)) + '\n')
+
+# Test logging
+def test_logging() -> None:
+    """Generate a test log entry 
+    """
+    user.logger.debug('Logging test sucessfull')
     
 ############## load test #######################
-password_dialog()
+#password_dialog()
+test_logging()
 ################################################

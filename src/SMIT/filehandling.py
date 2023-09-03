@@ -99,6 +99,7 @@ class OsInterface():
                 #filter for input files
                 if meter_number in str(filename):
                     self._pathlib_move(filename, workdir, meter_number)
+                    self.logger.debug(f'Moved file for meter: {meter_number} to workdir')
 
     def create_dataframe(self, workdir: pl.Path, metertype: str) -> pd.DataFrame:
         """Create basic dataframe for further analysis.
@@ -146,6 +147,7 @@ class OsInterface():
         df_return.sort_values(by='date', inplace=True)
         df_return.reset_index(drop=True, inplace=True)
         df_return.drop_duplicates(subset='date', keep='first', inplace=True)
+        self.logger.debug(f'Created pandas dataframe for meter: {metertype}')
         return df_return
 
     def sng_scrape_and_move(self) -> None:
@@ -218,7 +220,6 @@ class TomlTools():
         """
         with open(filename, mode='rt', encoding='utf-8') as file:
             data = tomlkit.load(file)
-
         return data
 
     def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -> None:
@@ -267,6 +268,7 @@ class TomlTools():
         user_data = self.load_toml_file(toml_filename)
         self._append_password(user_data, password)
         self.save_toml_file(toml_filename, user_data)
+        self.logger.debug('Password added to user data')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"

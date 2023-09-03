@@ -56,6 +56,7 @@ class Persistence():
                 dates['last_scrape'] = 'never'
                 pickle.dump(dates, pk)
             pk.close()
+        self.logger.debug('Dates log initialized')
 
     def load_dates_log(self) -> dict:
         """Load dates log dict.
