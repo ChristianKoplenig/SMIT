@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>SMIT.userinput API documentation</title>
+<meta name="description" content="Tools for handling the password input/storing dialog" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>SMIT.userinput</code></h1>
+</header>
+<section id="section-intro">
+<p>Tools for handling the password input/storing dialog</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Tools for handling the password input/storing dialog
+&#34;&#34;&#34;
+import tkinter as tk
+from tkinter import ttk
+import pathlib as pl
+import base64
+# Type hints
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from SMIT.application import Application
+
+class UiTools():
+    &#34;&#34;&#34;Tools for interacting with the tkinter library.
+
+    Attributes:
+    -----------
+    app : class instance
+        Hold user information
+
+    Methods
+    -------
+    _text(txt_input):
+        Generates text widget
+    _checkbox_save_pwd():
+        Generates the save password checkbox.
+    _button_accept():
+        Reads input from entry field, handles pwd routine.
+    password_dialog():
+        Routine for getting the user input
+    &#34;&#34;&#34;
+    def __init__(self, app: &#39;Application&#39;) -&gt; None:
+        &#34;&#34;&#34;Initialize class with all attributes from user config files.
+
+        Parameters
+        ----------
+        app : class instance
+            Holds the configuration data for program run.
+        &#34;&#34;&#34;
+        self.user = app
+        self.window = None
+        self.logger = app.logger
+        msg  = f&#39;Class {self.__class__.__name__} of the &#39;
+        msg += f&#39;module {self.__class__.__module__} &#39;
+        msg +=  &#39;successfully initialized.&#39;
+        self.logger.debug(msg)
+
+    def _dev_widgets(self) -&gt; None:
+        &#34;&#34;&#34;Assign widgets to self.
+        &#34;&#34;&#34;
+        self.button = tk.Button(
+            text = &#39;Confirm&#39;,
+            command= self._button_accept
+        )
+
+        self.checkbox = ttk.Checkbutton(
+            text= &#39;Save encrypted password in user_data&#39;,
+            variable= self.save_password
+        )
+
+        self.entry = tk.Entry(
+            fg=&#39;yellow&#39;,
+            bg=&#39;blue&#39;,
+            textvariable= self.pwd_entry,
+            show= &#39;*&#39;
+        )
+
+    def _def_variables(self) -&gt; None:
+        &#34;&#34;&#34;Assign variables to self.
+        &#34;&#34;&#34;
+        self.pwd_entry = tk.StringVar()
+        self.save_password = tk.BooleanVar()
+
+    def _text(self, txt_input: str) -&gt; None:
+        &#34;&#34;&#34;Create text widget
+
+        Parameters
+        ----------
+        txt_input : str
+            Text to show
+        &#34;&#34;&#34;
+        text = tk.Label(
+            text= txt_input,
+            height=3
+        )
+        text.pack()
+
+    def _button_accept(self) -&gt; None:
+        &#34;&#34;&#34;Defines what to todo when accept button is pressed.
+
+        If the &#34;save password&#34; checkbox is activated then the password
+        will be added to the `user_data.toml` file and the user instance.
+        Else the password will be added just to the user instance.
+        &#34;&#34;&#34;
+        #Encrypt password with rsa keys
+        pwd_enc = self.user.rsa.encrypt_pwd(self.pwd_entry.get())
+        # Convert password to str representation for storing it in `user_data.toml`
+        pwd_str = base64.b64encode(pwd_enc).decode(&#39;utf-8&#39;)
+
+        user_data_path = pl.Path(self.user.Path[&#39;user_data&#39;])
+        save_pwd_activated = self.save_password.get()
+
+        if save_pwd_activated:
+
+            # Append password to user_data.toml
+            self.user.toml_tools.add_password_to_toml(user_data_path, pwd_str)
+            # Make password available in user instance
+            self.user.Login[&#39;password&#39;] = pwd_str
+            self.logger.debug(&#39;Password permanently added to user data&#39;)
+
+        else:
+            # Temporary store password in user instance
+            self.user.Login[&#39;password&#39;] = pwd_str
+            self.logger.debug(&#39;Password temporarily added to user attributes&#39;)
+
+        self.window.destroy()
+
+    def _window_setup(self) -&gt; None:
+        self._text(&#39;Please enter your Stromnetz Graz password&#39;)
+        self.entry.pack()
+        self.entry.focus()
+        self.checkbox.pack()
+        self.button.pack()
+        self._text(&#39;Please read the disclaimer for details on password handling&#39;)
+
+    def password_dialog(self) -&gt; None:
+        &#34;&#34;&#34;Initiate &#34;Enter Password&#34; dialog.
+        &#34;&#34;&#34;
+        self.window = tk.Tk()
+        self.window.title(&#39;Password Dialog&#39;)
+        self.window.geometry(&#39;400x200&#39;)
+
+        self._def_variables()
+        self._dev_widgets()
+        self._window_setup()
+
+        self.window.mainloop()
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="SMIT.userinput.UiTools"><code class="flex name class">
+<span>class <span class="ident">UiTools</span></span>
+<span>(</span><span>app: Application)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Tools for interacting with the tkinter library.</p>
+<h2 id="attributes">Attributes:</h2>
+<p>app : class instance
+Hold user information</p>
+<h2 id="methods">Methods</h2>
+<p>_text(txt_input):
+Generates text widget
+_checkbox_save_pwd():
+Generates the save password checkbox.
+_button_accept():
+Reads input from entry field, handles pwd routine.
+password_dialog():
+Routine for getting the user input</p>
+<p>Initialize class with all attributes from user config files.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>app</code></strong> :&ensp;<code>class instance</code></dt>
+<dd>Holds the configuration data for program run.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UiTools():
+    &#34;&#34;&#34;Tools for interacting with the tkinter library.
+
+    Attributes:
+    -----------
+    app : class instance
+        Hold user information
+
+    Methods
+    -------
+    _text(txt_input):
+        Generates text widget
+    _checkbox_save_pwd():
+        Generates the save password checkbox.
+    _button_accept():
+        Reads input from entry field, handles pwd routine.
+    password_dialog():
+        Routine for getting the user input
+    &#34;&#34;&#34;
+    def __init__(self, app: &#39;Application&#39;) -&gt; None:
+        &#34;&#34;&#34;Initialize class with all attributes from user config files.
+
+        Parameters
+        ----------
+        app : class instance
+            Holds the configuration data for program run.
+        &#34;&#34;&#34;
+        self.user = app
+        self.window = None
+        self.logger = app.logger
+        msg  = f&#39;Class {self.__class__.__name__} of the &#39;
+        msg += f&#39;module {self.__class__.__module__} &#39;
+        msg +=  &#39;successfully initialized.&#39;
+        self.logger.debug(msg)
+
+    def _dev_widgets(self) -&gt; None:
+        &#34;&#34;&#34;Assign widgets to self.
+        &#34;&#34;&#34;
+        self.button = tk.Button(
+            text = &#39;Confirm&#39;,
+            command= self._button_accept
+        )
+
+        self.checkbox = ttk.Checkbutton(
+            text= &#39;Save encrypted password in user_data&#39;,
+            variable= self.save_password
+        )
+
+        self.entry = tk.Entry(
+            fg=&#39;yellow&#39;,
+            bg=&#39;blue&#39;,
+            textvariable= self.pwd_entry,
+            show= &#39;*&#39;
+        )
+
+    def _def_variables(self) -&gt; None:
+        &#34;&#34;&#34;Assign variables to self.
+        &#34;&#34;&#34;
+        self.pwd_entry = tk.StringVar()
+        self.save_password = tk.BooleanVar()
+
+    def _text(self, txt_input: str) -&gt; None:
+        &#34;&#34;&#34;Create text widget
+
+        Parameters
+        ----------
+        txt_input : str
+            Text to show
+        &#34;&#34;&#34;
+        text = tk.Label(
+            text= txt_input,
+            height=3
+        )
+        text.pack()
+
+    def _button_accept(self) -&gt; None:
+        &#34;&#34;&#34;Defines what to todo when accept button is pressed.
+
+        If the &#34;save password&#34; checkbox is activated then the password
+        will be added to the `user_data.toml` file and the user instance.
+        Else the password will be added just to the user instance.
+        &#34;&#34;&#34;
+        #Encrypt password with rsa keys
+        pwd_enc = self.user.rsa.encrypt_pwd(self.pwd_entry.get())
+        # Convert password to str representation for storing it in `user_data.toml`
+        pwd_str = base64.b64encode(pwd_enc).decode(&#39;utf-8&#39;)
+
+        user_data_path = pl.Path(self.user.Path[&#39;user_data&#39;])
+        save_pwd_activated = self.save_password.get()
+
+        if save_pwd_activated:
+
+            # Append password to user_data.toml
+            self.user.toml_tools.add_password_to_toml(user_data_path, pwd_str)
+            # Make password available in user instance
+            self.user.Login[&#39;password&#39;] = pwd_str
+            self.logger.debug(&#39;Password permanently added to user data&#39;)
+
+        else:
+            # Temporary store password in user instance
+            self.user.Login[&#39;password&#39;] = pwd_str
+            self.logger.debug(&#39;Password temporarily added to user attributes&#39;)
+
+        self.window.destroy()
+
+    def _window_setup(self) -&gt; None:
+        self._text(&#39;Please enter your Stromnetz Graz password&#39;)
+        self.entry.pack()
+        self.entry.focus()
+        self.checkbox.pack()
+        self.button.pack()
+        self._text(&#39;Please read the disclaimer for details on password handling&#39;)
+
+    def password_dialog(self) -&gt; None:
+        &#34;&#34;&#34;Initiate &#34;Enter Password&#34; dialog.
+        &#34;&#34;&#34;
+        self.window = tk.Tk()
+        self.window.title(&#39;Password Dialog&#39;)
+        self.window.geometry(&#39;400x200&#39;)
+
+        self._def_variables()
+        self._dev_widgets()
+        self._window_setup()
+
+        self.window.mainloop()
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="SMIT.userinput.UiTools.password_dialog"><code class="name flex">
+<span>def <span class="ident">password_dialog</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initiate "Enter Password" dialog.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def password_dialog(self) -&gt; None:
+    &#34;&#34;&#34;Initiate &#34;Enter Password&#34; dialog.
+    &#34;&#34;&#34;
+    self.window = tk.Tk()
+    self.window.title(&#39;Password Dialog&#39;)
+    self.window.geometry(&#39;400x200&#39;)
+
+    self._def_variables()
+    self._dev_widgets()
+    self._window_setup()
+
+    self.window.mainloop()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="SMIT" href="index.html">SMIT</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="SMIT.userinput.UiTools" href="#SMIT.userinput.UiTools">UiTools</a></code></h4>
+<ul class="">
+<li><code><a title="SMIT.userinput.UiTools.password_dialog" href="#SMIT.userinput.UiTools.password_dialog">password_dialog</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
