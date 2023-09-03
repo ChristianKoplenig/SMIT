@@ -8,15 +8,15 @@ from datetime import date, timedelta
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from SMIT.application import Application
-    
+
 class Persistence():
     """Methods to generate and access logging data.
 
         Attributes
         ----------
         user : class instance
-            Holds user information        
-        
+            Holds user information
+
         Methods
         -------
         initialize_dates_log():
@@ -24,7 +24,7 @@ class Persistence():
         load_dates_log():
             Make `dates` dict accessible
         save_dates_log():
-            Saves `dates` log file 
+            Saves `dates` log file
     """
     def __init__(self, app: 'Application') -> None:
         """Initialize class with all attributes from user config files.
@@ -32,11 +32,14 @@ class Persistence():
         Parameters
         ----------
         app : class instance
-            Holds the configuration data for program run.         
-        """       
+            Holds the configuration data for program run.
+        """
         self.user = app
         self.logger = app.logger
-        self.logger.debug('Module initialized successfully.')
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
 
     def initialize_dates_log(self) -> None:
         """Create log file for managing scraping dates.
@@ -48,7 +51,7 @@ class Persistence():
             with open(self.user.Path['persist_dates'], 'wb') as pk:
                 dates = dict()
                 # Date format: dd-mm-yyyy
-                dates['start'] = self.user.Init['csv_startDate'] 
+                dates['start'] = self.user.Init['csv_startDate']
                 dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
                 dates['last_scrape'] = 'never'
                 pickle.dump(dates, pk)
@@ -56,8 +59,8 @@ class Persistence():
 
     def load_dates_log(self) -> dict:
         """Load dates log dict.
-        
-        Loads the date logging variable from disc. 
+
+        Loads the date logging variable from disc.
 
         Returns
         -------
@@ -70,7 +73,7 @@ class Persistence():
 
     def save_dates_log(self, dates: dict):
         """Persist dates in log dict.
-        
+
         Writes the dates logging variable to the disc.
 
         Parameters
@@ -81,6 +84,6 @@ class Persistence():
         with open(self.user.Path['persist_dates'], 'wb') as dpk:
             pickle.dump(dates, dpk)
         dpk.close()
-        
+
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
