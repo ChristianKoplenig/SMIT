@@ -7,7 +7,7 @@ import pathlib as pl
 
 # Setup
 from SMIT.application import Application
-user = Application()
+user = Application(True)
 ################################################
 
 # Test the webdriver integration
