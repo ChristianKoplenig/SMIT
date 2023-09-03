@@ -1,6 +1,7 @@
 import os
-import pathlib as pl
 import tomlkit
+import logging
+import pathlib as pl
 
 # Import Custom Modules
 from SMIT.scrapedata import Webscraper
@@ -31,12 +32,14 @@ class Application:
         
         self._add_TOML_to_attributes(user_data)    
         self._add_TOML_to_attributes(user_settings)
+        self._setup_logger()
         self._initialize_folder_structure()
         self._add_modules_to_attributes()
         
         if dummy is False:
             # No need for password entry in dummy configuration
             self._ask_for_password_if_not_stored()
+        self.logger.debug('Application class successfully initialized')
     
     def _add_modules_to_attributes(self) -> None:
         """Read modules dict and assign it to self.
@@ -97,6 +100,29 @@ class Application:
             ('scrape', Webscraper(self))          
         ])
         return modules
+    
+    def _setup_logger(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        
+        formatter = logging.Formatter('%(asctime)s :: %(levelname)-8s :: [%(module)s:%(lineno)d] :: %(message)s')
+
+        file_handler = logging.FileHandler(self.Path['log_file'])
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.WARNING)
+        console_handler.setFormatter(formatter)
+        self.logger.addHandler(console_handler)
+
+        # These are the different log levels. Comment can be deleted before merge!
+        #self.logger.debug('DEBUG Testing Levels')
+        #self.logger.info('INFO Testing Levels')
+        #self.logger.warning('WARNING Testing Levels')
+        #self.logger.error('ERROR Testing Levels')
+        #self.logger.critical('CRITICAL Testing Levels')
     
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"

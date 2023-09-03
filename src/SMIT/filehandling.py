@@ -20,12 +20,12 @@ if TYPE_CHECKING:
 
 class OsInterface():
     """Methods for interacting with files on os filesystem.
-        
+
         Attributes
         ----------
         app : class instance
-            Holds user information   
-           
+            Holds user information
+
         Methods
         -------
         _pathlib_move(src, dest, appendix):
@@ -43,10 +43,15 @@ class OsInterface():
         Parameters
         ----------
         app : class instance
-            Holds the configuration data for program run.           
-        """        
+            Holds the configuration data for program run.
+        """
         self.user = app
-            
+        self.logger = app.logger
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
+
     def _pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
         """Use pathlib to move and rename file.
 
@@ -64,7 +69,7 @@ class OsInterface():
         """
         path = pl.Path(src)
         new_filename = dest / str(str(dt.date.today().strftime('%Y%m%d') + '_' + str(appendix)) + '.csv')
-        path.rename(new_filename)      
+        path.rename(new_filename)
 
     def move_files_to_workdir(self, meter_number: str) -> None:
         """Move files from download dir to work dir.
@@ -93,7 +98,8 @@ class OsInterface():
 
                 #filter for input files
                 if meter_number in str(filename):
-                    self._pathlib_move(filename, workdir, meter_number)              
+                    self._pathlib_move(filename, workdir, meter_number)
+                    self.logger.debug(f'Moved file for meter: {meter_number} to workdir')
 
     def create_dataframe(self, workdir: pl.Path, metertype: str) -> pd.DataFrame:
         """Create basic dataframe for further analysis.
@@ -141,6 +147,7 @@ class OsInterface():
         df_return.sort_values(by='date', inplace=True)
         df_return.reset_index(drop=True, inplace=True)
         df_return.drop_duplicates(subset='date', keep='first', inplace=True)
+        self.logger.debug(f'Created pandas dataframe for meter: {metertype}')
         return df_return
 
     def sng_scrape_and_move(self) -> None:
@@ -151,36 +158,36 @@ class OsInterface():
         """
         self.user.persistence.initialize_dates_log()
         dates = self.user.persistence.load_dates_log()
-        
+
         # scrape just once a day
-        if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):                 
+        if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):
 
             self.user.scrape.get_daysum_files(self.user.Options['headless_mode'])
             self.move_files_to_workdir(self.user.Meter['day_meter'])
             self.move_files_to_workdir(self.user.Meter['night_meter'])
         else:
-            print('Most recent data already downloaded')
-            
+            self.logger.info('Most recent data already downloaded')
+
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
 
-    
+
 class TomlTools():
     """Class for handling toml files
         Attributes
         ----------
         user : class instance
-            Holds user information      
-        
+            Holds user information
+
         Methods
         -------
         load_toml_file(filename):
             Return toml object from filesystem.
         save_toml_file(filename, toml_object):
-            Write toml object to filesystem. 
+            Write toml object to filesystem.
         _append_password(toml_object, pwd)
-            Append password to toml object 
-        add_password_to_toml(toml_filename, password)   
+            Append password to toml object
+        add_password_to_toml(toml_filename, password)
     """
     def __init__(self, app: 'Application') -> None:
         """Initialize class with all attributes from user config files.
@@ -188,11 +195,16 @@ class TomlTools():
         Parameters
         ----------
         app : class instance
-            Holds the configuration data for program run.         
+            Holds the configuration data for program run.
         """
         self.user = app
         self.user_data = pl.Path(self.user.Path['user_data'])
-        
+        self.logger = app.logger
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
+
     def load_toml_file(self, filename: pl.Path) -> tomlkit.TOMLDocument:
         """Read `.toml` file and return Python TOML object.
 
@@ -207,10 +219,9 @@ class TomlTools():
             Python TOML object
         """
         with open(filename, mode='rt', encoding='utf-8') as file:
-            data = tomlkit.load(file)        
-        
-        return data    
-    
+            data = tomlkit.load(file)
+        return data
+
     def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -> None:
         """Takes python TOML object and writes `.toml` file to filesystem
 
@@ -241,8 +252,8 @@ class TomlTools():
                 toml_object['Login'].add("password", pwd) # pylint: disable=no-member
                 toml_object['Login']['password'].comment('Permission to store password given')
         except KeyError as e:
-            print(e)
-    
+            self.logger.error(e)
+
     def add_password_to_toml(self, toml_filename: pl.Path, password: str) -> None:
         """Add password to `user_data.toml`.
 
@@ -257,6 +268,7 @@ class TomlTools():
         user_data = self.load_toml_file(toml_filename)
         self._append_password(user_data, password)
         self.save_toml_file(toml_filename, user_data)
-                           
+        self.logger.debug('Password added to user data')
+
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
