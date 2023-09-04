@@ -274,5 +274,31 @@ class TomlTools():
         self.save_toml_file(toml_filename, user_data)
         self.logger.debug('Password added to user data')
 
+    def add_entry_to_config(self, toml_path: pl.Path, 
+                            section: str, 
+                            config_attribute: str, 
+                            entry: str) -> None:
+        """Add entry to config file
+        
+        Use for input from Tkinter Gui. 
+        If an entry exists it will be overwritten
+
+        Parameters
+        ----------
+        toml_path : pl.Path
+            Path to config file.
+        section : str
+            Table name in config file. 
+        config_attribute : str
+            Attribute in config file to update.
+        entry : str
+            String to store in config file.
+        """
+        config = self.load_toml_file(toml_path)
+        config[section][config_attribute] = entry
+        config[section][config_attribute].comment('Data collected via Gui')
+        self.save_toml_file(toml_path, config)
+        self.logger.debug('Credentials added to user data')
+                
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"

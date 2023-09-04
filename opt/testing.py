@@ -75,7 +75,7 @@ def test_rsa() -> None:
     print('Enrypted pwd: ' + '\n' + str(pwd_enc) + '\n')
     print('Type: ' + str(type(pwd_enc)) + '\n')
     pwd_dec = user.rsa.decrypt_pwd(pwd_enc)
-    print('#### Dencryption ####')
+    print('#### Decryption ####')
     print('Decrypted pwd: ' + '\n' + str(pwd_dec) + '\n')
     print('Type: ' + str(type(pwd_dec)) + '\n')
 
@@ -89,4 +89,5 @@ def test_logging() -> None:
 password_dialog()
 #test_logging()
 #test_rsa()
+print(f"user: {user.Meter['day_meter']}")
 ################################################
