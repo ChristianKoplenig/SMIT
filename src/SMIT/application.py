@@ -12,6 +12,7 @@ from SMIT.filehandling import OsInterface, TomlTools
 from SMIT.userinput import UiTools
 
 class Application:
+    # pylint: disable=no-member
     """Main class for application setup.
     
     Load user configuration files.
@@ -134,17 +135,23 @@ class Application:
         self.user_data = pl.Path('opt/dummy_user/dummy_data.toml')
         self.user_settings = pl.Path('opt/dummy_user/dummy_settings.toml')
         
-        # Set path for copying dummy csv files
+        # Set path for copying dummy files
         source_dummy_csv = pl.Path('./opt/dummy_user/').absolute()
         dest_dummy_csv = pl.Path('./.dummy/csv_raw/daily').absolute()
+        dest_dummy_settings = pl.Path('./.dummy/config').absolute()
         
         # Create folder for dummy raw files
         dest_dummy_csv.mkdir(parents=True, exist_ok=True)
+        dest_dummy_settings.mkdir(parents=True, exist_ok=True)
         
         # Copy csv files
         for filename in source_dummy_csv.glob('*.csv'):
             dest = dest_dummy_csv / filename.name
             shutil.copy2(filename, dest)
-                  
+        # Copy settings files
+        for filename in source_dummy_csv.glob('*.toml'):
+            dest = dest_dummy_settings / filename.name
+            shutil.copy2(filename, dest)
+                      
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
