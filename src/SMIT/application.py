@@ -1,8 +1,9 @@
 import os
-import tomlkit
 import logging
 import pathlib as pl
-
+import shutil
+# 3rd party libraries
+import tomlkit
 # Import Custom Modules
 from SMIT.scrapedata import Webscraper
 from SMIT.filepersistence import Persistence
@@ -18,19 +19,30 @@ class Application:
     Instantiate all custom modules.
     Set/store password according to user preference.
     """
-    def __init__(self) -> None:
+    def __init__(self, dummy: bool=False) -> None:
         
-        # Load paths to user configuration files
-        user_data = pl.Path('config/user_data.toml')
-        user_settings = pl.Path('config/user_settings.toml')
+        # Attribute needed for scrape and move routine
+        self.dummy = dummy
         
-        self._add_TOML_to_attributes(user_data)    
-        self._add_TOML_to_attributes(user_settings)
-        self._setup_logger()
+        if self.dummy is False:
+            # Load paths to user configuration files
+            self.user_data = pl.Path('config/user_data.toml')
+            self.user_settings = pl.Path('config/user_settings.toml')
+        else:
+            # Load application with dummy configuration
+            self._setup_dummy_user()
+        
+        self._add_TOML_to_attributes(self.user_data)    
+        self._add_TOML_to_attributes(self.user_settings)
         self._initialize_folder_structure()
+        self._setup_logger()
         self._add_modules_to_attributes()
-        self._ask_for_password_if_not_stored()
-        self.logger.debug('Application class successfully initialized')
+        
+        if dummy is False:
+            # No need for password entry in dummy configuration
+            self._ask_for_password_if_not_stored()
+        
+        self.logger.info('Application with user "%s" instantiated', self.Login["username"])
     
     def _add_modules_to_attributes(self) -> None:
         """Read modules dict and assign it to self.
@@ -75,8 +87,8 @@ class Application:
         """
         # pylint: disable=no-member  
         for folder, folder_path in self.Folder.items():
-            os.makedirs(folder_path, exist_ok= True)
-            
+            os.makedirs(folder_path, exist_ok= True) 
+        
     def _load_modules(self) -> dict:
         """Create a dict with all loaded modules.
         
@@ -93,6 +105,8 @@ class Application:
         return modules
     
     def _setup_logger(self):
+        """Configuration for logging
+        """
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         
@@ -104,16 +118,33 @@ class Application:
         self.logger.addHandler(file_handler)
 
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.WARNING)
+        console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
-
-        # These are the different log levels. Comment can be deleted before merge!
-        #self.logger.debug('DEBUG Testing Levels')
-        #self.logger.info('INFO Testing Levels')
-        #self.logger.warning('WARNING Testing Levels')
-        #self.logger.error('ERROR Testing Levels')
-        #self.logger.critical('CRITICAL Testing Levels')
     
+    def _setup_dummy_user(self):
+        """Create environment for testing purposes
+        """
+        # Reset dummy user on login
+        dummy_data_folder = pl.Path('./.dummy').absolute()
+        if dummy_data_folder.exists():
+            shutil.rmtree(dummy_data_folder)
+                    
+        # Set path to dummy configuration
+        self.user_data = pl.Path('opt/dummy_user/dummy_data.toml')
+        self.user_settings = pl.Path('opt/dummy_user/dummy_settings.toml')
+        
+        # Set path for copying dummy csv files
+        source_dummy_csv = pl.Path('./opt/dummy_user/').absolute()
+        dest_dummy_csv = pl.Path('./.dummy/csv_raw/daily').absolute()
+        
+        # Create folder for dummy raw files
+        dest_dummy_csv.mkdir(parents=True, exist_ok=True)
+        
+        # Copy csv files
+        for filename in source_dummy_csv.glob('*.csv'):
+            dest = dest_dummy_csv / filename.name
+            shutil.copy2(filename, dest)
+                  
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"

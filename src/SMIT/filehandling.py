@@ -156,17 +156,21 @@ class OsInterface():
         Call :func: `get_daysum_files`
         For each meter call :func: `move_files_to_workdir`
         """
-        self.user.persistence.initialize_dates_log()
-        dates = self.user.persistence.load_dates_log()
+        if self.user.dummy is False:
+            self.user.persistence.initialize_dates_log()
+            dates = self.user.persistence.load_dates_log()
 
-        # scrape just once a day
-        if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):
+            # scrape just once a day
+            if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):
 
-            self.user.scrape.get_daysum_files(self.user.Options['headless_mode'])
+                self.user.scrape.get_daysum_files(self.user.Options['headless_mode'])
+                self.move_files_to_workdir(self.user.Meter['day_meter'])
+                self.move_files_to_workdir(self.user.Meter['night_meter'])
+            else:
+                self.logger.info('Most recent data already downloaded')
+        else:
             self.move_files_to_workdir(self.user.Meter['day_meter'])
             self.move_files_to_workdir(self.user.Meter['night_meter'])
-        else:
-            self.logger.info('Most recent data already downloaded')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
