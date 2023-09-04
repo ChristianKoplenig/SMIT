@@ -38,7 +38,18 @@ class UiTools():
             Holds the configuration data for program run.
         """
         self.user = app
+        
+        # Tkinter setup
         self.window = None
+        # Tkinter widgets
+        self.button_confirm = None
+        self.checkbox_savePwd = None
+        self.entry_pwd = None
+        # Tkinter variables
+        self.pwd_entry = None
+        self.save_password = None
+        
+        # Logger setup
         self.logger = app.logger
         msg  = f'Class {self.__class__.__name__} of the '
         msg += f'module {self.__class__.__module__} '
@@ -48,17 +59,17 @@ class UiTools():
     def _dev_widgets(self) -> None:
         """Assign widgets to self.
         """
-        self.button = tk.Button(
+        self.button_confirm = tk.Button(
             text = 'Confirm',
             command= self._button_accept
         )
 
-        self.checkbox = ttk.Checkbutton(
+        self.checkbox_savePwd = ttk.Checkbutton(
             text= 'Save encrypted password in user_data',
             variable= self.save_password
         )
 
-        self.entry = tk.Entry(
+        self.entry_pwd = tk.Entry(
             fg='yellow',
             bg='blue',
             textvariable= self.pwd_entry,
@@ -117,10 +128,10 @@ class UiTools():
 
     def _window_setup(self) -> None:
         self._text('Please enter your Stromnetz Graz password')
-        self.entry.pack()
-        self.entry.focus()
-        self.checkbox.pack()
-        self.button.pack()
+        self.entry_pwd.pack()
+        self.entry_pwd.focus()
+        self.checkbox_savePwd.pack()
+        self.button_confirm.pack()
         self._text('Please read the disclaimer for details on password handling')
 
     def password_dialog(self) -> None:
