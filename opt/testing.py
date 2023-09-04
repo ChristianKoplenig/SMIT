@@ -86,7 +86,7 @@ def test_logging() -> None:
     user.logger.debug('Logging test sucessfull')
     
 ############## load test #######################
-#password_dialog()
+password_dialog()
 #test_logging()
 #test_rsa()
 ################################################
