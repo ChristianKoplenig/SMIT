@@ -64,17 +64,17 @@ def password_dialog() -> None:
 def test_rsa() -> None:
     """Test rsa encrypt/decrypt workflow.
     """
-    from SMIT.rsahandling import RsaTools
-    rsa = RsaTools(user)
+    #from SMIT.rsahandling import RsaTools
+    #rsa = RsaTools(user)
     test_pwd = 'String to test Rsa functionality'
     print('#### Input ####')
     print('Unmodified input: ' + '\n' + str(test_pwd) + '\n')
     print('Type: ' + str(type(test_pwd)) + '\n')
-    pwd_enc = rsa.encrypt_pwd(test_pwd)
+    pwd_enc = user.rsa.encrypt_pwd(test_pwd)
     print('#### Encryption ####')
     print('Enrypted pwd: ' + '\n' + str(pwd_enc) + '\n')
     print('Type: ' + str(type(pwd_enc)) + '\n')
-    pwd_dec = rsa.decrypt_pwd(pwd_enc)
+    pwd_dec = user.rsa.decrypt_pwd(pwd_enc)
     print('#### Dencryption ####')
     print('Decrypted pwd: ' + '\n' + str(pwd_dec) + '\n')
     print('Type: ' + str(type(pwd_dec)) + '\n')
@@ -87,5 +87,6 @@ def test_logging() -> None:
     
 ############## load test #######################
 #password_dialog()
-test_logging()
+#test_logging()
+#test_rsa()
 ################################################

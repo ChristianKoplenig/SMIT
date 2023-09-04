@@ -121,18 +121,11 @@ class Application:
         console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
-
-        # These are the different log levels. Comment can be deleted before merge!
-        #self.logger.debug('DEBUG Testing Levels')
-        #self.logger.info('INFO Testing Levels')
-        #self.logger.warning('WARNING Testing Levels')
-        #self.logger.error('ERROR Testing Levels')
-        #self.logger.critical('CRITICAL Testing Levels')
     
     def _setup_dummy_user(self):
         """Create environment for testing purposes
         """
-        # Reset dummy user
+        # Reset dummy user on login
         dummy_data_folder = pl.Path('./.dummy').absolute()
         if dummy_data_folder.exists():
             shutil.rmtree(dummy_data_folder)
