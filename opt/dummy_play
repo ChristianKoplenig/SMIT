@@ -1,0 +1,7 @@
+from SMIT.application import Application
+
+user = Application()
+dummy = Application(True)
+
+print(vars(user))
+print(vars(dummy))

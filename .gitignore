@@ -1,6 +1,7 @@
 # custom folder structure
 csv_raw/
 csv_workdir/
+.dummy/
 
 # SAFETY
 config/user_file.toml
