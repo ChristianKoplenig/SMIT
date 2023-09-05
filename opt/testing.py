@@ -7,7 +7,7 @@ import pathlib as pl
 
 # Setup
 from SMIT.application import Application
-user = Application()
+user = Application(True)
 ################################################
 
 # Test the webdriver integration
@@ -57,25 +57,25 @@ def password_dialog() -> None:
     """
     #from SMIT.userinput import UiTools
     ui = user.gui
-    ui.password_dialog()
+    ui.credentials_dialog()
     #print(vars(ui))
        
 # Test crypto
 def test_rsa() -> None:
     """Test rsa encrypt/decrypt workflow.
     """
-    from SMIT.rsahandling import RsaTools
-    rsa = RsaTools(user)
+    #from SMIT.rsahandling import RsaTools
+    #rsa = RsaTools(user)
     test_pwd = 'String to test Rsa functionality'
     print('#### Input ####')
     print('Unmodified input: ' + '\n' + str(test_pwd) + '\n')
     print('Type: ' + str(type(test_pwd)) + '\n')
-    pwd_enc = rsa.encrypt_pwd(test_pwd)
+    pwd_enc = user.rsa.encrypt_pwd(test_pwd)
     print('#### Encryption ####')
     print('Enrypted pwd: ' + '\n' + str(pwd_enc) + '\n')
     print('Type: ' + str(type(pwd_enc)) + '\n')
-    pwd_dec = rsa.decrypt_pwd(pwd_enc)
-    print('#### Dencryption ####')
+    pwd_dec = user.rsa.decrypt_pwd(pwd_enc)
+    print('#### Decryption ####')
     print('Decrypted pwd: ' + '\n' + str(pwd_dec) + '\n')
     print('Type: ' + str(type(pwd_dec)) + '\n')
 
@@ -98,6 +98,8 @@ print(user.toml_tools.__doc__)
 print('########################################')
     
 ############## load test #######################
-#password_dialog()
+password_dialog()
 #test_logging()
+#test_rsa()
 ################################################
+#print(f"User Attribute: {user.Login['username']}")
