@@ -67,39 +67,93 @@ class UiTools():
             Holds the configuration data for program run.
         &#34;&#34;&#34;
         self.user = app
+        self.user_data_path = pl.Path(self.user.Path[&#39;user_data&#39;])
+        
+        # Tkinter setup
         self.window = None
+        # Tkinter widgets
+        self.button_confirm = None
+        self.button_delPwd = None
+        self.checkbox_savePwd = None
+        self.entry_password = None
+        self.entry_username = None
+        self.entry_meter_day = None
+        self.entry_meter_night = None
+        # Tkinter variables
+        self.var_password = None
+        self.save_credentials = None
+        
+        # Logger setup
         self.logger = app.logger
         msg  = f&#39;Class {self.__class__.__name__} of the &#39;
         msg += f&#39;module {self.__class__.__module__} &#39;
         msg +=  &#39;successfully initialized.&#39;
         self.logger.debug(msg)
+        
+    def _def_variables(self) -&gt; None:
+        &#34;&#34;&#34;Assign variables to self.
+        &#34;&#34;&#34;
+        self.var_password = tk.StringVar()
+        self.save_credentials = tk.BooleanVar()
+        self.entry_username = tk.StringVar()
+        self.entry_meter_day = tk.StringVar()
+        self.entry_meter_night = tk.StringVar()
+        
+        # Assign Values from config to entry fields
+        self.entry_username.set(self.user.Login[&#39;username&#39;])
+        self.entry_meter_day.set(self.user.Meter[&#39;day_meter&#39;])
+        self.entry_meter_night.set(self.user.Meter[&#39;night_meter&#39;])
+        
+        if &#39;password&#39; in self.user.Login:
+            pwd_b64dec = base64.b64decode(self.user.Login[&#39;password&#39;])
+            self.var_password.set(
+                self.user.rsa.decrypt_pwd(pwd_b64dec)
+            )
 
     def _dev_widgets(self) -&gt; None:
         &#34;&#34;&#34;Assign widgets to self.
         &#34;&#34;&#34;
-        self.button = tk.Button(
+        self.button_confirm = tk.Button(
             text = &#39;Confirm&#39;,
             command= self._button_accept
         )
-
-        self.checkbox = ttk.Checkbutton(
-            text= &#39;Save encrypted password in user_data&#39;,
-            variable= self.save_password
+        
+        self.button_delPwd = tk.Button(
+            text= &#39;Delete stored password&#39;,
+            command=self._button_delpwd
         )
 
-        self.entry = tk.Entry(
+        self.checkbox_savePwd = ttk.Checkbutton(
+            text= &#39;Save user credentials in user_data&#39;,
+            variable= self.save_credentials
+        )
+
+        self.entry_password = tk.Entry(
             fg=&#39;yellow&#39;,
             bg=&#39;blue&#39;,
-            textvariable= self.pwd_entry,
+            textvariable= self.var_password,
             show= &#39;*&#39;
         )
+        self.entry_username = tk.Entry(
+            textvariable= self.entry_username
+        )
+        self.entry_meter_day = tk.Entry(
+            textvariable= self.entry_meter_day
+        )
+        self.entry_meter_night = tk.Entry(
+            textvariable= self.entry_meter_night
+        )
+        
+    def _return_pressed(self, event: None) -&gt; None:
+        &#34;&#34;&#34;Helper function for key binding
 
-    def _def_variables(self) -&gt; None:
-        &#34;&#34;&#34;Assign variables to self.
+        Parameters
+        ----------
+        event : None
+            Placeholder
         &#34;&#34;&#34;
-        self.pwd_entry = tk.StringVar()
-        self.save_password = tk.BooleanVar()
-
+        self._button_accept()
+        
     def _text(self, txt_input: str) -&gt; None:
         &#34;&#34;&#34;Create text widget
 
@@ -121,43 +175,89 @@ class UiTools():
         will be added to the `user_data.toml` file and the user instance.
         Else the password will be added just to the user instance.
         &#34;&#34;&#34;
-        #Encrypt password with rsa keys
-        pwd_enc = self.user.rsa.encrypt_pwd(self.pwd_entry.get())
+        #Encrypt credentials with rsa keys
+        pwd_enc = self.user.rsa.encrypt_pwd(self.var_password.get())
         # Convert password to str representation for storing it in `user_data.toml`
         pwd_str = base64.b64encode(pwd_enc).decode(&#39;utf-8&#39;)
 
-        user_data_path = pl.Path(self.user.Path[&#39;user_data&#39;])
-        save_pwd_activated = self.save_password.get()
+        save_credentials_activated = self.save_credentials.get()
 
-        if save_pwd_activated:
+        if save_credentials_activated:
 
-            # Append password to user_data.toml
-            self.user.toml_tools.add_password_to_toml(user_data_path, pwd_str)
-            # Make password available in user instance
+            # Append credentials to user_data.toml
+            self.user.toml_tools.add_entry_to_config(self.user_data_path, 
+                                                     &#39;Login&#39;, 
+                                                     &#39;password&#39;, 
+                                                     pwd_str)            
+            self.user.toml_tools.add_entry_to_config(self.user_data_path, 
+                                                     &#39;Login&#39;, 
+                                                     &#39;username&#39;, 
+                                                     self.entry_username.get())
+            self.user.toml_tools.add_entry_to_config(self.user_data_path, 
+                                                     &#39;Meter&#39;, 
+                                                     &#39;day_meter&#39;, 
+                                                     self.entry_meter_day.get())
+            self.user.toml_tools.add_entry_to_config(self.user_data_path, 
+                                                     &#39;Meter&#39;, 
+                                                     &#39;night_meter&#39;, 
+                                                     self.entry_meter_night.get())
+            # Make credentials available in user instance
+            self.user.Login[&#39;username&#39;] = self.entry_username.get()
             self.user.Login[&#39;password&#39;] = pwd_str
-            self.logger.debug(&#39;Password permanently added to user data&#39;)
+            self.user.Meter[&#39;day_meter&#39;] = self.entry_meter_day.get()
+            self.user.Meter[&#39;night_meter&#39;] = self.entry_meter_night.get()
+            self.logger.debug(&#39;Credentials permanently added to user data&#39;)
 
         else:
-            # Temporary store password in user instance
+            # Temporary store credentials in user instance
+            self.user.Login[&#39;username&#39;] = self.entry_username.get()
             self.user.Login[&#39;password&#39;] = pwd_str
-            self.logger.debug(&#39;Password temporarily added to user attributes&#39;)
+            self.user.Meter[&#39;day_meter&#39;] = self.entry_meter_day.get()
+            self.user.Meter[&#39;night_meter&#39;] = self.entry_meter_night.get()
+            self.logger.debug(&#39;Credentials temporarily added to user attributes&#39;)
 
         self.window.destroy()
+        
+    def _button_delpwd(self) -&gt; None:
+        &#34;&#34;&#34;Delete password entry from user config
+        
+        The stored password will be deleted from the user config
+        and the user instance attributes.        
+        &#34;&#34;&#34;
+        if &#39;password&#39; in self.user.Login:
+            del self.user.Login[&#39;password&#39;]
+            self.user.toml_tools.delete_entry_from_config(self.user_data_path,
+                                                          &#39;Login&#39;,
+                                                          &#39;password&#39;)
+            self.var_password.set(&#39;&#39;)
+        else:
+            self.var_password.set(&#39;&#39;)
 
     def _window_setup(self) -&gt; None:
+        &#34;&#34;&#34;Define entries for root window.
+        &#34;&#34;&#34;
+        self._text(&#39;Enter username&#39;)
+        self.entry_username.pack()
         self._text(&#39;Please enter your Stromnetz Graz password&#39;)
-        self.entry.pack()
-        self.entry.focus()
-        self.checkbox.pack()
-        self.button.pack()
+        self.entry_password.pack()
+        self.entry_password.focus()
+        self._text(&#39;Select Meters (last six digits)&#39;)
+        self._text(&#39;Day&#39;)
+        self.entry_meter_day.pack()
+        self._text(&#39;Night&#39;)
+        self.entry_meter_night.pack()
+        self.checkbox_savePwd.pack()
+        self.button_delPwd.pack()
+        self.button_confirm.pack()
         self._text(&#39;Please read the disclaimer for details on password handling&#39;)
-
-    def password_dialog(self) -&gt; None:
-        &#34;&#34;&#34;Initiate &#34;Enter Password&#34; dialog.
+    
+    def credentials_dialog(self) -&gt; None:
+        &#34;&#34;&#34;Initiate &#34;User credentials&#34; dialog.
         &#34;&#34;&#34;
         self.window = tk.Tk()
-        self.window.title(&#39;Password Dialog&#39;)
-        self.window.geometry(&#39;400x200&#39;)
+        self.window.title(&#39;User credentials&#39;)
+        self.window.geometry(&#39;400x600&#39;)
+        self.window.bind(&#39;&lt;Return&gt;&#39;, self._return_pressed)
 
         self._def_variables()
         self._dev_widgets()
@@ -234,39 +334,93 @@ Routine for getting the user input</p>
             Holds the configuration data for program run.
         &#34;&#34;&#34;
         self.user = app
+        self.user_data_path = pl.Path(self.user.Path[&#39;user_data&#39;])
+        
+        # Tkinter setup
         self.window = None
+        # Tkinter widgets
+        self.button_confirm = None
+        self.button_delPwd = None
+        self.checkbox_savePwd = None
+        self.entry_password = None
+        self.entry_username = None
+        self.entry_meter_day = None
+        self.entry_meter_night = None
+        # Tkinter variables
+        self.var_password = None
+        self.save_credentials = None
+        
+        # Logger setup
         self.logger = app.logger
         msg  = f&#39;Class {self.__class__.__name__} of the &#39;
         msg += f&#39;module {self.__class__.__module__} &#39;
         msg +=  &#39;successfully initialized.&#39;
         self.logger.debug(msg)
+        
+    def _def_variables(self) -&gt; None:
+        &#34;&#34;&#34;Assign variables to self.
+        &#34;&#34;&#34;
+        self.var_password = tk.StringVar()
+        self.save_credentials = tk.BooleanVar()
+        self.entry_username = tk.StringVar()
+        self.entry_meter_day = tk.StringVar()
+        self.entry_meter_night = tk.StringVar()
+        
+        # Assign Values from config to entry fields
+        self.entry_username.set(self.user.Login[&#39;username&#39;])
+        self.entry_meter_day.set(self.user.Meter[&#39;day_meter&#39;])
+        self.entry_meter_night.set(self.user.Meter[&#39;night_meter&#39;])
+        
+        if &#39;password&#39; in self.user.Login:
+            pwd_b64dec = base64.b64decode(self.user.Login[&#39;password&#39;])
+            self.var_password.set(
+                self.user.rsa.decrypt_pwd(pwd_b64dec)
+            )
 
     def _dev_widgets(self) -&gt; None:
         &#34;&#34;&#34;Assign widgets to self.
         &#34;&#34;&#34;
-        self.button = tk.Button(
+        self.button_confirm = tk.Button(
             text = &#39;Confirm&#39;,
             command= self._button_accept
         )
-
-        self.checkbox = ttk.Checkbutton(
-            text= &#39;Save encrypted password in user_data&#39;,
-            variable= self.save_password
+        
+        self.button_delPwd = tk.Button(
+            text= &#39;Delete stored password&#39;,
+            command=self._button_delpwd
         )
 
-        self.entry = tk.Entry(
+        self.checkbox_savePwd = ttk.Checkbutton(
+            text= &#39;Save user credentials in user_data&#39;,
+            variable= self.save_credentials
+        )
+
+        self.entry_password = tk.Entry(
             fg=&#39;yellow&#39;,
             bg=&#39;blue&#39;,
-            textvariable= self.pwd_entry,
+            textvariable= self.var_password,
             show= &#39;*&#39;
         )
+        self.entry_username = tk.Entry(
+            textvariable= self.entry_username
+        )
+        self.entry_meter_day = tk.Entry(
+            textvariable= self.entry_meter_day
+        )
+        self.entry_meter_night = tk.Entry(
+            textvariable= self.entry_meter_night
+        )
+        
+    def _return_pressed(self, event: None) -&gt; None:
+        &#34;&#34;&#34;Helper function for key binding
 
-    def _def_variables(self) -&gt; None:
-        &#34;&#34;&#34;Assign variables to self.
+        Parameters
+        ----------
+        event : None
+            Placeholder
         &#34;&#34;&#34;
-        self.pwd_entry = tk.StringVar()
-        self.save_password = tk.BooleanVar()
-
+        self._button_accept()
+        
     def _text(self, txt_input: str) -&gt; None:
         &#34;&#34;&#34;Create text widget
 
@@ -288,43 +442,89 @@ Routine for getting the user input</p>
         will be added to the `user_data.toml` file and the user instance.
         Else the password will be added just to the user instance.
         &#34;&#34;&#34;
-        #Encrypt password with rsa keys
-        pwd_enc = self.user.rsa.encrypt_pwd(self.pwd_entry.get())
+        #Encrypt credentials with rsa keys
+        pwd_enc = self.user.rsa.encrypt_pwd(self.var_password.get())
         # Convert password to str representation for storing it in `user_data.toml`
         pwd_str = base64.b64encode(pwd_enc).decode(&#39;utf-8&#39;)
 
-        user_data_path = pl.Path(self.user.Path[&#39;user_data&#39;])
-        save_pwd_activated = self.save_password.get()
+        save_credentials_activated = self.save_credentials.get()
 
-        if save_pwd_activated:
+        if save_credentials_activated:
 
-            # Append password to user_data.toml
-            self.user.toml_tools.add_password_to_toml(user_data_path, pwd_str)
-            # Make password available in user instance
+            # Append credentials to user_data.toml
+            self.user.toml_tools.add_entry_to_config(self.user_data_path, 
+                                                     &#39;Login&#39;, 
+                                                     &#39;password&#39;, 
+                                                     pwd_str)            
+            self.user.toml_tools.add_entry_to_config(self.user_data_path, 
+                                                     &#39;Login&#39;, 
+                                                     &#39;username&#39;, 
+                                                     self.entry_username.get())
+            self.user.toml_tools.add_entry_to_config(self.user_data_path, 
+                                                     &#39;Meter&#39;, 
+                                                     &#39;day_meter&#39;, 
+                                                     self.entry_meter_day.get())
+            self.user.toml_tools.add_entry_to_config(self.user_data_path, 
+                                                     &#39;Meter&#39;, 
+                                                     &#39;night_meter&#39;, 
+                                                     self.entry_meter_night.get())
+            # Make credentials available in user instance
+            self.user.Login[&#39;username&#39;] = self.entry_username.get()
             self.user.Login[&#39;password&#39;] = pwd_str
-            self.logger.debug(&#39;Password permanently added to user data&#39;)
+            self.user.Meter[&#39;day_meter&#39;] = self.entry_meter_day.get()
+            self.user.Meter[&#39;night_meter&#39;] = self.entry_meter_night.get()
+            self.logger.debug(&#39;Credentials permanently added to user data&#39;)
 
         else:
-            # Temporary store password in user instance
+            # Temporary store credentials in user instance
+            self.user.Login[&#39;username&#39;] = self.entry_username.get()
             self.user.Login[&#39;password&#39;] = pwd_str
-            self.logger.debug(&#39;Password temporarily added to user attributes&#39;)
+            self.user.Meter[&#39;day_meter&#39;] = self.entry_meter_day.get()
+            self.user.Meter[&#39;night_meter&#39;] = self.entry_meter_night.get()
+            self.logger.debug(&#39;Credentials temporarily added to user attributes&#39;)
 
         self.window.destroy()
+        
+    def _button_delpwd(self) -&gt; None:
+        &#34;&#34;&#34;Delete password entry from user config
+        
+        The stored password will be deleted from the user config
+        and the user instance attributes.        
+        &#34;&#34;&#34;
+        if &#39;password&#39; in self.user.Login:
+            del self.user.Login[&#39;password&#39;]
+            self.user.toml_tools.delete_entry_from_config(self.user_data_path,
+                                                          &#39;Login&#39;,
+                                                          &#39;password&#39;)
+            self.var_password.set(&#39;&#39;)
+        else:
+            self.var_password.set(&#39;&#39;)
 
     def _window_setup(self) -&gt; None:
+        &#34;&#34;&#34;Define entries for root window.
+        &#34;&#34;&#34;
+        self._text(&#39;Enter username&#39;)
+        self.entry_username.pack()
         self._text(&#39;Please enter your Stromnetz Graz password&#39;)
-        self.entry.pack()
-        self.entry.focus()
-        self.checkbox.pack()
-        self.button.pack()
+        self.entry_password.pack()
+        self.entry_password.focus()
+        self._text(&#39;Select Meters (last six digits)&#39;)
+        self._text(&#39;Day&#39;)
+        self.entry_meter_day.pack()
+        self._text(&#39;Night&#39;)
+        self.entry_meter_night.pack()
+        self.checkbox_savePwd.pack()
+        self.button_delPwd.pack()
+        self.button_confirm.pack()
         self._text(&#39;Please read the disclaimer for details on password handling&#39;)
-
-    def password_dialog(self) -&gt; None:
-        &#34;&#34;&#34;Initiate &#34;Enter Password&#34; dialog.
+    
+    def credentials_dialog(self) -&gt; None:
+        &#34;&#34;&#34;Initiate &#34;User credentials&#34; dialog.
         &#34;&#34;&#34;
         self.window = tk.Tk()
-        self.window.title(&#39;Password Dialog&#39;)
-        self.window.geometry(&#39;400x200&#39;)
+        self.window.title(&#39;User credentials&#39;)
+        self.window.geometry(&#39;400x600&#39;)
+        self.window.bind(&#39;&lt;Return&gt;&#39;, self._return_pressed)
 
         self._def_variables()
         self._dev_widgets()
@@ -337,21 +537,22 @@ Routine for getting the user input</p>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="SMIT.userinput.UiTools.password_dialog"><code class="name flex">
-<span>def <span class="ident">password_dialog</span></span>(<span>self) ‑> None</span>
+<dt id="SMIT.userinput.UiTools.credentials_dialog"><code class="name flex">
+<span>def <span class="ident">credentials_dialog</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Initiate "Enter Password" dialog.</p></div>
+<div class="desc"><p>Initiate "User credentials" dialog.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def password_dialog(self) -&gt; None:
-    &#34;&#34;&#34;Initiate &#34;Enter Password&#34; dialog.
+<pre><code class="python">def credentials_dialog(self) -&gt; None:
+    &#34;&#34;&#34;Initiate &#34;User credentials&#34; dialog.
     &#34;&#34;&#34;
     self.window = tk.Tk()
-    self.window.title(&#39;Password Dialog&#39;)
-    self.window.geometry(&#39;400x200&#39;)
+    self.window.title(&#39;User credentials&#39;)
+    self.window.geometry(&#39;400x600&#39;)
+    self.window.bind(&#39;&lt;Return&gt;&#39;, self._return_pressed)
 
     self._def_variables()
     self._dev_widgets()
@@ -381,7 +582,7 @@ Routine for getting the user input</p>
 <li>
 <h4><code><a title="SMIT.userinput.UiTools" href="#SMIT.userinput.UiTools">UiTools</a></code></h4>
 <ul class="">
-<li><code><a title="SMIT.userinput.UiTools.password_dialog" href="#SMIT.userinput.UiTools.password_dialog">password_dialog</a></code></li>
+<li><code><a title="SMIT.userinput.UiTools.credentials_dialog" href="#SMIT.userinput.UiTools.credentials_dialog">credentials_dialog</a></code></li>
 </ul>
 </li>
 </ul>
