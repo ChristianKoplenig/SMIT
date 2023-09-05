@@ -25,5 +25,5 @@ geckodriver_executable  = '/snap/bin/geckodriver'                       # Path t
 webdriver_logFolder     = './log/geckodriver.log'                       # Log file for webdriver
 private_key             = './.dummy/config/private_key.pem'             # Location and file name for private key
 public_key              = './.dummy/config/public_key.pem'              # Location and file name for private key
-user_settings           = './opt/dummy_user/dummy_settings.toml'        # Location of user settings file
-user_data               = './opt/dummy_user/dummy_data.toml'            # Location of user data file
+user_settings           = './.dummy/config/dummy_settings.toml'        # Location of user settings file
+user_data               = './.dummy/config/dummy_data.toml'            # Location of user data file
