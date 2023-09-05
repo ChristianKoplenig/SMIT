@@ -89,5 +89,5 @@ def test_logging() -> None:
 password_dialog()
 #test_logging()
 #test_rsa()
-print(f"user: {user.Meter['day_meter']}")
 ################################################
+#print(f"User Attribute: {user.Login['password']}")

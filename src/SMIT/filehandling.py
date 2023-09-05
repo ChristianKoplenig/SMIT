@@ -239,40 +239,40 @@ class TomlTools():
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
 
-    def _append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
-        """Append password entry to Login table in Python TOML object.
+    # def _append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
+    #     """Append password entry to Login table in Python TOML object.
 
-        Parameters
-        ----------
-        toml_object : tomlkit
-            Python TOML object.
-        pwd : str
-            Password for web scraping login.
-        """
-        try:
-            if 'password' in toml_object['Login']:
-                raise KeyError('Password already saved')
-            else:
-                toml_object['Login'].add("password", pwd) # pylint: disable=no-member
-                toml_object['Login']['password'].comment('Permission to store password given')
-        except KeyError as e:
-            self.logger.error(e)
+    #     Parameters
+    #     ----------
+    #     toml_object : tomlkit
+    #         Python TOML object.
+    #     pwd : str
+    #         Password for web scraping login.
+    #     """
+    #     try:
+    #         if 'password' in toml_object['Login']:
+    #             raise KeyError('Password already saved')
+    #         else:
+    #             toml_object['Login'].add("password", pwd) # pylint: disable=no-member
+    #             toml_object['Login']['password'].comment('Permission to store password given')
+    #     except KeyError as e:
+    #         self.logger.error(e)
 
-    def add_password_to_toml(self, toml_filename: pl.Path, password: str) -> None:
-        """Add password to `user_data.toml`.
+    # def add_password_to_toml(self, toml_filename: pl.Path, password: str) -> None:
+    #     """Add password to `user_data.toml`.
 
-        Parameters
-        ----------
-        toml_filename : pl.Path
-            Path to `.toml` file
-        password : str
-            Password for web scraping login.
-        """
-        # Store password in user_data.toml
-        user_data = self.load_toml_file(toml_filename)
-        self._append_password(user_data, password)
-        self.save_toml_file(toml_filename, user_data)
-        self.logger.debug('Password added to user data')
+    #     Parameters
+    #     ----------
+    #     toml_filename : pl.Path
+    #         Path to `.toml` file
+    #     password : str
+    #         Password for web scraping login.
+    #     """
+    #     # Store password in user_data.toml
+    #     user_data = self.load_toml_file(toml_filename)
+    #     self._append_password(user_data, password)
+    #     self.save_toml_file(toml_filename, user_data)
+    #     self.logger.debug('Password added to user data')
 
     def add_entry_to_config(self, toml_path: pl.Path, 
                             section: str, 
@@ -281,7 +281,7 @@ class TomlTools():
         """Add entry to config file
         
         Use for input from Tkinter Gui. 
-        If an entry exists it will be overwritten
+        If an entry exists it will be overwritten.
 
         Parameters
         ----------
@@ -298,7 +298,27 @@ class TomlTools():
         config[section][config_attribute] = entry
         config[section][config_attribute].comment('Data collected via Gui')
         self.save_toml_file(toml_path, config)
-        self.logger.debug('Credentials added to user data')
+        self.logger.debug(f'{config_attribute} added to user data')
+        
+    def delete_entry_from_config(self,
+                                 toml_path: pl.Path,
+                                 section: str,
+                                 config_attribute: str) -> None:
+        """Delete entry from config file.
+        
+        Parameters
+        ----------
+        toml_path : pl.Path
+            Path to config file.
+        section : str
+            Table name in config file
+        config_attribute : str
+            Attribute to delete
+        """
+        config = self.load_toml_file(toml_path)
+        del config[section][config_attribute]
+        self.save_toml_file(toml_path, config)
+        self.logger.debug(f'{config_attribute} deleted from config')
                 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
