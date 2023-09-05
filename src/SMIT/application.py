@@ -12,6 +12,7 @@ from SMIT.filehandling import OsInterface, TomlTools
 from SMIT.userinput import UiTools
 
 class Application:
+    # pylint: disable=no-member
     """Main class for application setup.
     
     Load user configuration files.
@@ -39,8 +40,8 @@ class Application:
         self._add_modules_to_attributes()
         
         if dummy is False:
-            # No need for password entry in dummy configuration
-            self._ask_for_password_if_not_stored()
+            # Load Gui Dialog
+            self.gui.credentials_dialog()
         
         self.logger.info('Application with user "%s" instantiated', self.Login["username"])
     
@@ -71,14 +72,7 @@ class Application:
         # assign parameters
         for key, value in data.items():
             setattr(self, key, value)
-        
-    def _ask_for_password_if_not_stored(self) -> None:
-        """Start password dialog if the password is not stored in `user_data.toml`.
-        """
-        # pylint: disable=no-member
-        if not 'password' in self.Login:    
-            self.gui.password_dialog()      
-            
+
     def _initialize_folder_structure(self) -> None:
         """Create folder structure.
         
@@ -118,10 +112,10 @@ class Application:
         self.logger.addHandler(file_handler)
 
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(logging.DEBUG)
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
-    
+        
     def _setup_dummy_user(self):
         """Create environment for testing purposes
         """
@@ -130,21 +124,28 @@ class Application:
         if dummy_data_folder.exists():
             shutil.rmtree(dummy_data_folder)
                     
-        # Set path to dummy configuration
-        self.user_data = pl.Path('opt/dummy_user/dummy_data.toml')
-        self.user_settings = pl.Path('opt/dummy_user/dummy_settings.toml')
         
-        # Set path for copying dummy csv files
+        # Set paths for copying dummy files
         source_dummy_csv = pl.Path('./opt/dummy_user/').absolute()
         dest_dummy_csv = pl.Path('./.dummy/csv_raw/daily').absolute()
+        dest_dummy_settings = pl.Path('./.dummy/config').absolute()
         
         # Create folder for dummy raw files
         dest_dummy_csv.mkdir(parents=True, exist_ok=True)
+        dest_dummy_settings.mkdir(parents=True, exist_ok=True)
         
         # Copy csv files
         for filename in source_dummy_csv.glob('*.csv'):
             dest = dest_dummy_csv / filename.name
             shutil.copy2(filename, dest)
-                  
+        # Copy settings files
+        for filename in source_dummy_csv.glob('*.toml'):
+            dest = dest_dummy_settings / filename.name
+            shutil.copy2(filename, dest)
+                      
+        # Set paths to dummy configuration
+        self.user_data = pl.Path('./.dummy/config/dummy_data.toml')
+        self.user_settings = pl.Path('./.dummy/config/dummy_settings.toml')
+        
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
