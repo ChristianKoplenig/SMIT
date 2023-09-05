@@ -57,7 +57,7 @@ def password_dialog() -> None:
     """
     #from SMIT.userinput import UiTools
     ui = user.gui
-    ui.password_dialog()
+    ui.credentials_dialog()
     #print(vars(ui))
        
 # Test crypto
@@ -90,4 +90,4 @@ password_dialog()
 #test_logging()
 #test_rsa()
 ################################################
-#print(f"User Attribute: {user.Login['password']}")
+#print(f"User Attribute: {user.Login['username']}")

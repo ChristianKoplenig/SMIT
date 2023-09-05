@@ -189,9 +189,10 @@ class TomlTools():
             Return toml object from filesystem.
         save_toml_file(filename, toml_object):
             Write toml object to filesystem.
-        _append_password(toml_object, pwd)
-            Append password to toml object
-        add_password_to_toml(toml_filename, password)
+        add_entry_to_config(toml_path, section, config_attribute, entry):
+            Add an entry under ['section']['config_attribute'] to `.toml` file.
+        delete_entry_from_config(toml_path, section, config_attribute):
+            Delete config attribute from `.toml` file.
     """
     def __init__(self, app: 'Application') -> None:
         """Initialize class with all attributes from user config files.
@@ -238,41 +239,6 @@ class TomlTools():
         """
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
-
-    # def _append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -> None:
-    #     """Append password entry to Login table in Python TOML object.
-
-    #     Parameters
-    #     ----------
-    #     toml_object : tomlkit
-    #         Python TOML object.
-    #     pwd : str
-    #         Password for web scraping login.
-    #     """
-    #     try:
-    #         if 'password' in toml_object['Login']:
-    #             raise KeyError('Password already saved')
-    #         else:
-    #             toml_object['Login'].add("password", pwd) # pylint: disable=no-member
-    #             toml_object['Login']['password'].comment('Permission to store password given')
-    #     except KeyError as e:
-    #         self.logger.error(e)
-
-    # def add_password_to_toml(self, toml_filename: pl.Path, password: str) -> None:
-    #     """Add password to `user_data.toml`.
-
-    #     Parameters
-    #     ----------
-    #     toml_filename : pl.Path
-    #         Path to `.toml` file
-    #     password : str
-    #         Password for web scraping login.
-    #     """
-    #     # Store password in user_data.toml
-    #     user_data = self.load_toml_file(toml_filename)
-    #     self._append_password(user_data, password)
-    #     self.save_toml_file(toml_filename, user_data)
-    #     self.logger.debug('Password added to user data')
 
     def add_entry_to_config(self, toml_path: pl.Path, 
                             section: str, 
