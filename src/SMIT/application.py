@@ -1,5 +1,6 @@
 import os
 import logging
+import inspect
 import pathlib as pl
 import shutil
 # 3rd party libraries
@@ -40,8 +41,7 @@ class Application:
         self._add_modules_to_attributes()
         
         if dummy is False:
-            # No need for password entry in dummy configuration
-            self._ask_for_password_if_not_stored()
+            self.gui.credentials_dialog()
         
         self.logger.info('Application with user "%s" instantiated', self.Login["username"])
     
@@ -73,12 +73,12 @@ class Application:
         for key, value in data.items():
             setattr(self, key, value)
         
-    def _ask_for_password_if_not_stored(self) -> None:
-        """Start password dialog if the password is not stored in `user_data.toml`.
-        """
-        # pylint: disable=no-member
-        if not 'password' in self.Login:    
-            self.gui.password_dialog()      
+    # def _ask_for_password_if_not_stored(self) -> None:
+    #     """Start password dialog if the password is not stored in `user_data.toml`.
+    #     """
+    #     # pylint: disable=no-member
+    #     if not 'password' in self.Login:    
+    #         self.gui.password_dialog()      
             
     def _initialize_folder_structure(self) -> None:
         """Create folder structure.
@@ -119,10 +119,10 @@ class Application:
         self.logger.addHandler(file_handler)
 
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(logging.DEBUG)
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
-    
+        
     def _setup_dummy_user(self):
         """Create environment for testing purposes
         """
