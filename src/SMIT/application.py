@@ -1,6 +1,5 @@
 import os
 import logging
-import inspect
 import pathlib as pl
 import shutil
 # 3rd party libraries
@@ -41,6 +40,7 @@ class Application:
         self._add_modules_to_attributes()
         
         if dummy is False:
+            # Load Gui Dialog
             self.gui.credentials_dialog()
         
         self.logger.info('Application with user "%s" instantiated', self.Login["username"])
@@ -72,14 +72,7 @@ class Application:
         # assign parameters
         for key, value in data.items():
             setattr(self, key, value)
-        
-    # def _ask_for_password_if_not_stored(self) -> None:
-    #     """Start password dialog if the password is not stored in `user_data.toml`.
-    #     """
-    #     # pylint: disable=no-member
-    #     if not 'password' in self.Login:    
-    #         self.gui.password_dialog()      
-            
+
     def _initialize_folder_structure(self) -> None:
         """Create folder structure.
         
@@ -131,11 +124,8 @@ class Application:
         if dummy_data_folder.exists():
             shutil.rmtree(dummy_data_folder)
                     
-        # Set path to dummy configuration
-        self.user_data = pl.Path('opt/dummy_user/dummy_data.toml')
-        self.user_settings = pl.Path('opt/dummy_user/dummy_settings.toml')
         
-        # Set path for copying dummy files
+        # Set paths for copying dummy files
         source_dummy_csv = pl.Path('./opt/dummy_user/').absolute()
         dest_dummy_csv = pl.Path('./.dummy/csv_raw/daily').absolute()
         dest_dummy_settings = pl.Path('./.dummy/config').absolute()
@@ -153,5 +143,9 @@ class Application:
             dest = dest_dummy_settings / filename.name
             shutil.copy2(filename, dest)
                       
+        # Set paths to dummy configuration
+        self.user_data = pl.Path('./.dummy/config/dummy_data.toml')
+        self.user_settings = pl.Path('./.dummy/config/dummy_settings.toml')
+        
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"

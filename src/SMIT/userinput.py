@@ -46,12 +46,12 @@ class UiTools():
         self.button_confirm = None
         self.button_delPwd = None
         self.checkbox_savePwd = None
-        self.entry_pwd = None
+        self.entry_password = None
         self.entry_username = None
         self.entry_meter_day = None
         self.entry_meter_night = None
         # Tkinter variables
-        self.entry_password = None
+        self.var_password = None
         self.save_credentials = None
         
         # Logger setup
@@ -64,7 +64,7 @@ class UiTools():
     def _def_variables(self) -> None:
         """Assign variables to self.
         """
-        self.entry_password = tk.StringVar()
+        self.var_password = tk.StringVar()
         self.save_credentials = tk.BooleanVar()
         self.entry_username = tk.StringVar()
         self.entry_meter_day = tk.StringVar()
@@ -77,7 +77,7 @@ class UiTools():
         
         if 'password' in self.user.Login:
             pwd_b64dec = base64.b64decode(self.user.Login['password'])
-            self.entry_password.set(
+            self.var_password.set(
                 self.user.rsa.decrypt_pwd(pwd_b64dec)
             )
 
@@ -99,10 +99,10 @@ class UiTools():
             variable= self.save_credentials
         )
 
-        self.entry_pwd = tk.Entry(
+        self.entry_password = tk.Entry(
             fg='yellow',
             bg='blue',
-            textvariable= self.entry_password,
+            textvariable= self.var_password,
             show= '*'
         )
         self.entry_username = tk.Entry(
@@ -114,7 +114,15 @@ class UiTools():
         self.entry_meter_night = tk.Entry(
             textvariable= self.entry_meter_night
         )
-    def _return_pressed(self, event):
+        
+    def _return_pressed(self, event: None) -> None:
+        """Helper function for key binding
+
+        Parameters
+        ----------
+        event : None
+            Placeholder
+        """
         self._button_accept()
         
     def _text(self, txt_input: str) -> None:
@@ -139,7 +147,7 @@ class UiTools():
         Else the password will be added just to the user instance.
         """
         #Encrypt credentials with rsa keys
-        pwd_enc = self.user.rsa.encrypt_pwd(self.entry_password.get())
+        pwd_enc = self.user.rsa.encrypt_pwd(self.var_password.get())
         # Convert password to str representation for storing it in `user_data.toml`
         pwd_str = base64.b64encode(pwd_enc).decode('utf-8')
 
@@ -148,7 +156,6 @@ class UiTools():
         if save_credentials_activated:
 
             # Append credentials to user_data.toml
-            #self.user.toml_tools.add_password_to_toml(user_data_path, pwd_str)
             self.user.toml_tools.add_entry_to_config(self.user_data_path, 
                                                      'Login', 
                                                      'password', 
@@ -189,20 +196,22 @@ class UiTools():
         and the user instance attributes.        
         """
         if 'password' in self.user.Login:
-            del self.user.Login['password'] # delete attribute
+            del self.user.Login['password']
             self.user.toml_tools.delete_entry_from_config(self.user_data_path,
                                                           'Login',
                                                           'password')
-            self.entry_password.set('')
+            self.var_password.set('')
         else:
-            self.entry_password.set('')
+            self.var_password.set('')
 
     def _window_setup(self) -> None:
+        """Define entries for root window.
+        """
         self._text('Enter username')
         self.entry_username.pack()
         self._text('Please enter your Stromnetz Graz password')
-        self.entry_pwd.pack()
-        self.entry_pwd.focus()
+        self.entry_password.pack()
+        self.entry_password.focus()
         self._text('Select Meters (last six digits)')
         self._text('Day')
         self.entry_meter_day.pack()
@@ -212,17 +221,9 @@ class UiTools():
         self.button_delPwd.pack()
         self.button_confirm.pack()
         self._text('Please read the disclaimer for details on password handling')
-
-    # def _inspect_caller(self):
-    #     stack = inspect.stack()
-    #     caller_frame = stack[2]
-    #     caller_function = caller_frame.function
-    #     caller_module = caller_frame.filename
-        
-    #     return f'Called from function: {caller_function} in module: {caller_module}'
     
     def credentials_dialog(self) -> None:
-        """Initiate "Enter Password" dialog.
+        """Initiate "User credentials" dialog.
         """
         self.window = tk.Tk()
         self.window.title('User credentials')
