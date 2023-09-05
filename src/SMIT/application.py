@@ -80,7 +80,7 @@ class Application:
         If the folders exist no error will be raised
         """
         # pylint: disable=no-member  
-        for folder, folder_path in self.Folder.items():
+        for folder_path in self.Folder.values():
             os.makedirs(folder_path, exist_ok= True) 
         
     def _load_modules(self) -> dict:
