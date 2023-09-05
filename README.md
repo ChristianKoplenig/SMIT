@@ -45,11 +45,14 @@ See `requirements.txt` for all needed dependencies.
 - `config` 
 	- --> user config files, rsa-keys
 - `docs`
-	- --> pdoc3 generated **modules documentation**
+	- --> **Pdoc3** generated modules documentation
 - `tests`
-	- --> pytest 
+	- --> **Pytest** source folder
 - `.dummy`
+	- --> Get's created when application class is instantiated with **dummy user**
+	- --> on each instantiation folder gets **deleted and newly created**
 - `.tox`
+	- --> Data for running tests
 ## Branches
 ### main
 - Scrape data - tested on win/linux.
@@ -61,6 +64,20 @@ See `requirements.txt` for all needed dependencies.
 - Modules as classes, pep8 implemented
 - Temporarily store encrypted password in user class.
 - Readme -> added disclaimer and about
+- ### feature freeze
+- Import, Module and Folder management in Application class 
+- Manage configs in `.toml` files
+- Dummy user
+- Gui for user credentials
+- Encrypted password storage
+- Use selenium library to scrape data
+- Automated scrape dates management
+- Filemanagement with pathlib library
+- Pytest
+- Pdoc
+- Logging
+
+
 ### feature/pwd_dialog
 - Get password
 - Temporarily store encrypted password in user class.
