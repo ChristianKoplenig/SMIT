@@ -1,7 +1,7 @@
 [Login]
 url = 'https://webportal.stromnetz-graz.at/login'
 username = 'ch.koplenig@posteo.net'
-password = "TUQAS4MxAX7muOPMGH/xCVNGRuwlrhVP36NbbzTZYn8/EpTlAoEaNm9qqfZufWkuFFhofhVbd25herfu4Vi24+W2aT581aO3KXMWxHYg0IoS64CQ6lCfIe1kA8sbUCmQO2zg8DMfxgPXdEd9XgYMZFctEjNbSnYhRQDtst4Teew=" # Permission to store password given
+password = "TNL/xJguY5RX6I2xdnSOXtm9KMtDYhpdWrEbvZKNKOpYz3xLjEgz3efDKJAJhMduBzQyfNz0iJJ5rkGws79Bmxgos4OwEPPuNk8SxVoItImRt/1zTbktglOiYFB3sFdOu44HBshlhKdVe2I0PnShG0FlwZSofpI58XTd6SDtbIk=" # Permission to store password given
 
 [Meter]
 # Stromnetz Anlagedaten
