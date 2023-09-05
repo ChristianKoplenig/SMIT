@@ -199,17 +199,21 @@ class OsInterface():
         Call :func: `get_daysum_files`
         For each meter call :func: `move_files_to_workdir`
         &#34;&#34;&#34;
-        self.user.persistence.initialize_dates_log()
-        dates = self.user.persistence.load_dates_log()
+        if self.user.dummy is False:
+            self.user.persistence.initialize_dates_log()
+            dates = self.user.persistence.load_dates_log()
 
-        # scrape just once a day
-        if not dates[&#39;start&#39;] == dt.date.today().strftime(&#39;%d-%m-%Y&#39;):
+            # scrape just once a day
+            if not dates[&#39;start&#39;] == dt.date.today().strftime(&#39;%d-%m-%Y&#39;):
 
-            self.user.scrape.get_daysum_files(self.user.Options[&#39;headless_mode&#39;])
+                self.user.scrape.get_daysum_files(self.user.Options[&#39;headless_mode&#39;])
+                self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
+                self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])
+            else:
+                self.logger.info(&#39;Most recent data already downloaded&#39;)
+        else:
             self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
             self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])
-        else:
-            self.logger.info(&#39;Most recent data already downloaded&#39;)
 
     def __repr__(self) -&gt; str:
         return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;
@@ -228,9 +232,10 @@ class TomlTools():
             Return toml object from filesystem.
         save_toml_file(filename, toml_object):
             Write toml object to filesystem.
-        _append_password(toml_object, pwd)
-            Append password to toml object
-        add_password_to_toml(toml_filename, password)
+        add_entry_to_config(toml_path, section, config_attribute, entry):
+            Add an entry under [&#39;section&#39;][&#39;config_attribute&#39;] to `.toml` file.
+        delete_entry_from_config(toml_path, section, config_attribute):
+            Delete config attribute from `.toml` file.
     &#34;&#34;&#34;
     def __init__(self, app: &#39;Application&#39;) -&gt; None:
         &#34;&#34;&#34;Initialize class with all attributes from user config files.
@@ -278,41 +283,52 @@ class TomlTools():
         with open(filename, mode=&#39;wt&#39;, encoding=&#39;utf-8&#39;) as file:
             tomlkit.dump(toml_object, file)
 
-    def _append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -&gt; None:
-        &#34;&#34;&#34;Append password entry to Login table in Python TOML object.
+    def add_entry_to_config(self, toml_path: pl.Path, 
+                            section: str, 
+                            config_attribute: str, 
+                            entry: str) -&gt; None:
+        &#34;&#34;&#34;Add entry to config file
+        
+        Use for input from Tkinter Gui. 
+        If an entry exists it will be overwritten.
 
         Parameters
         ----------
-        toml_object : tomlkit
-            Python TOML object.
-        pwd : str
-            Password for web scraping login.
+        toml_path : pl.Path
+            Path to config file.
+        section : str
+            Table name in config file. 
+        config_attribute : str
+            Attribute in config file to update.
+        entry : str
+            String to store in config file.
         &#34;&#34;&#34;
-        try:
-            if &#39;password&#39; in toml_object[&#39;Login&#39;]:
-                raise KeyError(&#39;Password already saved&#39;)
-            else:
-                toml_object[&#39;Login&#39;].add(&#34;password&#34;, pwd) # pylint: disable=no-member
-                toml_object[&#39;Login&#39;][&#39;password&#39;].comment(&#39;Permission to store password given&#39;)
-        except KeyError as e:
-            self.logger.error(e)
-
-    def add_password_to_toml(self, toml_filename: pl.Path, password: str) -&gt; None:
-        &#34;&#34;&#34;Add password to `user_data.toml`.
-
+        config = self.load_toml_file(toml_path)
+        config[section][config_attribute] = entry
+        config[section][config_attribute].comment(&#39;Data collected via Gui&#39;)
+        self.save_toml_file(toml_path, config)
+        self.logger.debug(f&#39;{config_attribute} added to user data&#39;)
+        
+    def delete_entry_from_config(self,
+                                 toml_path: pl.Path,
+                                 section: str,
+                                 config_attribute: str) -&gt; None:
+        &#34;&#34;&#34;Delete entry from config file.
+        
         Parameters
         ----------
-        toml_filename : pl.Path
-            Path to `.toml` file
-        password : str
-            Password for web scraping login.
+        toml_path : pl.Path
+            Path to config file.
+        section : str
+            Table name in config file
+        config_attribute : str
+            Attribute to delete
         &#34;&#34;&#34;
-        # Store password in user_data.toml
-        user_data = self.load_toml_file(toml_filename)
-        self._append_password(user_data, password)
-        self.save_toml_file(toml_filename, user_data)
-        self.logger.debug(&#39;Password added to user data&#39;)
-
+        config = self.load_toml_file(toml_path)
+        del config[section][config_attribute]
+        self.save_toml_file(toml_path, config)
+        self.logger.debug(f&#39;{config_attribute} deleted from config&#39;)
+                
     def __repr__(self) -&gt; str:
         return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;</code></pre>
 </details>
@@ -494,17 +510,21 @@ Initiate download process and move files.</p>
         Call :func: `get_daysum_files`
         For each meter call :func: `move_files_to_workdir`
         &#34;&#34;&#34;
-        self.user.persistence.initialize_dates_log()
-        dates = self.user.persistence.load_dates_log()
+        if self.user.dummy is False:
+            self.user.persistence.initialize_dates_log()
+            dates = self.user.persistence.load_dates_log()
 
-        # scrape just once a day
-        if not dates[&#39;start&#39;] == dt.date.today().strftime(&#39;%d-%m-%Y&#39;):
+            # scrape just once a day
+            if not dates[&#39;start&#39;] == dt.date.today().strftime(&#39;%d-%m-%Y&#39;):
 
-            self.user.scrape.get_daysum_files(self.user.Options[&#39;headless_mode&#39;])
+                self.user.scrape.get_daysum_files(self.user.Options[&#39;headless_mode&#39;])
+                self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
+                self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])
+            else:
+                self.logger.info(&#39;Most recent data already downloaded&#39;)
+        else:
             self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
             self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])
-        else:
-            self.logger.info(&#39;Most recent data already downloaded&#39;)
 
     def __repr__(self) -&gt; str:
         return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;</code></pre>
@@ -654,17 +674,21 @@ For each meter call :func: <code>move_files_to_workdir</code></p></div>
     Call :func: `get_daysum_files`
     For each meter call :func: `move_files_to_workdir`
     &#34;&#34;&#34;
-    self.user.persistence.initialize_dates_log()
-    dates = self.user.persistence.load_dates_log()
+    if self.user.dummy is False:
+        self.user.persistence.initialize_dates_log()
+        dates = self.user.persistence.load_dates_log()
 
-    # scrape just once a day
-    if not dates[&#39;start&#39;] == dt.date.today().strftime(&#39;%d-%m-%Y&#39;):
+        # scrape just once a day
+        if not dates[&#39;start&#39;] == dt.date.today().strftime(&#39;%d-%m-%Y&#39;):
 
-        self.user.scrape.get_daysum_files(self.user.Options[&#39;headless_mode&#39;])
-        self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
-        self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])
+            self.user.scrape.get_daysum_files(self.user.Options[&#39;headless_mode&#39;])
+            self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
+            self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])
+        else:
+            self.logger.info(&#39;Most recent data already downloaded&#39;)
     else:
-        self.logger.info(&#39;Most recent data already downloaded&#39;)</code></pre>
+        self.move_files_to_workdir(self.user.Meter[&#39;day_meter&#39;])
+        self.move_files_to_workdir(self.user.Meter[&#39;night_meter&#39;])</code></pre>
 </details>
 </dd>
 </dl>
@@ -686,9 +710,10 @@ Attributes</p>
 Return toml object from filesystem.
 save_toml_file(filename, toml_object):
 Write toml object to filesystem.
-_append_password(toml_object, pwd)
-Append password to toml object
-add_password_to_toml(toml_filename, password)</p>
+add_entry_to_config(toml_path, section, config_attribute, entry):
+Add an entry under ['section']['config_attribute'] to <code>.toml</code> file.
+delete_entry_from_config(toml_path, section, config_attribute):
+Delete config attribute from <code>.toml</code> file.</p>
 <p>Initialize class with all attributes from user config files.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -712,9 +737,10 @@ add_password_to_toml(toml_filename, password)</p>
             Return toml object from filesystem.
         save_toml_file(filename, toml_object):
             Write toml object to filesystem.
-        _append_password(toml_object, pwd)
-            Append password to toml object
-        add_password_to_toml(toml_filename, password)
+        add_entry_to_config(toml_path, section, config_attribute, entry):
+            Add an entry under [&#39;section&#39;][&#39;config_attribute&#39;] to `.toml` file.
+        delete_entry_from_config(toml_path, section, config_attribute):
+            Delete config attribute from `.toml` file.
     &#34;&#34;&#34;
     def __init__(self, app: &#39;Application&#39;) -&gt; None:
         &#34;&#34;&#34;Initialize class with all attributes from user config files.
@@ -762,77 +788,143 @@ add_password_to_toml(toml_filename, password)</p>
         with open(filename, mode=&#39;wt&#39;, encoding=&#39;utf-8&#39;) as file:
             tomlkit.dump(toml_object, file)
 
-    def _append_password(self, toml_object: tomlkit.TOMLDocument, pwd: str) -&gt; None:
-        &#34;&#34;&#34;Append password entry to Login table in Python TOML object.
+    def add_entry_to_config(self, toml_path: pl.Path, 
+                            section: str, 
+                            config_attribute: str, 
+                            entry: str) -&gt; None:
+        &#34;&#34;&#34;Add entry to config file
+        
+        Use for input from Tkinter Gui. 
+        If an entry exists it will be overwritten.
 
         Parameters
         ----------
-        toml_object : tomlkit
-            Python TOML object.
-        pwd : str
-            Password for web scraping login.
+        toml_path : pl.Path
+            Path to config file.
+        section : str
+            Table name in config file. 
+        config_attribute : str
+            Attribute in config file to update.
+        entry : str
+            String to store in config file.
         &#34;&#34;&#34;
-        try:
-            if &#39;password&#39; in toml_object[&#39;Login&#39;]:
-                raise KeyError(&#39;Password already saved&#39;)
-            else:
-                toml_object[&#39;Login&#39;].add(&#34;password&#34;, pwd) # pylint: disable=no-member
-                toml_object[&#39;Login&#39;][&#39;password&#39;].comment(&#39;Permission to store password given&#39;)
-        except KeyError as e:
-            self.logger.error(e)
-
-    def add_password_to_toml(self, toml_filename: pl.Path, password: str) -&gt; None:
-        &#34;&#34;&#34;Add password to `user_data.toml`.
-
+        config = self.load_toml_file(toml_path)
+        config[section][config_attribute] = entry
+        config[section][config_attribute].comment(&#39;Data collected via Gui&#39;)
+        self.save_toml_file(toml_path, config)
+        self.logger.debug(f&#39;{config_attribute} added to user data&#39;)
+        
+    def delete_entry_from_config(self,
+                                 toml_path: pl.Path,
+                                 section: str,
+                                 config_attribute: str) -&gt; None:
+        &#34;&#34;&#34;Delete entry from config file.
+        
         Parameters
         ----------
-        toml_filename : pl.Path
-            Path to `.toml` file
-        password : str
-            Password for web scraping login.
+        toml_path : pl.Path
+            Path to config file.
+        section : str
+            Table name in config file
+        config_attribute : str
+            Attribute to delete
         &#34;&#34;&#34;
-        # Store password in user_data.toml
-        user_data = self.load_toml_file(toml_filename)
-        self._append_password(user_data, password)
-        self.save_toml_file(toml_filename, user_data)
-        self.logger.debug(&#39;Password added to user data&#39;)
-
+        config = self.load_toml_file(toml_path)
+        del config[section][config_attribute]
+        self.save_toml_file(toml_path, config)
+        self.logger.debug(f&#39;{config_attribute} deleted from config&#39;)
+                
     def __repr__(self) -&gt; str:
         return f&#34;Module &#39;{self.__class__.__module__}.{self.__class__.__name__}&#39;&#34;</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="SMIT.filehandling.TomlTools.add_password_to_toml"><code class="name flex">
-<span>def <span class="ident">add_password_to_toml</span></span>(<span>self, toml_filename: pathlib.Path, password: str) ‑> None</span>
+<dt id="SMIT.filehandling.TomlTools.add_entry_to_config"><code class="name flex">
+<span>def <span class="ident">add_entry_to_config</span></span>(<span>self, toml_path: pathlib.Path, section: str, config_attribute: str, entry: str) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Add password to <code>user_data.toml</code>.</p>
+<div class="desc"><p>Add entry to config file</p>
+<p>Use for input from Tkinter Gui.
+If an entry exists it will be overwritten.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>toml_filename</code></strong> :&ensp;<code>pl.Path</code></dt>
-<dd>Path to <code>.toml</code> file</dd>
-<dt><strong><code>password</code></strong> :&ensp;<code>str</code></dt>
-<dd>Password for web scraping login.</dd>
+<dt><strong><code>toml_path</code></strong> :&ensp;<code>pl.Path</code></dt>
+<dd>Path to config file.</dd>
+<dt><strong><code>section</code></strong> :&ensp;<code>str</code></dt>
+<dd>Table name in config file.</dd>
+<dt><strong><code>config_attribute</code></strong> :&ensp;<code>str</code></dt>
+<dd>Attribute in config file to update.</dd>
+<dt><strong><code>entry</code></strong> :&ensp;<code>str</code></dt>
+<dd>String to store in config file.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_password_to_toml(self, toml_filename: pl.Path, password: str) -&gt; None:
-    &#34;&#34;&#34;Add password to `user_data.toml`.
+<pre><code class="python">def add_entry_to_config(self, toml_path: pl.Path, 
+                        section: str, 
+                        config_attribute: str, 
+                        entry: str) -&gt; None:
+    &#34;&#34;&#34;Add entry to config file
+    
+    Use for input from Tkinter Gui. 
+    If an entry exists it will be overwritten.
 
     Parameters
     ----------
-    toml_filename : pl.Path
-        Path to `.toml` file
-    password : str
-        Password for web scraping login.
+    toml_path : pl.Path
+        Path to config file.
+    section : str
+        Table name in config file. 
+    config_attribute : str
+        Attribute in config file to update.
+    entry : str
+        String to store in config file.
     &#34;&#34;&#34;
-    # Store password in user_data.toml
-    user_data = self.load_toml_file(toml_filename)
-    self._append_password(user_data, password)
-    self.save_toml_file(toml_filename, user_data)
-    self.logger.debug(&#39;Password added to user data&#39;)</code></pre>
+    config = self.load_toml_file(toml_path)
+    config[section][config_attribute] = entry
+    config[section][config_attribute].comment(&#39;Data collected via Gui&#39;)
+    self.save_toml_file(toml_path, config)
+    self.logger.debug(f&#39;{config_attribute} added to user data&#39;)</code></pre>
+</details>
+</dd>
+<dt id="SMIT.filehandling.TomlTools.delete_entry_from_config"><code class="name flex">
+<span>def <span class="ident">delete_entry_from_config</span></span>(<span>self, toml_path: pathlib.Path, section: str, config_attribute: str) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Delete entry from config file.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>toml_path</code></strong> :&ensp;<code>pl.Path</code></dt>
+<dd>Path to config file.</dd>
+<dt><strong><code>section</code></strong> :&ensp;<code>str</code></dt>
+<dd>Table name in config file</dd>
+<dt><strong><code>config_attribute</code></strong> :&ensp;<code>str</code></dt>
+<dd>Attribute to delete</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete_entry_from_config(self,
+                             toml_path: pl.Path,
+                             section: str,
+                             config_attribute: str) -&gt; None:
+    &#34;&#34;&#34;Delete entry from config file.
+    
+    Parameters
+    ----------
+    toml_path : pl.Path
+        Path to config file.
+    section : str
+        Table name in config file
+    config_attribute : str
+        Attribute to delete
+    &#34;&#34;&#34;
+    config = self.load_toml_file(toml_path)
+    del config[section][config_attribute]
+    self.save_toml_file(toml_path, config)
+    self.logger.debug(f&#39;{config_attribute} deleted from config&#39;)</code></pre>
 </details>
 </dd>
 <dt id="SMIT.filehandling.TomlTools.load_toml_file"><code class="name flex">
@@ -931,7 +1023,8 @@ add_password_to_toml(toml_filename, password)</p>
 <li>
 <h4><code><a title="SMIT.filehandling.TomlTools" href="#SMIT.filehandling.TomlTools">TomlTools</a></code></h4>
 <ul class="">
-<li><code><a title="SMIT.filehandling.TomlTools.add_password_to_toml" href="#SMIT.filehandling.TomlTools.add_password_to_toml">add_password_to_toml</a></code></li>
+<li><code><a title="SMIT.filehandling.TomlTools.add_entry_to_config" href="#SMIT.filehandling.TomlTools.add_entry_to_config">add_entry_to_config</a></code></li>
+<li><code><a title="SMIT.filehandling.TomlTools.delete_entry_from_config" href="#SMIT.filehandling.TomlTools.delete_entry_from_config">delete_entry_from_config</a></code></li>
 <li><code><a title="SMIT.filehandling.TomlTools.load_toml_file" href="#SMIT.filehandling.TomlTools.load_toml_file">load_toml_file</a></code></li>
 <li><code><a title="SMIT.filehandling.TomlTools.save_toml_file" href="#SMIT.filehandling.TomlTools.save_toml_file">save_toml_file</a></code></li>
 </ul>
