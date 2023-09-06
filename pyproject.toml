@@ -8,5 +8,5 @@ markers = [
     "smoke: Validate core methods",
     "application: Test setup of application class",
     "crypto: Test rsa implementation",
-    "filehandling: Test functionality on filesystem basis",
+    "osinterface: Move files, generate pandas dataframe",
 ]
