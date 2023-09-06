@@ -149,3 +149,20 @@ class Application:
         
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
+    
+    # Documentation
+    # Copied from stackoverflow
+    # Specified at the end of each module that contains private
+    # classes/methods that need to be exposed
+    
+# Specified at the end of each module that contains private
+# classes/methods that need to be exposed
+__pdoc__ = {name: True
+            for name, klass in globals().items()
+            if name.startswith('_') and isinstance(klass, type)}
+__pdoc__.update({f'{name}.{member}': True
+                 for name, klass in globals().items()
+                 if isinstance(klass, type)
+                 for member in klass.__dict__.keys()
+                 if member not in {'__module__', '__dict__', 
+                                   '__weakref__', '__doc__'}})
