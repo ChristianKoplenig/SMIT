@@ -1,3 +1,10 @@
+"""
+Application Module
+Returns
+-------
+_type_
+    _description_
+"""
 import os
 import logging
 import pathlib as pl
@@ -150,19 +157,29 @@ class Application:
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
     
-    # Documentation
-    # Copied from stackoverflow
-    # Specified at the end of each module that contains private
-    # classes/methods that need to be exposed
-    
-# Specified at the end of each module that contains private
-# classes/methods that need to be exposed
+# Pdoc config get underscore methods
 __pdoc__ = {name: True
-            for name, klass in globals().items()
-            if name.startswith('_') and isinstance(klass, type)}
+            for name, classes in globals().items()
+            if name.startswith('_') and isinstance(classes, type)}
+
+
 __pdoc__.update({f'{name}.{member}': True
-                 for name, klass in globals().items()
-                 if isinstance(klass, type)
-                 for member in klass.__dict__.keys()
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
                  if member not in {'__module__', '__dict__', 
                                    '__weakref__', '__doc__'}})
+
+__pdoc__.update({f'{name}.{member}': False
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member.__contains__('__') and member not in {'__module__', '__dict__', 
+                                   '__weakref__', '__doc__'}})
+
+# for key, value in __pdoc__.items():
+#     if key.__contains__('__') and isinstance(value, type):
+#         __pdoc__[key] = False
+        #print(f'key: {key} value: {value}\n')
+
+print(__pdoc__.items())
