@@ -5,6 +5,7 @@ from SMIT.application import Application
 
 app = Application(True)
 
+@pytest.mark.smoke
 @pytest.mark.crypto
 def test_load_keys():
     """Test load rsa key function
@@ -18,6 +19,7 @@ def test_load_keys():
     assert app.rsa._load_rsa_keys().private_key == private_key
     assert app.rsa._load_rsa_keys().public_key == public_key
 
+@pytest.mark.smoke
 @pytest.mark.crypto
 def test_encryption() -> None:
     """Test rsa encrypt/decrypt.

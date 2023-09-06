@@ -5,6 +5,7 @@ from SMIT.application import Application
 
 app = Application(True)
 
+@pytest.mark.smoke
 @pytest.mark.application
 def test_load_user_data():
     """Test import of `user_data.toml`.
@@ -13,6 +14,7 @@ def test_load_user_data():
     """
     assert app.Login['username'] != ''
 
+@pytest.mark.smoke
 @pytest.mark.application
 def test_load_user_settings():
     """Test import of `user_settings.toml`.
@@ -21,6 +23,7 @@ def test_load_user_settings():
     """
     assert app.Init['csv_startDate'] != ''
     
+@pytest.mark.smoke
 @pytest.mark.application
 def test_load_modules():
     """Test import of modules.
@@ -39,12 +42,14 @@ def test_load_modules():
     
     assert len(test_modules) == len(modules)
     
+@pytest.mark.smoke
 @pytest.mark.application
 def test_logger():
     """Test if the logger module is loaded
     """
     assert app.logger != ''
     
+@pytest.mark.smoke
 @pytest.mark.application
 def test_folderstructure():
     """Test if all folders exist
