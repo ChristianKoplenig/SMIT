@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 
 class OsInterface():
-    """Methods for file operations.
+    """Manipulate data files.
     
     ---
     
@@ -179,31 +179,18 @@ class OsInterface():
 
 
 class TomlTools():
-    """Class for handling toml files
-        Attributes
-        ----------
-        user : class instance
-            Holds user information
+    """Manipulate config files.
 
-        Methods
-        -------
-        load_toml_file(filename):
-            Return toml object from filesystem.
-        save_toml_file(filename, toml_object):
-            Write toml object to filesystem.
-        add_entry_to_config(toml_path, section, config_attribute, entry):
-            Add an entry under ['section']['config_attribute'] to `.toml` file.
-        delete_entry_from_config(toml_path, section, config_attribute):
-            Delete config attribute from `.toml` file.
+    ---
+    
+    Load and save `.toml` config files.  
+    Add and delete entries from config files.
+
+    Attributes:
+        app (class): Accepts `SMIT.application.Application` type attribute.    
     """
     def __init__(self, app: 'Application') -> None:
-        """Initialize class with all attributes from user config files.
 
-        Parameters
-        ----------
-        app : class instance
-            Holds the configuration data for program run.
-        """
         self.user = app
         self.user_data = pl.Path(self.user.Path['user_data'])
         self.logger = app.logger
@@ -215,29 +202,22 @@ class TomlTools():
     def load_toml_file(self, filename: pl.Path) -> tomlkit.TOMLDocument:
         """Read `.toml` file and return Python TOML object.
 
-        Parameters
-        ----------
-        filename : pl.Path
-            Path object to the `.toml` file.
+        Args:
+            filename (patlib.Path): Path object to the `.toml` file.
 
-        Returns
-        -------
-        object
-            Python TOML object
+        Returns:
+            tomlkit.TOMLDocument: Editable configuration object.
         """
         with open(filename, mode='rt', encoding='utf-8') as file:
             data = tomlkit.load(file)
         return data
 
     def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -> None:
-        """Takes python TOML object and writes `.toml` file to filesystem
+        """Takes TOML object and writes file to filesystem.
 
-        Parameters
-        ----------
-        filename : pl.Path
-            Path to output file on filesystem
-        toml_object : tomlkit
-            Python TOML object
+        Args:
+            filename (pathlib.Path): Destination for config file.
+            toml_object (tomlkit.TOMLDocument): Configuration object to save.
         """
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
@@ -246,21 +226,16 @@ class TomlTools():
                             section: str,
                             config_attribute: str,
                             entry: str) -> None:
-        """Add entry to config file
+        """Load config file, select table and add entry.
 
-        Use for input from Tkinter Gui.
-        If an entry exists it will be overwritten.
+        Use for input from Tkinter Gui.  
+        If an entry exists it will be overwritten.  
 
-        Parameters
-        ----------
-        toml_path : pl.Path
-            Path to config file.
-        section : str
-            Table name in config file.
-        config_attribute : str
-            Attribute in config file to update.
-        entry : str
-            String to store in config file.
+        Args:
+            toml_path (pathlib.Path): Path to config file.
+            section (string): Table name in config file.
+            config_attribute (string): Attribute in config file to update.
+            entry (string): String to store in config file.
         """
         config = self.load_toml_file(toml_path)
         config[section][config_attribute] = entry
@@ -272,16 +247,15 @@ class TomlTools():
                                  toml_path: pl.Path,
                                  section: str,
                                  config_attribute: str) -> None:
-        """Delete entry from config file.
+        """Load config file, select table and delete attribute.
 
-        Parameters
-        ----------
-        toml_path : pl.Path
-            Path to config file.
-        section : str
-            Table name in config file
-        config_attribute : str
-            Attribute to delete
+        Use for input from Tkinter Gui.  
+        Attribute and entry in config file will be deleted
+
+        Args:
+            toml_path (pathlib.Path): Path to config file.
+            section (string): Table name in config file.
+            config_attribute (string): Attribute in config file to update.
         """
         config = self.load_toml_file(toml_path)
         del config[section][config_attribute]
