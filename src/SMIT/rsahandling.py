@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from SMIT.application import Application
 
+
 class RsaTools():
     """Methods for accessing the rsa library
 
@@ -40,7 +41,7 @@ class RsaTools():
         no_public_key = not self.pub_path.exists()
         no_private_key = not self.priv_path.exists()
 
-        #If no key pair exists in config folder generate one.
+        # If no key pair exists in config folder generate one.
         if no_public_key or no_private_key:
             (public_key, private_key) = rsa.newkeys(1024)
             self.logger.warning('No Rsa key pair found')
