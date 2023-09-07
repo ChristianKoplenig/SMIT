@@ -9,6 +9,18 @@ import pandas as pd
 from SMIT.application import Application
 app = Application(True)
 ################################################
+# app.persistence.initialize_dates_log()
+# dates_loaded = app.persistence.load_dates_log()
+# print(dates_loaded)
+
+# dates_new = {**dates_loaded}
+
+# dates_new['last_scrape'] = 'testvar'
+
+# print(f'after: {dates_new}')
+
+
+
 # source_dir = pl.Path('./.dummy/csv_raw/daily')
 # dest_dir = pl.Path('./.dummy/csv_workdir/daily')
 
@@ -51,29 +63,30 @@ app = Application(True)
 
 # Path = fh_paths()    
 # print(Path.source_dir)
-app.os_tools.move_files_to_workdir(app.Meter['day_meter'])
-dest_dir = pl.Path('./.dummy/csv_workdir/daily')
-filename = str(str(dt.date.today().strftime('%Y%m%d')
-                   + '_' 
-                   + str(199996)
-                   + '.csv'))
-csv_path = dest_dir / filename
+# app.os_tools.move_files_to_workdir(app.Meter['day_meter'])
+# dest_dir = pl.Path('./.dummy/csv_workdir/daily')
+# filename = str(str(dt.date.today().strftime('%Y%m%d')
+#                    + '_' 
+#                    + str(199996)
+#                    + '.csv'))
+# csv_path = dest_dir / filename
 
-df = pd.read_csv(csv_path,
-                sep=';',
-                decimal=',',
-                header=0,
-                parse_dates=['date'],
-                converters={'date': lambda t: 
-                    dt.datetime.strptime(t,
-                                        '%Y-%m-%dT%H:%M:%S.%f%z').date()},
-                names=['date',
-                       'zaehlerstand',
-                       '1',
-                       '2',
-                       'verbrauch',
-                       '3',
-                       '4'],
-                usecols=lambda x: x in ['date', 'zaehlerstand', 'verbrauch'])
+# df = pd.read_csv(csv_path,
+#                 sep=';',
+#                 decimal=',',
+#                 header=0,
+#                 parse_dates=['date'],
+#                 converters={'date': lambda t: 
+#                     dt.datetime.strptime(t,
+#                                         '%Y-%m-%dT%H:%M:%S.%f%z').date()},
+#                 names=['date',
+#                        'zaehlerstand',
+#                        '1',
+#                        '2',
+#                        'verbrauch',
+#                        '3',
+#                        '4'],
+#                 usecols=lambda x: x in ['date', 'zaehlerstand', 'verbrauch'])
 
-print(df)
+# print(df)
+
