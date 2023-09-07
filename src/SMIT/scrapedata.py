@@ -176,7 +176,7 @@ class Webscraper():
             activate Firefox headless mode, by default False
         """
         service = Service(executable_path=self.user.Path['geckodriver_executable'],
-                          log_path=self.user.Path['webdriver_logFolder'])
+                          log_output=self.user.Path['webdriver_logFolder'])
         self.driver = webdriver.Firefox(options=self._ff_options(dl_folder, headless),
                                         service=service)
         # Load Url
