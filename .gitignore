@@ -2,6 +2,7 @@
 csv_raw/
 csv_workdir/
 .dummy/
+docs/
 
 # SAFETY
 config/user_file.toml
