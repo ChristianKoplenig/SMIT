@@ -7,7 +7,7 @@ import pathlib as pl
 
 # Setup
 from SMIT.application import Application
-user = Application(True)
+user = Application()
 ################################################
 
 # Test the webdriver integration
@@ -86,7 +86,8 @@ def test_logging() -> None:
     user.logger.debug('Logging test sucessfull')
     
 ############## load test #######################
-password_dialog()
+#password_dialog()
+#sng_login()
 #test_logging()
 #test_rsa()
 ################################################
