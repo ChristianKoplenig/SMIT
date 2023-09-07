@@ -9,7 +9,7 @@ Classes:
 TomlTools:
     Read/Write `.toml` files
     Append password
-    
+
 Typical usage:
     app = Appclass()
     app.os_tools
@@ -294,6 +294,7 @@ class TomlTools():
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
 
+
 # Pdoc config get underscore methods
 __pdoc__ = {name: True
             for name, classes in globals().items()
@@ -304,12 +305,12 @@ __pdoc__.update({f'{name}.{member}': True
                  for name, classes in globals().items()
                  if isinstance(classes, type)
                  for member in classes.__dict__.keys()
-                 if member not in {'__module__', '__dict__', 
+                 if member not in {'__module__', '__dict__',
                                    '__weakref__', '__doc__'}})
 
 __pdoc__.update({f'{name}.{member}': False
                  for name, classes in globals().items()
                  if isinstance(classes, type)
                  for member in classes.__dict__.keys()
-                 if member.__contains__('__') and member not in {'__module__', '__dict__', 
-                                   '__weakref__', '__doc__'}})
+                 if member.__contains__('__') and member not in {'__module__', '__dict__',
+                                                                 '__weakref__', '__doc__'}})
