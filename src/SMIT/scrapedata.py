@@ -21,6 +21,7 @@ from selenium.webdriver.support import expected_conditions as EC
 if TYPE_CHECKING:
     from SMIT.application import Application
 
+
 class Webscraper():
     """Methods for interacting with webdriver module.
 
@@ -68,7 +69,6 @@ class Webscraper():
         msg +=  'successfully initialized.'
         self.logger.debug(msg)
 
-
     def wait_and_click(self, elementXpath: str) -> None:
         """Wait for web element and click.
 
@@ -85,7 +85,7 @@ class Webscraper():
         switchName.click()
 
     def _ff_options(self, dl_folder: str,
-                     headless: bool) -> webdriver.FirefoxOptions:
+                    headless: bool) -> webdriver.FirefoxOptions:
         """Set options for firefox webdriver.
 
         Parameters
@@ -165,7 +165,7 @@ class Webscraper():
         return password
 
     def sng_login(self, dl_folder: pl.Path,
-                  headless: bool=False) -> None:
+                  headless: bool = False) -> None:
         """Login to Stromnetz Graz webportal and setup data page.
 
         Parameters
@@ -175,21 +175,21 @@ class Webscraper():
         headless : bool, optional
             activate Firefox headless mode, by default False
         """
-        service = Service(executable_path= self.user.Path['geckodriver_executable'],
-                          log_path= self.user.Path['webdriver_logFolder'])
+        service = Service(executable_path=self.user.Path['geckodriver_executable'],
+                          log_output=self.user.Path['webdriver_logFolder'])
         self.driver = webdriver.Firefox(options=self._ff_options(dl_folder, headless),
-                                   service=service)
+                                        service=service)
         # Load Url
         self.driver.get(self.user.Login['url'])
         self.driver.maximize_window()
-        ##### login #####
+        # Send username and password
         self.driver.find_element(By.NAME, "email").send_keys(self.user.Login['username'])
         self.driver.find_element(By.NAME, "password").send_keys(self._decode_password())
-        # login confirmation
+        # Login confirmation
         self.wait_and_click('/html/body/div/app-root/main/div/app-login/div[2]/div[1]/form/div[3]/button')
-        # open data page
+        # Open data page
         self.wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')
-        # set unit to [Wh]
+        # Set unit to [Wh]
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')
         self.logger.debug('Login to Stromnetz Graz successful')
 
@@ -207,11 +207,11 @@ class Webscraper():
         actions = ActionChains(self.driver)
 
         if language == 'de':
-            actions.send_keys(input_date[ :2]) #day
-            actions.send_keys(input_date[3:5]) #month
+            actions.send_keys(input_date[ :2])  # Day
+            actions.send_keys(input_date[3:5])  # Month
         else:
-            actions.send_keys(input_date[3:5]) #month
-            actions.send_keys(input_date[ :2]) #day
+            actions.send_keys(input_date[3:5])  # Month
+            actions.send_keys(input_date[ :2])  # Day
         actions.send_keys(input_date[6:])
         actions.send_keys(Keys.TAB)
         actions.send_keys(Keys.TAB)
@@ -227,16 +227,16 @@ class Webscraper():
         end : string
             Date with format dd-mm-yyyy
         """
-        # select daily sum measurements
+        # Select daily sum measurements
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')
-        # set cursor in start date input field
+        # Set cursor in start date input field
         self.wait_and_click('//*[@id="fromDayOverviewDate"]')
-        self._sng_input_dates(start)    # start date
-        self._sng_input_dates(end)      # end date
-        # confirm date selections
+        self._sng_input_dates(start)    # Start date
+        self._sng_input_dates(end)      # End date
+        # Confirm date selections
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[2]/div/div/div/div[2]/div[2]/div[2]/button')
 
-        time.sleep(3) # wait for element to load
+        time.sleep(3)   # Wait for element to load
 
     def _sng_start_download(self) -> None:
         """Click download button web-element.
@@ -264,7 +264,7 @@ class Webscraper():
 
         time.sleep(3)
 
-    def get_daysum_files(self, headless: bool=False) -> None:
+    def get_daysum_files(self, headless: bool = False) -> None:
         """Initiate '.csv' files download for day sum files.
 
         Parameters
