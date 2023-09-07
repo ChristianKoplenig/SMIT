@@ -60,7 +60,7 @@ def test_move_files(fh_tests_setup):
     Assure that file is removed from rawdir
     """
     # Run function to test
-    app.os_tools.move_files_to_workdir(app.Meter['day_meter'])
+    app.os_tools._move_files_to_workdir(app.Meter['day_meter'])
 
     for file in fh_tests_setup.source_dir.glob('*.csv'):
         fh_tests_setup.source_files.append(file.stem) 

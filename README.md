@@ -140,7 +140,7 @@ In `root` folder create:
 - `_pathlib_move(src, dest, appendix)`
 	- Move and rename files
 	- **Input:** source filepath, destination filepath, text to append
-- `move_files_to_workdir.py(meter_number)`
+- `_move_files_to_workdir.py(meter_number)`
 	- Select files in webdriver download folder
 	- Filter files with creation date today
 	- Distinguish between files with different meter numbers
