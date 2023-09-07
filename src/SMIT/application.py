@@ -1,5 +1,7 @@
 """Provide core functionality.
 
+---
+
 - Generate dummy user
 - Load user settings
 - Create folder structure
@@ -50,11 +52,8 @@ class Application:
     - Data source: `./opt/dummy_user`.
     - Working directory: `./dummy`. 
 
-    Parameters
-    ----------
-
-    dummy : bool = False
-        Flag for activating dummy user.
+    Attributes:
+        dummy (bool = False): Flag for activating dummy user.
     """
     def __init__(self, dummy: bool = False) -> None:
 
