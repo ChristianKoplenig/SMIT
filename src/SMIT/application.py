@@ -29,13 +29,13 @@ from SMIT.userinput import UiTools
 class Application:
     # pylint: disable=no-member
     """Create application framework.
-    
+
     - Set paths variables to config files.
     - Read user setting from config files and assign to `self`.
     - On initial run create folder structure according to `./config/user_settings.toml`.
     - Initialize logging function according to `SMIT.application.Application._setup_logger`.
     - Instantiate modules and assign to `self`.
-    
+
     Dummy User
     ----------
     - On each instantiation delete and newly create `./.dummy` folder.
@@ -44,7 +44,7 @@ class Application:
 
     Parameters
     ----------
-    
+
     dummy : bool = False
         Flag for running with dummy user
     """
@@ -176,30 +176,23 @@ class Application:
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
-    
+
+
 # Pdoc config get underscore methods
 __pdoc__ = {name: True
             for name, classes in globals().items()
             if name.startswith('_') and isinstance(classes, type)}
 
-
 __pdoc__.update({f'{name}.{member}': True
                  for name, classes in globals().items()
                  if isinstance(classes, type)
                  for member in classes.__dict__.keys()
-                 if member not in {'__module__', '__dict__', 
+                 if member not in {'__module__', '__dict__',
                                    '__weakref__', '__doc__'}})
 
 __pdoc__.update({f'{name}.{member}': False
                  for name, classes in globals().items()
                  if isinstance(classes, type)
                  for member in classes.__dict__.keys()
-                 if member.__contains__('__') and member not in {'__module__', '__dict__', 
-                                   '__weakref__', '__doc__'}})
-
-# for key, value in __pdoc__.items():
-#     if key.__contains__('__') and isinstance(value, type):
-#         __pdoc__[key] = False
-        #print(f'key: {key} value: {value}\n')
-
-#print(__pdoc__.items())
+                 if member.__contains__('__') and member not in {'__module__', '__dict__',
+                                                                 '__weakref__', '__doc__'}})
