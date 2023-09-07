@@ -1,6 +1,9 @@
+"""Docstring for application test module
+"""
 # pylint: disable=no-member
 import os
 import pytest # pylint: disable=import-error
+
 from SMIT.application import Application
 
 app = Application(True)
