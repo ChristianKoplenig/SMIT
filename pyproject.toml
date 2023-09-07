@@ -4,6 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
 markers = [ 
-    "testenv: Test if pytest is working correctly",
+    "smoke: Validate all core methods",
     "application: Test setup of application class",
+    "crypto: Test rsa implementation",
+    "osinterface: Move files, generate pandas dataframe",
+    "persistence: Check dates variable",
+    "scraping: Webdriver setup",
 ]
