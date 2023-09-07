@@ -1,18 +1,31 @@
-"""Tools for manipulating files on os basis.
+"""Methods for file operations.
 
-Classes:
---------
+---
 `OsInterface`
+-------------
 
-- Os file operations
-- Generate Python data frame
-TomlTools:
-    Read/Write `.toml` files
-    Append password
+- Move files to work directory.
+- Rename files for internal handling.
+- Scrape and move workflow.
+- Generate Python data frame.
 
 Typical usage:
-    app = Appclass()
-    app.os_tools
+
+    app = Application()
+    app.os_tools.method()
+    
+    
+`TomlTools`
+-----------
+
+- Save and load `.toml` files
+- Manipulate `.toml` files
+    
+    
+Typical usage:
+
+    app = Application()
+    app.toml_tools.method()
 """
 import datetime as dt
 import pathlib as pl
@@ -25,32 +38,19 @@ if TYPE_CHECKING:
 
 
 class OsInterface():
-    """Methods for interacting with files on os filesystem.
-
-        Attributes
-        ----------
-        app : class instance
-            Holds user information
-
-        Methods
-        -------
-        _pathlib_move(src, dest, appendix):
-            Move and rename files.
-        move_files_to_workdir(meter_number):
-            Filter files and run _pathlib_move().
-        create_dataframe(workdir, metertype):
-            Create initial dataframe.
-        scrapeandmove():
-            Initiate download process and move files.
+    """Methods for file operations.
+    
+    ---
+    
+    Download and prepare `.csv` files.  
+    Read `.csv` files and provide pandas dataframe.  
+    
+    Attributes:
+        app (class): Accepts `SMIT.application.Application` type attribute.
     """
+    
     def __init__(self, app: 'Application') -> None:
-        """Initialize Class with all attributes from `UserClass`
-
-        Parameters
-        ----------
-        app : class instance
-            Holds the configuration data for program run.
-        """
+        
         self.user = app
         self.logger = app.logger
         msg  = f'Class {self.__class__.__name__} of the '
@@ -61,34 +61,28 @@ class OsInterface():
     def _pathlib_move(self, src: pl.Path, dest: pl.Path, appendix: str) -> None:
         """Use pathlib to move and rename file.
 
-        Move the file from `src` to `dest` and rename it to todays date (yyyy-mm-dd) folowed by '_appendix.csv'.
-        File will get a '.csv' extension.
+        Move the file from `src` to `dest` folder 
+        and rename it to todays date (yyyy-mm-dd) with '_appendix.csv' added.
 
-        Parameters
-        ----------
-        src : pathlib path
-            Path to source file
-        dest : pathlib path
-            Path to destination file
-        appendix : string
-            String to append to filename
+        Args:
+            src (pathlib.Path): Path to source file.
+            dest (pathlib.Path): Path to destination folder.
+            appendix (string): String to append to filename.
         """
         path = pl.Path(src)
         new_filename = dest / str(str(dt.date.today().strftime('%Y%m%d') + '_' + str(appendix)) + '.csv')
         path.rename(new_filename)
 
-    def move_files_to_workdir(self, meter_number: str) -> None:
+    def _move_files_to_workdir(self, meter_number: str) -> None:
         """Move files from download dir to work dir.
 
-        Iterate over all '.csv' files in webdriver download folder.
-        Select files with creation date of today.
-        Select files with `meter_number` in filename.
-        For selected files run :func: `_pathlib_move`.
+        - Iterate over all `.csv` files in webdriver download folder.  
+        - Select files with creation date of today.  
+        - Select files with `meter_number` in filename.  
+        - For selected files run `SMIT.filehandling.OsInterface._pathlib_move`.  
 
-        Parameters
-        ----------
-        meter_number : string
-            Day/Night meter device number
+        Args:
+            meter_number (string): Day/Night meter device number.
         """
         # set path variables
         path_to_raw = pl.Path(self.user.Folder['raw_daysum']).absolute()
@@ -108,26 +102,21 @@ class OsInterface():
                     self.logger.debug(f'Moved file for meter: {meter_number} to workdir')
 
     def create_dataframe(self, workdir: pl.Path, metertype: str) -> pd.DataFrame:
-        """Create basic dataframe for further analysis.
+        """Read `.csv` files and create pandas dataframe.
 
-        Concat all files in `workdir` with same `metertype`.
-        Delete unused columns.
-        Convert date format.
-        Set column dtype formats.
-        Sort values by date.
-        Drop duplicates.
+        - Concat all files in `workdir` with same `metertype`.
+        - Delete unused columns.
+        - Convert date format.
+        - Set column dtype formats.
+        - Sort values by date.
+        - Drop duplicates.
 
-        Parameters
-        ----------
-        workdir : pathlib path
-            Path to directory with files to import.
-        metertype : string
-            Day/Night meter device number.
+        Args:
+            workdir (pathlib.Path): Path to directory for file import.
+            metertype (string): Day/Night meter device number.
 
-        Returns
-        -------
-        dataframe
-            Pandas dataframe with values per meter.
+        Returns:
+            pandas.DataFrame: With columns [`date`, `zaehlerstand`, `verbrauch`] for each meter.
         """
         path = pl.Path(workdir)
         df_return = pd.DataFrame()
@@ -156,26 +145,34 @@ class OsInterface():
         return df_return
 
     def sng_scrape_and_move(self) -> None:
-        """Scrape data and move '.csv' files to workdir.
+        """Download and move `.csv` files.
 
-        Call :func: `get_daysum_files`
-        For each meter call :func: `move_files_to_workdir`
+        - Determine if method was already called with today's date.
+        - If not call `SMIT.scrapedata.Webscraper.get_daysum_files`.
+        - Use `SMIT.filehandling.OsInterface._move_files_to_workdir` 
+        to move files to work directory.
+        
+        Info:
+            When dummy user is active only 
+            `SMIT.filehandling.OsInterface._move_files_to_workdir`
+            will be called.
         """
         if self.user.dummy is False:
             self.user.persistence.initialize_dates_log()
             dates = self.user.persistence.load_dates_log()
 
-            # scrape just once a day
+            # Scrape just once a day
             if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):
 
                 self.user.scrape.get_daysum_files(self.user.Options['headless_mode'])
-                self.move_files_to_workdir(self.user.Meter['day_meter'])
-                self.move_files_to_workdir(self.user.Meter['night_meter'])
+                self._move_files_to_workdir(self.user.Meter['day_meter'])
+                self._move_files_to_workdir(self.user.Meter['night_meter'])
             else:
                 self.logger.info('Most recent data already downloaded')
         else:
-            self.move_files_to_workdir(self.user.Meter['day_meter'])
-            self.move_files_to_workdir(self.user.Meter['night_meter'])
+            # Move files for dummy user
+            self._move_files_to_workdir(self.user.Meter['day_meter'])
+            self._move_files_to_workdir(self.user.Meter['night_meter'])
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
