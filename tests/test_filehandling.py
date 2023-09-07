@@ -1,10 +1,17 @@
+"""Docstring for testing filehandling module
+Returns
+-------
+_type_
+    _description_
+"""
 # pylint: disable=no-member
 import datetime as dt
 import pathlib as pl
 from collections import namedtuple
-
 import pytest # pylint: disable=import-error
+
 from SMIT.application import Application
+
 app = Application(True)
 
 @pytest.fixture
