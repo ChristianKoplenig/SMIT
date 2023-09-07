@@ -1,12 +1,16 @@
+"""Docstring for rsa tests module
+"""
 # pylint: disable=no-member
 import rsa
 import pytest # pylint: disable=import-error
+
 from SMIT.application import Application
 
 app = Application(True)
 
+@pytest.mark.smoke
 @pytest.mark.crypto
-def test_load_keys():
+def test_load_rsakeys():
     """Test load rsa key function
     """
     with open(app.Path['public_key'], 'rb') as key:
@@ -18,6 +22,7 @@ def test_load_keys():
     assert app.rsa._load_rsa_keys().private_key == private_key
     assert app.rsa._load_rsa_keys().public_key == public_key
 
+@pytest.mark.smoke
 @pytest.mark.crypto
 def test_encryption() -> None:
     """Test rsa encrypt/decrypt.

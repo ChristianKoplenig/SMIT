@@ -7,7 +7,7 @@ import pathlib as pl
 
 # Setup
 from SMIT.application import Application
-user = Application(True)
+user = Application()
 ################################################
 
 # Test the webdriver integration
@@ -98,7 +98,8 @@ print(user.toml_tools.__doc__)
 print('########################################')
     
 ############## load test #######################
-password_dialog()
+#password_dialog()
+#sng_login()
 #test_logging()
 #test_rsa()
 ################################################
