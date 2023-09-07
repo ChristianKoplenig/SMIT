@@ -1,9 +1,16 @@
-"""
-Application Module
-Returns
--------
-_type_
-    _description_
+"""Provide core functionality.
+
+- Generate dummy user
+- Load user settings
+- Create folder structure
+- Initiate logging
+- Instantiate modules
+- Initiate credentials gui
+
+Typical usage:
+
+    app = Application()
+    dummy_user = Application(True)
 """
 import os
 import logging
@@ -20,12 +27,25 @@ from SMIT.userinput import UiTools
 
 class Application:
     # pylint: disable=no-member
-    """Main class for application setup.
+    """Create application framework.
     
-    Load user configuration files.
-    Initialize the folder structure.   
-    Instantiate all custom modules.
-    Set/store password according to user preference.
+    - Set paths variables to config files.
+    - Read user setting from config files and assign to `self`.
+    - On initial run create folder structure according to `./config/user_settings.toml`.
+    - Initialize logging function according to `SMIT.application.Application._setup_logger`.
+    - Instantiate modules and assign to `self`.
+    
+    Dummy User
+    ----------
+    - On each instantiation delete and newly create `./.dummy` folder.
+    - Locally simulate application features without scraping.
+    - No call of tkinter module - GUI
+
+    Parameters
+    ----------
+    
+    dummy : bool = False
+        Flag for running with dummy user
     """
     def __init__(self, dummy: bool=False) -> None:
         
@@ -182,4 +202,4 @@ __pdoc__.update({f'{name}.{member}': False
 #         __pdoc__[key] = False
         #print(f'key: {key} value: {value}\n')
 
-print(__pdoc__.items())
+#print(__pdoc__.items())
