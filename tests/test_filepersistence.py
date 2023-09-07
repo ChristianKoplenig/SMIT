@@ -1,9 +1,16 @@
+"""Docstring for persistence tests module
+
+Returns
+-------
+_type_
+    _description_
+"""
 # pylint: disable=no-member
-#import pickle
 import pathlib as pl
 from datetime import date,timedelta
-import pytest # pylint: disable=import-error
 from collections import namedtuple
+import pytest # pylint: disable=import-error
+
 from SMIT.application import Application
 
 app = Application(True)
@@ -95,5 +102,3 @@ def test_modify_dates_log(fp_tests_setup):
     dates_reload = app.persistence.load_dates_log()
     
     assert dates_reload == fp_tests_setup.dates_modified
-    
-    
