@@ -1,13 +1,18 @@
-"""
-    Tools for manipulating files on os basis
-        Classes:
-        --------
-        OsInterface:
-            Os file operations
-            Generate Python data frame
-        TomlTools:
-            Read/Write `.toml` files
-            Append password
+"""Tools for manipulating files on os basis.
+
+Classes:
+--------
+`OsInterface`
+
+- Os file operations
+- Generate Python data frame
+TomlTools:
+    Read/Write `.toml` files
+    Append password
+    
+Typical usage:
+    app = Appclass()
+    app.os_tools
 """
 import datetime as dt
 import pathlib as pl
