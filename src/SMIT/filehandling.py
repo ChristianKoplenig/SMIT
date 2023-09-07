@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from SMIT.application import Application
 
+
 class OsInterface():
     """Methods for interacting with files on os filesystem.
 
@@ -57,7 +58,7 @@ class OsInterface():
         msg +=  'successfully initialized.'
         self.logger.debug(msg)
 
-    def _pathlib_move(self, src: pl.Path,dest: pl.Path,appendix: str) -> None:
+    def _pathlib_move(self, src: pl.Path, dest: pl.Path, appendix: str) -> None:
         """Use pathlib to move and rename file.
 
         Move the file from `src` to `dest` and rename it to todays date (yyyy-mm-dd) folowed by '_appendix.csv'.
@@ -101,7 +102,7 @@ class OsInterface():
             # just process downloaded files from today
             if cdate == dt.date.today().strftime('%Y-%m-%d'):
 
-                #filter for input files
+                # filter for input files
                 if meter_number in str(filename):
                     self._pathlib_move(filename, workdir, meter_number)
                     self.logger.debug(f'Moved file for meter: {meter_number} to workdir')
@@ -134,17 +135,16 @@ class OsInterface():
         filelist = [filename for filename in path.glob('*.csv') if str(metertype) in filename.name]
 
         df_return = pd.concat(
-                (pd.read_csv(
-                    file,
-                    sep=';',
-                    decimal=',',
-                    header=0,
-                    parse_dates=['date'],
-                    converters={'date': lambda t: dt.datetime.strptime(t, '%Y-%m-%dT%H:%M:%S.%f%z').date()},
-                    names=['date', 'zaehlerstand', '1', '2', 'verbrauch', '3', '4'],
-                    usecols=lambda x: x in ['date', 'zaehlerstand', 'verbrauch'],
-                ) for file in filelist
-            )
+            (pd.read_csv(
+                file,
+                sep=';',
+                decimal=',',
+                header=0,
+                parse_dates=['date'],
+                converters={'date': lambda t: dt.datetime.strptime(t, '%Y-%m-%dT%H:%M:%S.%f%z').date()},
+                names=['date', 'zaehlerstand', '1', '2', 'verbrauch', '3', '4'],
+                usecols=lambda x: x in ['date', 'zaehlerstand', 'verbrauch'])
+                for file in filelist)
         )
 
         df_return['zaehlerstand'] = df_return['zaehlerstand'].astype(float)
@@ -245,13 +245,13 @@ class TomlTools():
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
 
-    def add_entry_to_config(self, toml_path: pl.Path, 
-                            section: str, 
-                            config_attribute: str, 
+    def add_entry_to_config(self, toml_path: pl.Path,
+                            section: str,
+                            config_attribute: str,
                             entry: str) -> None:
         """Add entry to config file
-        
-        Use for input from Tkinter Gui. 
+
+        Use for input from Tkinter Gui.
         If an entry exists it will be overwritten.
 
         Parameters
@@ -259,7 +259,7 @@ class TomlTools():
         toml_path : pl.Path
             Path to config file.
         section : str
-            Table name in config file. 
+            Table name in config file.
         config_attribute : str
             Attribute in config file to update.
         entry : str
@@ -270,13 +270,13 @@ class TomlTools():
         config[section][config_attribute].comment('Data collected via Gui')
         self.save_toml_file(toml_path, config)
         self.logger.debug(f'{config_attribute} added to user data')
-        
+
     def delete_entry_from_config(self,
                                  toml_path: pl.Path,
                                  section: str,
                                  config_attribute: str) -> None:
         """Delete entry from config file.
-        
+
         Parameters
         ----------
         toml_path : pl.Path
@@ -290,7 +290,7 @@ class TomlTools():
         del config[section][config_attribute]
         self.save_toml_file(toml_path, config)
         self.logger.debug(f'{config_attribute} deleted from config')
-                
+
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
 
