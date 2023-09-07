@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from SMIT.application import Application
 
+
 class Persistence():
     """Methods to generate and access logging data.
 
