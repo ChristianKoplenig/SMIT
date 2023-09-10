@@ -1,4 +1,4 @@
-"""Methods for file operations.
+"""Classes for file operations.
 
 ---
 `OsInterface`
