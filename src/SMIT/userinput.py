@@ -216,9 +216,9 @@ class UiTools():
             self.var_password.set('')
 
     def _window_setup(self) -> None:
-        """Define entries for root window.
+        """Define entries for "User credentials" dialog.
         
-        Manage the look of the tkinter root window.
+        Manage the widgets for the root window.
         """
         self._text('Enter username')
         self.entry_username.pack()
@@ -236,7 +236,11 @@ class UiTools():
         self._text('Please read the disclaimer for details on password handling')
 
     def credentials_dialog(self) -> None:
-        """Initiate "User credentials" dialog.
+        """Built root window.
+        
+        Call a top level widget and populate
+        with all needed widgets for 
+        the "User credentials" dialog.
         """
         self.window = tk.Tk()
         self.window.title('User credentials')
