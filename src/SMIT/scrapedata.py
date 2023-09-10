@@ -1,5 +1,17 @@
-"""
-Tools for scraping data from website
+"""Selenium Webscraper
+
+---
+`Webscraper`
+------------
+
+- Configure Firefox
+- Manage scrape dates
+- Download data
+
+Typical usage:
+
+    app = Application()
+    app.scrape.method()
 """
 import time
 from datetime import date, timedelta
@@ -23,44 +35,20 @@ if TYPE_CHECKING:
 
 
 class Webscraper():
-    """Methods for interacting with webdriver module.
+    """Interact with selenium webdriver library.
+    
+    ---
+    
+    Configure Firefox webdriver, set all paths for dwonloading
+    the `.csv` files, retrieve the stored password,
+    manage the dates for downloading files and download files
+    for day and night meter. 
 
-        Attributes
-        ----------
-        app : class instance
-            Holds user information
-
-        Methods
-        -------
-        wait_and_click(elementXpath):
-            Wait for web element and click.
-        _ff_options(dl_folder, headless):
-            Set options for firefox webdriver.
-        start_date_updater(dates):
-            Update runtime dates in dates dict.
-        _sng_input_dates(input_date):
-            Fill dates in date-input web element.
-        sng_login(dl_folder, headless):
-            Login to stromnetz graz webportal and setup data page.
-        _sng_fill_dates_element(start, end):
-            Activate day sum web-element and fill start/end dates.
-        _sng_start_download():
-            Start download from webpage.
-        _sng_switch_day_night_meassurements(day_night):
-            Switch between day/night meter.
-        get_daysum_files(headless):
-            Download data summarized by day.
-        _decode_password():
-            Decode password from user instance and return plain text string.
+    Attributes:
+        app (class): Accepts `SMIT.application.Application` type attribute.
     """
     def __init__(self, app: 'Application') -> None:
-        """Initialize class with all attributes from user config files.
 
-        Parameters
-        ----------
-        app : class instance
-            Holds the configuration data for program run.
-        """
         self.user = app
         self.driver = None
         self.logger = app.logger
@@ -70,14 +58,20 @@ class Webscraper():
         self.logger.debug(msg)
 
     def wait_and_click(self, elementXpath: str) -> None:
-        """Wait for web element and click.
+        """Wait for web element and trigger action.
 
-        Timeout 10s.
+        Takes the `xpath` of an web element. As soon as the element is
+        available it's action will be triggered.
+        
+        Note:
+        
+            Helper function.  
+            The timeout for the element to be available is
+            set to 10s. After this a exception is triggered.
 
-        Parameters
-        ----------
-        elementXpath : XPATH
-            `xpath` of the element to click on
+        Args:
+            elementXpath (string): String formatted `xpath` of 
+                                    the element to click on.
         """
         switchName = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, elementXpath))
@@ -86,18 +80,20 @@ class Webscraper():
 
     def _ff_options(self, dl_folder: str,
                     headless: bool) -> webdriver.FirefoxOptions:
-        """Set options for firefox webdriver.
+        """Set options for Firefox webdriver.
 
-        Parameters
-        ----------
-        dl_folder : folder path
-            Target donwload directory for Firefox webdriver.
-        headless : bool, optional
-            Activate Firefox headless mode.
+        Set firefox to start download in background,
+        set the path to the download folder, 
+        set the log directory and configure headless mode.
+        
+        Args:
+            dl_folder (string): Target download directory
+                                for Firefox webdriver.
+            headless (bool = False): Run Firefox in headless mode.
 
         Returns
         -------
-        webdriver profile
+        webdriver.FirefoxOptions
             Options for Firefox webdriver instance.
         """
         # Set path variables
@@ -119,19 +115,22 @@ class Webscraper():
         return profile
 
     def start_date_updater(self, dates: dict) -> None:
-        """Update runtime dates in dates dict.
+        """Scrape dates management.
+        
+        After initial run set start date for next run.  
+        On each consecutive run set last_scrape date 
+        and start date to the date of the last run. 
 
-        Run AFTER download routine
+        Info:
+            Run AFTER download routine.
 
-        Parameters
-        ----------
-        dates : dict
-            Dict with parameters for date management
+        Args:
+            dates (dict): Object for scrape date management.
         """
-        # update dates after first run
+        # Update dates after first run
         if dates['last_scrape'] == 'never':
             dates['start'] = date.today().strftime('%d-%m-%Y')
-        # update start/end dates
+        # Update start/end dates
         if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):
             dates['start'] = dates['last_scrape']
 
@@ -141,20 +140,19 @@ class Webscraper():
         self.user.persistence.save_dates_log(dates)
 
     def _decode_password(self) -> str:
-        """Get encoded password return decoded password.
+        """Read and decode stored password.
 
-        The password will be send in plain text.
-        At the moment I see no other option.
+        If a password is stored in `user_data.toml`
+        the password will be read, the bytes object will
+        be decoded and the rsa encryption will be decrypted.
+        
+        Note:
+            __The password will be send in plain text.__  
+            Due to the usage of a webscraper I don't know
+            a alternative to sending the password in plain text.
 
-        Parameters
-        ----------
-        pwd_string : str
-            Encoded password.
-
-        Returns
-        -------
-        str
-            Decoded plain text password string.
+        Returns:
+            string: Decoded plain text password string.
         """
         # Read encoded password
         pwd_enc = self.user.Login['password']
@@ -168,12 +166,15 @@ class Webscraper():
                   headless: bool = False) -> None:
         """Login to Stromnetz Graz webportal and setup data page.
 
-        Parameters
-        ----------
-        dl_folder : folder path
-            Target donwload directory for Firefox webdriver.
-        headless : bool, optional
-            activate Firefox headless mode, by default False
+        Initialize Firefox webdriver.  
+        Send username and password to the login page.
+        Open the data page and set units for data 
+        processing to [Wh].
+         
+        Args:
+            dl_folder (pathlib.Path): Target donwload directory 
+                                        for Firefox webdriver.
+            headless (bool = False): Run Firefox in headless mode.
         """
         service = Service(executable_path=self.user.Path['geckodriver_executable'],
                           log_output=self.user.Path['webdriver_logFolder'])
@@ -194,14 +195,16 @@ class Webscraper():
         self.logger.debug('Login to Stromnetz Graz successful')
 
     def _sng_input_dates(self, input_date: str) -> None:
-        """Pass start/end date to Stromnetz Graz website.
+        """Pass dates to web form.
 
-        Fill in start/end date and click trough web form.
+        Fill dates and click through the data page web form.
+        
+        Note:
+            Depending on the OS setup different day/month
+            sequences have to be sent.
 
-        Parameters
-        ----------
-        input_date : string
-            Date with format dd-mm-yyyy
+        Args:
+            input_date (string): Date with format dd-mm-yyyy
         """
         language = self.driver.execute_script("return navigator.language;")
         actions = ActionChains(self.driver)
@@ -218,14 +221,16 @@ class Webscraper():
         actions.perform()
 
     def _sng_fill_dates_element(self, start: str, end: str) -> None:
-        """Activate day sum web-element and fill start/end dates.
+        """Activate daily average computation and fill dates.
+        
+        Activate the web element for daily average values.  
+        Call `SMIT.application.Application._sng_input_dates`
+        method and confirm the selected dates.  
+        Wait for the site to load.
 
-        Parameters
-        ----------
-        start : string
-            Date with format dd-mm-yyyy
-        end : string
-            Date with format dd-mm-yyyy
+        Args:
+            start (string): Date with format dd-mm-yyyy
+            end (string): Date with format dd-mm-yyyy
         """
         # Select daily sum measurements
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/app-period-selector/div[1]/div/div[5]/div')
@@ -244,14 +249,16 @@ class Webscraper():
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
 
     def _sng_switch_day_night_meassurements(self, day_night: str) -> None:
-        """Switch between day/night meassurements.
+        """Activate meassurement for data setup.
 
-        Defaults to day meassurements.
+        Choose between day and night meter in pulldown menu.
+        The selected meter defines which data set is downloaded.
+        
+        Note:
+            Defaults to day meassurements.
 
-        Parameters
-        ----------
-        day_night : string
-            either `day` or `night`
+        Args:
+            day_night (string): Accepts 'day' or 'night'.
         """
         # make dropdown active
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')
@@ -265,12 +272,14 @@ class Webscraper():
         time.sleep(3)
 
     def get_daysum_files(self, headless: bool = False) -> None:
-        """Initiate '.csv' files download for day sum files.
-
-        Parameters
-        ----------
-        headless : bool, optional
-            Run Firefox in headless mode defaults to `False`.
+        """Initiate download for daily average data.
+        
+        - Manage scrape dates logging.
+        - Set Firefox headless mode according to config.
+        - Download files for day and night meter.
+        
+        Args:
+            headless (bool = False): Run Firefox in headless mode.
         """
         self.user.persistence.initialize_dates_log()
         dates = self.user.persistence.load_dates_log()
