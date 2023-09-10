@@ -213,7 +213,7 @@ class TomlTools():
         return data
 
     def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -> None:
-        """Takes TOML object and writes file to filesystem.
+        """Accepts TOML object and writes file to filesystem.
 
         Args:
             filename (pathlib.Path): Destination for config file.
@@ -250,7 +250,7 @@ class TomlTools():
         """Load config file, select table and delete attribute.
 
         Use for input from Tkinter Gui.  
-        Attribute and entry in config file will be deleted
+        Table entry and config attribute will be deleted.
 
         Args:
             toml_path (pathlib.Path): Path to config file.
