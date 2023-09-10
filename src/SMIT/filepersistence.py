@@ -1,5 +1,17 @@
-"""
-Tools to persist data
+"""Serialize objects
+
+---
+`Persistence`
+------------
+
+- Initialize variable for scrap-dates logging.
+- Load serialized dates log variable.
+- Store dates log variable as pickle object.
+
+Typical usage:
+
+    app = Application()
+    app.persistence.method()
 """
 import pickle
 from pathlib import Path
@@ -11,30 +23,20 @@ if TYPE_CHECKING:
 
 
 class Persistence():
-    """Methods to generate and access logging data.
+    """Persist dates for scraping routine.
+    
+    ---
+    
+    Initialize a variable to store and persist date of last
+    scraping run. Assure that start and end dates of last
+    scraping run are stored between programm runs. On first run
+    set the start date to the date stored in `user_settings.toml`. 
 
-        Attributes
-        ----------
-        user : class instance
-            Holds user information
-
-        Methods
-        -------
-        initialize_dates_log():
-            Create `dates` log on first run
-        load_dates_log():
-            Make `dates` dict accessible
-        save_dates_log():
-            Saves `dates` log file
+    Attributes:
+        app (class): Accepts `SMIT.application.Application` type attribute.
     """
     def __init__(self, app: 'Application') -> None:
-        """Initialize class with all attributes from user config files.
 
-        Parameters
-        ----------
-        app : class instance
-            Holds the configuration data for program run.
-        """
         self.user = app
         self.logger = app.logger
         msg  = f'Class {self.__class__.__name__} of the '
@@ -45,7 +47,8 @@ class Persistence():
     def initialize_dates_log(self) -> None:
         """Create log file for managing scraping dates.
 
-        If no persisted date exists, create dict for dates and use start date from user settings.
+        If no persisted date exists, 
+        create dict for dates and use start date from user settings.
         """
         # Initial run
         if not Path(self.user.Path['persist_dates']).exists():
@@ -60,28 +63,28 @@ class Persistence():
         self.logger.debug('Dates log initialized')
 
     def load_dates_log(self) -> dict:
-        """Load dates log dict.
+        """Deserialize `dates.log`.
 
-        Loads the date logging variable from disc.
+        Load the date logging object from disc.  
+        Make dates logging variable accessible for webscraper.
 
-        Returns
-        -------
-        dict
-            [start], [end] and [last scrape] dates
+        Returns:
+            dict: Keys: [`start`, `end`, `last scrape`].  
+                - [`start`]: After each run set today's date for next run.  
+                - [`end`]: End date (yesterday) for scraping.  
+                - [`last_scrape`]: Store date between programm runs. 
         """
         with open(self.user.Path['persist_dates'], 'rb') as pk:
             dates = pickle.load(pk)
         return dates
 
     def save_dates_log(self, dates: dict):
-        """Persist dates in log dict.
+        """Serialize `dates.log`.
 
-        Writes the dates logging variable to the disc.
+        Store dates logging variable between programm runs.
 
-        Parameters
-        ----------
-        dates : dict
-            [start], [end], [last scrape]
+        Args:
+            dates (dict): Variable for scrape date management.
         """
         with open(self.user.Path['persist_dates'], 'wb') as dpk:
             pickle.dump(dates, dpk)
