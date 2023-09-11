@@ -2,6 +2,10 @@
 **<p align='center'> Smart Meter Interface Tool </p>**   
 <p align='center'> Conveniently show and update your power usage </p>
 
+## Documentation
+[Modules](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html)
+[Tests](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/tests/index.html)
+
 ## Intention
 My main motivation for this application is to strengthen my coding skills and learn how to integrate libraries I have not used so far. Second it is also a playground for different methods to design a application. Third it is meant as a showcase for my coding skills and what I'm playing around with.
 
