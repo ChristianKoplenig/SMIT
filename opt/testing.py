@@ -85,6 +85,18 @@ def test_logging() -> None:
     """
     user.logger.debug('Logging test sucessfull')
     
+# Pdoc3 testing
+print('########################################')
+print('Docstring:')
+print('----------')
+print(user.toml_tools.load_toml_file.__doc__)
+print('########################################')
+print('########################################')
+print('Docstring:')
+print('----------')
+print(user.toml_tools.__doc__)
+print('########################################')
+    
 ############## load test #######################
 #password_dialog()
 #sng_login()
