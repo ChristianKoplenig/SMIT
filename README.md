@@ -1,16 +1,30 @@
-# <p align="center">**SMI Tool** </p>
+# <p align="center">**SMIT** </p>
 **<p align='center'> Smart Meter Interface Tool </p>**   
-<p align='center'> Conveniently show and update your power usage </p>
+<p align='center'> Download and show your power usage </p>
+
+
+## Intention
+My main motivations for this application is to 
+- strengthen my coding skills and learn how to integrate libraries I have not used so far 
+- a playground for different methods to design applications
+- showcase for my coding skills and what I'm playing around with.
+
+My goal is to make data which already exists easy acessible. I hope that this data
+make users aware of their power consumption patterns. Maybe some of them will then
+use this knowledge to **save energy**.
+
+## About
+The repository is a static fork of my `in progress` repo. I don't plan to update it regularly however if I implement some cool new features in my private repo I may push them to the public fork. 
+
+I'm **very happy** about user input but won't promise anything about implementing it. 
+
+Additionally web scraping is always messy and if the "Stromnetz Graz" company changes anything at their website I wont promise to fix the scraper. However if I have the personal need for fixing it then I can promise that I will push the fix to the public repository.
+
+## Usage
 
 ## Documentation
 [Modules](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html)  
 [Tests](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/tests/index.html)  
-
-## Intention
-My main motivation for this application is to strengthen my coding skills and learn how to integrate libraries I have not used so far. Second it is also a playground for different methods to design a application. Third it is meant as a showcase for my coding skills and what I'm playing around with.
-
-## About
-The repository is a static fork of my `in progress` repo. I don't plan to update it regularly however if I implement some cool new features in my private repo I may push them to the public fork. I'm **very happy** about user input but won't promise anything about implementing it. Additionally web scraping is alway messy and if the "Stromnetz Graz" company changes anything at their website I wont promise to fix the scraper. However if I have the personal need for fixing it then I can promise that I will push the fix to the public repository.
 
 ## Disclaimer
 The password is send in plain text to the login field. This is **not good practice**
@@ -41,8 +55,8 @@ See `requirements.txt` for all needed dependencies.
 - `log` 
 	- --> Logfiles
 - `opt` 
-	- --> Folder for develop files, testfiles... 
 	- --> **Dummy Configs** are stored in a subdirectory
+	- --> Folder for develop files, testfiles... 
 - `src` 
 	- --> Source code folder
 	- --> `SMIT` --> **Modules directory**
@@ -53,41 +67,32 @@ See `requirements.txt` for all needed dependencies.
 - `tests`
 	- --> **Pytest** source folder
 - `.dummy`
-	- --> Get's created when application class is instantiated with **dummy user**
+	- --> Get's created when application class is instantiated with **dummy option**
 	- --> on each instantiation folder gets **deleted and newly created**
 - `.tox`
 	- --> Data for running tests
+
 ## Branches
 ### main
-- Scrape data - tested on win/linux.
-- Perist date values for automated scraping workflow.
-- Move files to input directory for python analysis.
-- Modules as classes, first iteration
-- Create dataframes for further analysis. 
+- **Application** - Scrape data - tested on win/linux.
+- **Pickle** - Perist date values for automated scraping workflow.
+- **Pathlib** - Move files to input directory for python analysis.
+- **Application** - Modules as classes, first iteration
+- **Pandas** - Create dataframes for further analysis. 
 ### develop
-- Modules as classes, pep8 implemented
-- Temporarily store encrypted password in user class.
-- Readme -> added disclaimer and about
-- ### feature freeze
-- Import, Module and Folder management in Application class 
-- Manage configs in `.toml` files
-- Dummy user
-- Gui for user credentials
-- Encrypted password storage
-- Use selenium library to scrape data
-- Automated scrape dates management
-- Filemanagement with pathlib library
-- Pytest
-- Pdoc
-- Logging
-
-
-### feature/pwd_dialog
-- Get password
-- Temporarily store encrypted password in user class.
-- Option to store encrypted password permanently in user_data.py
-
-
+- **Application** - Modules as classes, pep8 implemented
+- **Rsa** - Temporarily store encrypted password in user class.
+- **Application** - Import, Module and Folder management in Application class 
+- **Tomlkit** - Manage configs in `.toml` files
+- **Application** - Dummy option
+- **Tkinter** - Gui for user credentials
+- **Rsa** - Encrypted password storage
+- **Selenium Webdriver** - Scrape data
+- **Application** - Automated scrape dates management
+- **Pathlib** - Folder structure setup
+- **Pytest** - Test Application modules
+- **Pdoc** - Generate documentation from docstrings
+- **Logger** - Log Application modules
 
 ## Licence
 This project is under **insert_licence**. 
