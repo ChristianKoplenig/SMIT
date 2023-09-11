@@ -1,9 +1,10 @@
 """Test serializing of date object.
 
-Returns
--------
-_type_
-    _description_
+---
+
+The application uses a variable called dates to
+persist the dates input for the webscraper in between
+application runs. This is done via pickling the dates object.
 """
 # pylint: disable=no-member
 import pathlib as pl
@@ -19,8 +20,8 @@ app = Application(True)
 def fp_tests_setup():
     """Fixture for serializing tests.
 
-    Unpickle the dates object.  
-    Create a dummy and a modified version of the dates object.
+    - Unpickle the dates object.  
+    - Create a dummy and a modified version of the dates object.
     """
     setup = namedtuple('test_setup', ['dates_path',
                                       'dates_loaded',
@@ -57,11 +58,6 @@ def test_init_dates_log(fp_tests_setup):
 
     Assert:
         If the dates pickle object exists on the file system.
-        
-    Note:
-        The application uses a variable called dates to
-        persist the dates input for the webscraper in between
-        application runs. This is done via pickling the dates object.
     """
     # check dates exist
     assert fp_tests_setup.dates_path.exists

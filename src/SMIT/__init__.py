@@ -1,10 +1,12 @@
-"""Smart Meter Interface Modules Documentation
+"""Smart Meter Interface Modules Documentation.
 
 ---
 
-This is the documentation for all modules and methods needed
-for:
+This documentation is generated from the docstrings 
+using the pdoc3 library.
 
+Implemented Features:
+---------------------
 - Scraping data from Stromnetz Graz Web Portal.
 - Keep track of scraping dates.
 - Use Rsa Encryption for password storing.
@@ -12,5 +14,5 @@ for:
 - Simple Gui with credentials dialog.
 - Configuration via TOML files.
 - Testing with pytest and tox.
-
+- Dummy user for demonstration purposes.
 """

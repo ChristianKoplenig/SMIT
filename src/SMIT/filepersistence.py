@@ -4,7 +4,7 @@
 `Persistence`
 ------------
 
-- Initialize variable for scrap-dates logging.
+- Initialize variable for scrape dates logging.
 - Load serialized dates log variable.
 - Store dates log variable as pickle object.
 
@@ -63,7 +63,7 @@ class Persistence():
         self.logger.debug('Dates log initialized')
 
     def load_dates_log(self) -> dict:
-        """Deserialize `dates.log`.
+        """Deserialize `dates.pkl`.
 
         Load the date logging object from disc.  
         Make dates logging variable accessible for webscraper.
@@ -72,16 +72,16 @@ class Persistence():
             dict: Keys: [`start`, `end`, `last scrape`].  
                 - [`start`]: After each run set today's date for next run.  
                 - [`end`]: End date (yesterday) for scraping.  
-                - [`last_scrape`]: Store date between programm runs. 
+                - [`last_scrape`]: Store date between application runs. 
         """
         with open(self.user.Path['persist_dates'], 'rb') as pk:
             dates = pickle.load(pk)
         return dates
 
     def save_dates_log(self, dates: dict):
-        """Serialize `dates.log`.
+        """Serialize dates object.
 
-        Store dates logging variable between programm runs.
+        Store dates logging variable between application runs.
 
         Args:
             dates (dict): Variable for scrape date management.

@@ -4,7 +4,7 @@
 `RsaTools`
 ----------
 
-- Generate application exclusive Rsa key pair.
+- Generate Rsa key pair for application.
 - Decrypt password from `user_data.toml` file.
 - Encrypt password with application key.
 
@@ -28,9 +28,9 @@ class RsaTools():
     ---
 
     Generate a Rsa key pair and store it in the config folder.
-    If the user decides to store the password, this key pair 
+    If the user decides to save the password, this key pair 
     will be used to encrypt/decrypt the password.
-    The password will be stored in the `user_data.toml`
+    The password will be saved in the `user_data.toml`
     configuration file. 
 
     Attributes:
@@ -91,6 +91,10 @@ class RsaTools():
         Encrypt the object using the rsa library and the 
         public key from the config folder.
         
+        Note:
+            A bytes object is used because TOML files need
+            this data structure to store information.
+
         Args:
             pwd (string): String for encryption.
 
@@ -108,6 +112,10 @@ class RsaTools():
         private key from the config folder.  
         Decode the bytes object to string format.
         
+        Note:
+            A bytes object is used because TOML files need
+            this data structure to store information.
+
         Args:
             pwd (bytes): Input for decryption.
 
