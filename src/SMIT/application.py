@@ -7,12 +7,12 @@
 - Create folder structure
 - Initiate logging
 - Instantiate modules
-- Initiate credentials gui
+- Open credentials gui
 
 Typical usage:
 
     app = Application()
-    dummy_user = Application(True)
+    dummy_app = Application(True)
 """
 import os
 import logging
@@ -32,8 +32,8 @@ class Application:
     # pylint: disable=no-member
     """Create application framework.
 
-    User
-    ----
+    Full usage
+    ----------
     - Set paths to user configuration files.
     - Assign user settings from config files to the application instance.
     - On initial run create folder structure according to `./config/user_settings.toml`.
@@ -41,19 +41,19 @@ class Application:
     - Instantiate modules and assign to application instance.
     - Call user credentials GUI.
 
-    Dummy User
-    ----------
+    Dummy usage
+    -----------
     Use for demonstration and testing.  
     
     - Run application with local data. 
     - No scraping functionality.
     - No call of tkinter module -> No GUI is loaded.
     - On each instantiation delete and newly create `./.dummy` folder.
-    - Data source: `./opt/dummy_user`.
-    - Working directory: `./dummy`. 
+    - Static data source: `./opt/dummy_user`.
+    - Root directory: `./dummy`. 
 
     Attributes:
-        dummy (bool = False): Flag for activating dummy user.
+        dummy (bool = False): Flag for activating dummy run.
     """
     def __init__(self, dummy: bool = False) -> None:
 
@@ -81,17 +81,18 @@ class Application:
         self.logger.info('Application with user "%s" instantiated', self.Login["username"])
 
     def _add_modules_to_attributes(self) -> None:
-        """Read modules dict and assign it to self.
+        """Assign modules to application instance.
 
         Calls function `SMIT.application.Application._load_modules()`  
         Iterates over key, value pairs in modules dict 
-        and assigns the module instances to the application instance.  
+        and assigns the module instances to the application instance.
+        Make modules callable via keys in modules dict.
         """
         for key, value in self._load_modules().items():
             setattr(self, key, value)
 
     def _add_TOML_to_attributes(self, file_path: pl.Path) -> None:
-        """Read config file and assign parameters to self.
+        """Read config file and assign parameters to application instance.
 
         Call `tomlkit` library and read parameters from a `.toml` file.  
         Loop trough the file and assign all parameters to the application instance.
@@ -111,7 +112,7 @@ class Application:
     def _initialize_folder_structure(self) -> None:
         """Create folder structure.
 
-        Iterate over the Folder table in settings file.  
+        Iterate over the folder table in settings file.  
         If a folder does not exist it will be created.    
         If the folders exists no error will be raised.  
         """
@@ -150,8 +151,8 @@ class Application:
         """Configuration for logging.
         
         The default log folder is `./log` and the logfile is called `app.log`.  
-        Setting logging levels for the log file is done via `file_handler.setLevel()`.  
-        Setting logging levels for terminal output is done via `console_handler.setLevel()`.    
+        Set logging levels for the log file is done via `file_handler.setLevel()`.  
+        Set logging levels for terminal output is done via `console_handler.setLevel()`.    
         
         Logging Levels:
         ---------------
@@ -179,12 +180,12 @@ class Application:
     def _setup_dummy_user(self):
         """Create environment for testing purposes.
         
-        This user will not run any scraping routines
-        or GUI dialogs. It is intended to use as demonstration
-        user and for unit testing.
+        This option will not run any scraping routines
+        or GUI dialogs. It is intended to use for demonstration
+        and for unit testing.
         
         - On each call delete `.dummy` folder.
-        - Recreate folder and populate with clean data.
+        - Recreate folder and populate it with clean data.
         - Source for dummy data is `./opt/dummy_user`.
         - Set config path to `./.dummy/config`
         """

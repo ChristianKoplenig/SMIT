@@ -5,7 +5,7 @@
 -------------
 
 - Move files to work directory.
-- Rename files for internal handling.
+- Rename files to preserve originally scraped data.
 - Scrape and move workflow.
 - Generate Python data frame.
 
@@ -153,7 +153,7 @@ class OsInterface():
         to move files to work directory.
         
         Info:
-            When dummy user is active only 
+            With dummy option active only 
             `SMIT.filehandling.OsInterface._move_files_to_workdir`
             will be called.
         """
@@ -203,7 +203,7 @@ class TomlTools():
         """Read `.toml` file and return Python TOML object.
 
         Args:
-            filename (patlib.Path): Path object to the `.toml` file.
+            filename (patlib.Path): Path object for the configuration file.
 
         Returns:
             tomlkit.TOMLDocument: Editable configuration object.
@@ -232,7 +232,7 @@ class TomlTools():
         If an entry exists it will be overwritten.  
 
         Args:
-            toml_path (pathlib.Path): Path to config file.
+            toml_path (pathlib.Path): Path object for the configuration file.
             section (string): Table name in config file.
             config_attribute (string): Attribute in config file to update.
             entry (string): String to store in config file.
@@ -253,7 +253,7 @@ class TomlTools():
         Table entry and config attribute will be deleted.
 
         Args:
-            toml_path (pathlib.Path): Path to config file.
+            toml_path (pathlib.Path): Path object for the configuration file.
             section (string): Table name in config file.
             config_attribute (string): Attribute in config file to update.
         """

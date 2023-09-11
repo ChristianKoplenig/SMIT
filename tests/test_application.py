@@ -1,4 +1,20 @@
 """Test the initialization of the core functionalities.
+
+---
+
+Application Class __init__:
+---------------------------
+The configuration of user settings is loaded from `.toml` files.  
+There are two different configuration files.
+One holds the __settings__ for the application and the other
+holds the user __credentials__.
+
+Each module instance is stored as a object in a dictionairy
+with a trivial name as key.
+
+The existing folder structure is checked against the folders
+defined in the settings file and if the folders do not exist 
+they are created. 
 """
 # pylint: disable=no-member
 import os
@@ -17,14 +33,7 @@ def test_load_user_data():
     user credentials loads correctly.
     
     Assert:
-        If login url is correctly assigned to application self variable.
-    
-    Note:
-        During Application.__init__ the configuration
-        of user settings is loaded from `.toml` files.
-        There are two different configuration files. One 
-        holds the settings for the application and the other
-        holds the user credentials.
+        If login url is correctly assigned to application attribute variable.
     """
     assert app.Login['url'] == 'https://webportal.stromnetz-graz.at/login'
 
@@ -38,14 +47,7 @@ def test_load_user_settings():
     
     Assert:
         If start date for initial run is correctly assigned to 
-        application self variable.
-    
-    Note:
-        During Application.__init__ the configuration
-        of user settings is loaded from `.toml` files.
-        There are two different configuration files. One 
-        holds the settings for the application and the other
-        holds the user credentials.
+        application attribute variable.
     """
     assert app.Init['csv_startDate'] != ''
     
@@ -56,12 +58,7 @@ def test_load_modules():
     
     Assert:
         Compare the length of the application instance modules dict
-        with static dict.
-        
-    Note:
-        During Application.__init__ each module gets instatiated and
-        the instances are stored as objects in a dictionairy with 
-        a trivial name as key. 
+        with a static dict.
     """
     modules = dict([
     ('gui', 'UiTools'),
@@ -81,7 +78,7 @@ def test_logger():
     """Test initialization of the logger module.
     
     Assert:
-        If the Application logger attribute is not `None`
+        If the Application logger attribute is __not__ `None`
     """
     assert app.logger != ''
     

@@ -28,8 +28,8 @@ class UiTools():
 
     ---
     
-    Start a graphical dialog for getting
-    user infomation and provide the option to store
+    Start a gui dialog for getting
+    user infomation and provide the option to save
     the password in the config file.
     
     Attributes:
@@ -201,7 +201,7 @@ class UiTools():
         self.window.destroy()
 
     def _button_delpwd(self) -> None:
-        """Delete password entry from user config
+        """Delete password entry from user configuration.
 
         The stored password will be deleted from the user config
         and the user instance attributes.
@@ -218,7 +218,7 @@ class UiTools():
     def _window_setup(self) -> None:
         """Define entries for "User credentials" dialog.
         
-        Manage the widgets for the root window.
+        Manage the widgets for the top level window.
         """
         self._text('Enter username')
         self.entry_username.pack()
@@ -236,9 +236,9 @@ class UiTools():
         self._text('Please read the disclaimer for details on password handling')
 
     def credentials_dialog(self) -> None:
-        """Built root window.
+        """Built top level window.
         
-        Call a top level widget and populate
+        Call a top level widget and populate it
         with all needed widgets for 
         the "User credentials" dialog.
         """

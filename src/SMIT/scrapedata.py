@@ -39,7 +39,7 @@ class Webscraper():
     
     ---
     
-    Configure Firefox webdriver, set all paths for dwonloading
+    Configure Firefox webdriver, set all paths for downloading
     the `.csv` files, retrieve the stored password,
     manage the dates for downloading files and download files
     for day and night meter. 
@@ -60,7 +60,7 @@ class Webscraper():
     def wait_and_click(self, elementXpath: str) -> None:
         """Wait for web element and trigger action.
 
-        Takes the `xpath` of an web element. As soon as the element is
+        As soon as the element is
         available it's action will be triggered.
         
         Note:
@@ -164,17 +164,17 @@ class Webscraper():
 
     def sng_login(self, dl_folder: pl.Path,
                   headless: bool = False) -> None:
-        """Login to Stromnetz Graz webportal and setup data page.
+        """Login to "Stromnetz Graz" web portal and setup data page.
 
         Initialize Firefox webdriver.  
-        Send username and password to the login page.
+        Send username and password to the login page.  
         Open the data page and set units for data 
         processing to [Wh].
          
         Args:
-            dl_folder (pathlib.Path): Target donwload directory 
+            dl_folder (pathlib.Path): Target download directory 
                                         for Firefox webdriver.
-            headless (bool = False): Run Firefox in headless mode.
+            headless (bool = False): Firefox headless mode option.
         """
         service = Service(executable_path=self.user.Path['geckodriver_executable'],
                           log_output=self.user.Path['webdriver_logFolder'])
@@ -201,7 +201,8 @@ class Webscraper():
         
         Note:
             Depending on the OS setup different day/month
-            sequences have to be sent.
+            sequences have to be sent. This is handled in 
+            the function.
 
         Args:
             input_date (string): Date with format dd-mm-yyyy
@@ -223,10 +224,10 @@ class Webscraper():
     def _sng_fill_dates_element(self, start: str, end: str) -> None:
         """Activate daily average computation and fill dates.
         
-        Activate the web element for daily average values.  
-        Call `SMIT.application.Application._sng_input_dates`
+        Activate the web element for daily average data.  
+        Call `SMIT.scrapedata.Webscraper._sng_input_dates`
         method and confirm the selected dates.  
-        Wait for the site to load.
+        Wait for data to be loaded.
 
         Args:
             start (string): Date with format dd-mm-yyyy
@@ -244,12 +245,14 @@ class Webscraper():
         time.sleep(3)   # Wait for element to load
 
     def _sng_start_download(self) -> None:
-        """Click download button web-element.
+        """Click download button.
+        
+        Start downloading files with filled dates from scraper.
         """
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
 
     def _sng_switch_day_night_meassurements(self, day_night: str) -> None:
-        """Activate meassurement for data setup.
+        """Select meter for data setup.
 
         Choose between day and night meter in pulldown menu.
         The selected meter defines which data set is downloaded.
@@ -279,7 +282,7 @@ class Webscraper():
         - Download files for day and night meter.
         
         Args:
-            headless (bool = False): Run Firefox in headless mode.
+            headless (bool = False): Firefox headless mode option.
         """
         self.user.persistence.initialize_dates_log()
         dates = self.user.persistence.load_dates_log()
