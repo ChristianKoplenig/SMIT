@@ -1,5 +1,17 @@
-"""
-Tools for handling the password input/storing dialog
+"""GUI
+
+---
+`UiTools`
+---------
+
+- Get user credentials.
+- Get day and night meter numbers.
+- Option to permanently store password in settings.
+
+Typical usage:
+
+    app = Application()
+    app.gui.method()
 """
 import tkinter as tk
 from tkinter import ttk
@@ -12,32 +24,19 @@ if TYPE_CHECKING:
 
 
 class UiTools():
-    """Tools for interacting with the tkinter library.
+    """Use tkinter library for user input.
 
+    ---
+    
+    Start a gui dialog for getting
+    user infomation and provide the option to save
+    the password in the config file.
+    
     Attributes:
-    -----------
-    app : class instance
-        Hold user information
-
-    Methods
-    -------
-    _text(txt_input):
-        Generates text widget
-    _checkbox_save_pwd():
-        Generates the save password checkbox.
-    _button_accept():
-        Reads input from entry field, handles pwd routine.
-    password_dialog():
-        Routine for getting the user input
+        app (class): Accepts `SMIT.application.Application` type attribute.
     """
     def __init__(self, app: 'Application') -> None:
-        """Initialize class with all attributes from user config files.
 
-        Parameters
-        ----------
-        app : class instance
-            Holds the configuration data for program run.
-        """
         self.user = app
         self.user_data_path = pl.Path(self.user.Path['user_data'])
 
@@ -63,7 +62,16 @@ class UiTools():
         self.logger.debug(msg)
 
     def _def_variables(self) -> None:
-        """Assign variables to self.
+        """Assign tkinter classes to variables.
+        
+        After declaring the classes all variables
+        are populated with the data from user settings.
+        This is done to prefill the gui and give the user
+        the possibility to alter the data from the settings.
+        
+        Note:
+            This is done in a method to avoid
+            calling the tkinter library during init.
         """
         self.var_password = tk.StringVar()
         self.save_credentials = tk.BooleanVar()
@@ -83,7 +91,11 @@ class UiTools():
             )
 
     def _dev_widgets(self) -> None:
-        """Assign widgets to self.
+        """Configure the gui widgets.
+        
+        Note:
+            This is done in a method to avoid
+            calling the tkinter library during init.
         """
         self.button_confirm = tk.Button(
             text='Confirm',
@@ -117,22 +129,18 @@ class UiTools():
         )
 
     def _return_pressed(self, event: None) -> None:
-        """Helper function for key binding
+        """Helper function for key binding.
 
-        Parameters
-        ----------
-        event : None
-            Placeholder
+        Args:
+            event (None): Placeholder
         """
         self._button_accept()
 
     def _text(self, txt_input: str) -> None:
-        """Create text widget
+        """Create generic text widget.
 
-        Parameters
-        ----------
-        txt_input : str
-            Text to show
+        Args:
+            txt_input (string): Text to show in gui window.
         """
         text = tk.Label(
             text=txt_input,
@@ -141,11 +149,13 @@ class UiTools():
         text.pack()
 
     def _button_accept(self) -> None:
-        """Defines what to todo when accept button is pressed.
+        """Define accept button action.
 
-        If the "save password" checkbox is activated then the password
-        will be added to the `user_data.toml` file and the user instance.
-        Else the password will be added just to the user instance.
+        If the "Save user credentials..." checkbox is activated then the 
+        entered data will be added to the `user_data.toml` file 
+        and the user instance.  
+        Else everything entered will be added to the active user instance and
+        won't get stored in a file.
         """
         # Encrypt credentials with rsa keys
         pwd_enc = self.user.rsa.encrypt_pwd(self.var_password.get())
@@ -191,7 +201,7 @@ class UiTools():
         self.window.destroy()
 
     def _button_delpwd(self) -> None:
-        """Delete password entry from user config
+        """Delete password entry from user configuration.
 
         The stored password will be deleted from the user config
         and the user instance attributes.
@@ -206,7 +216,9 @@ class UiTools():
             self.var_password.set('')
 
     def _window_setup(self) -> None:
-        """Define entries for root window.
+        """Define entries for "User credentials" dialog.
+        
+        Manage the widgets for the top level window.
         """
         self._text('Enter username')
         self.entry_username.pack()
@@ -224,7 +236,11 @@ class UiTools():
         self._text('Please read the disclaimer for details on password handling')
 
     def credentials_dialog(self) -> None:
-        """Initiate "User credentials" dialog.
+        """Built top level window.
+        
+        Call a top level widget and populate it
+        with all needed widgets for 
+        the "User credentials" dialog.
         """
         self.window = tk.Tk()
         self.window.title('User credentials')
@@ -239,3 +255,24 @@ class UiTools():
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
+
+
+# Pdoc config get underscore methods
+__pdoc__ = {name: True
+            for name, classes in globals().items()
+            if name.startswith('_') and isinstance(classes, type)}
+
+
+__pdoc__.update({f'{name}.{member}': True
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member not in {'__module__', '__dict__',
+                                   '__weakref__', '__doc__'}})
+
+__pdoc__.update({f'{name}.{member}': False
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member.__contains__('__') and member not in {'__module__', '__dict__',
+                                                                 '__weakref__', '__doc__'}})
