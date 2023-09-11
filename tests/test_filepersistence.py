@@ -1,4 +1,4 @@
-"""Docstring for persistence tests module
+"""Test serializing of date object.
 
 Returns
 -------
@@ -17,12 +17,10 @@ app = Application(True)
 
 @pytest.fixture
 def fp_tests_setup():
-    """Persistence tests setup
+    """Fixture for serializing tests.
 
-    Returns
-    -------
-    _type_
-        _description_
+    Unpickle the dates object.  
+    Create a dummy and a modified version of the dates object.
     """
     setup = namedtuple('test_setup', ['dates_path',
                                       'dates_loaded',
@@ -55,14 +53,15 @@ def fp_tests_setup():
 @pytest.mark.smoke
 @pytest.mark.persistence
 def test_init_dates_log(fp_tests_setup):
-    """Variable for date peristence exist
-    
-    Check `SMIT.filepersistence.Persistence.initialize_dates_log()`
+    """Test the creation of the dates object.
 
-    Parameters
-    ----------
-    fp_tests_setup : _type_
-        _description_
+    Assert:
+        If the dates pickle object exists on the file system.
+        
+    Note:
+        The application uses a variable called dates to
+        persist the dates input for the webscraper in between
+        application runs. This is done via pickling the dates object.
     """
     # check dates exist
     assert fp_tests_setup.dates_path.exists
@@ -70,12 +69,10 @@ def test_init_dates_log(fp_tests_setup):
 @pytest.mark.smoke
 @pytest.mark.persistence
 def test_load_dates_log(fp_tests_setup):
-    """Dates logging correctly loaded
-
-    Parameters
-    ----------
-    fp_tests_setup : _type_
-        _description_
+    """Test unpickling of dates object.
+    
+    Assert:
+        Dates variable from fixture equals dynamically loaded variable.
     """
     
     assert fp_tests_setup.dates_static == fp_tests_setup.dates_loaded
@@ -83,15 +80,13 @@ def test_load_dates_log(fp_tests_setup):
 @pytest.mark.smoke
 @pytest.mark.persistence
 def test_modify_dates_log(fp_tests_setup):
-    """Dates logging routine
+    """Test pickling/unpickling methods.
     
-    Load variable, modify variable, save variabel.
-    Reload safed variable
-
-    Parameters
-    ----------
-    fp_tests_setup : _type_
-        _description_
+    Unpickle, modify and pickle the dates object.
+    
+    Assert:
+        Modified dates variable from fixture 
+        equals dynamically modified variable.
     """
     # Prepare modified dates log variable
     dates_write = {**fp_tests_setup.dates_loaded}

@@ -1,8 +1,4 @@
-"""Docstring for testing filehandling module
-Returns
--------
-_type_
-    _description_
+"""Test the classes for file operations.
 """
 # pylint: disable=no-member
 import datetime as dt
@@ -16,12 +12,13 @@ app = Application(True)
 
 @pytest.fixture
 def fh_tests_setup():
-    """Create paths for filehandling tests.
+    """Fixture for file operation tests.
 
-    Returns
-    -------
-    _type_
-        _description_
+    Load variables from hardcoded paths to create
+    a test setup for comparing dynamically loaded variables.
+    
+    Returns:
+        tuple: Static variables for file operation tests.
     """
     Path = namedtuple('Path', ['source_dir',
                                'dest_dir',
@@ -53,11 +50,15 @@ def fh_tests_setup():
 @pytest.mark.smoke
 @pytest.mark.osinterface
 def test_move_files(fh_tests_setup):
-    """Test moving files routine.
+    """Test move files method.
     
-    Check naming in workdir
-    Read meter attribute and check against workdir filename
-    Assure that file is removed from rawdir
+    Assert:
+        - If the rename process is handled correctly.  
+        - If the file is removed from raw directory.  
+    Note:
+        On application run the files get downloaded to
+        a raw folder. For further processing the files 
+        need to be renamed and moved to the work folder.
     """
     # Run function to test
     app.os_tools._move_files_to_workdir(app.Meter['day_meter'])
@@ -79,7 +80,11 @@ def test_move_files(fh_tests_setup):
 @pytest.mark.smoke
 @pytest.mark.osinterface
 def test_create_dataframe(fh_tests_setup):
-    """Test if the dataframe is created correctly
+    """Test if the dataframe is created correctly.
+    
+    Assert:
+        - Deletion of unused columns.
+        - Naming pattern of final pandas dataframe.
     """
   
     df_testfunction = app.os_tools.create_dataframe(
