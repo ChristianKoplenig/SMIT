@@ -1,4 +1,11 @@
 """Test selenium webdriver setup
+
+---
+
+The selenium webdriver library is used to scrape data
+from the "Stromnetz Graz" website. The applications 
+specific configuration is done via the `Options` and
+`Service` class provided by the selenium package.
 """
 # pylint: disable=no-member
 import pytest # pylint: disable=import-error
@@ -17,14 +24,11 @@ app = Application(True)
 def test_webdriver():
     """Test webdriver.
     
+    Set options according to options used in 
+    application setup.
+    
     Assert:
         Open website and load specific element.
-    
-    Note:
-        The selenium webdriver library is used to scrape data
-        from the "Stromnetz Graz" website. The application 
-        specific configuration is done via the `Options` and
-        `Service` class provided by the selenium package.
     """
     # Set firefox options
     profile = Options()

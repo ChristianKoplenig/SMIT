@@ -1,4 +1,13 @@
-"""Test the classes for file operations.
+"""Test the methods for file operations.
+
+---
+
+On application run the files get downloaded to
+a raw folder. For further processing the files 
+need to be renamed and moved to the work folder.
+
+A method is provided to create a pandas dataframe
+with unused columns droped and formatted date fields.
 """
 # pylint: disable=no-member
 import datetime as dt
@@ -55,10 +64,6 @@ def test_move_files(fh_tests_setup):
     Assert:
         - If the rename process is handled correctly.  
         - If the file is removed from raw directory.  
-    Note:
-        On application run the files get downloaded to
-        a raw folder. For further processing the files 
-        need to be renamed and moved to the work folder.
     """
     # Run function to test
     app.os_tools._move_files_to_workdir(app.Meter['day_meter'])
