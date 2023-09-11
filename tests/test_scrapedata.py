@@ -1,4 +1,11 @@
-"""Docstring for scrape test
+"""Test selenium webdriver setup
+
+---
+
+The selenium webdriver library is used to scrape data
+from the "Stromnetz Graz" website. The applications 
+specific configuration is done via the `Options` and
+`Service` class provided by the selenium package.
 """
 # pylint: disable=no-member
 import pytest # pylint: disable=import-error
@@ -15,13 +22,18 @@ app = Application(True)
 @pytest.mark.smoke
 @pytest.mark.scraping
 def test_webdriver():
-    """Webdriver open site
+    """Test webdriver.
+    
+    Set options according to options used in 
+    application setup.
+    
+    Assert:
+        Open website and load specific element.
     """
     # Set firefox options
     profile = Options()
     profile.set_preference("browser.download.folderList", 2)
     profile.set_preference("browser.download.alwaysOpenPanel", False)
-    #profile.set_preference("browser.download.dir", dl_path)
     profile.set_preference('webdriver.log.init', True)
     profile.add_argument('--no-sandbox')
     profile.add_argument('--disable-dev-shm-usage')

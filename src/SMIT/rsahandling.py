@@ -1,5 +1,17 @@
-"""
-Tools for dealing with cryptography
+"""Public key cryptography
+
+---
+`RsaTools`
+----------
+
+- Generate Rsa key pair for application.
+- Decrypt password from `user_data.toml` file.
+- Encrypt password with application key.
+
+Typical usage:
+
+    app = Application()
+    app.rsa.method()
 """
 from collections import namedtuple
 import pathlib as pl
@@ -11,29 +23,21 @@ if TYPE_CHECKING:
 
 
 class RsaTools():
-    """Methods for accessing the rsa library
+    """Use Rsa encryption for password storing.
 
-    Attributes
-    ----------
-    app : class type
-        Holds user information
-    Methods
-    -------
-    _load_rsa_keys():
-        Make keys available for signing.
-    encrypt_pwd(pwd):
-        Encrypt pwd string with public key.
-    decrypt_pwd(pwd):
-        Decrypt pwd bytes object with private key.
+    ---
+
+    Generate a Rsa key pair and store it in the config folder.
+    If the user decides to save the password, this key pair 
+    will be used to encrypt/decrypt the password.
+    The password will be saved in the `user_data.toml`
+    configuration file. 
+
+    Attributes:
+        app (class): Accepts `SMIT.application.Application` type attribute.
     """
     def __init__(self, app: 'Application') -> None:
-        """Initialize class with all attributes from user config files.
 
-        Parameters
-        ----------
-        app : class instance
-            Holds the configuration data for program run.
-        """
         self.user = app
         self.logger = app.logger
         self.pub_path = pl.Path(self.user.Path['public_key'])
@@ -61,12 +65,13 @@ class RsaTools():
         self.logger.debug(msg)
 
     def _load_rsa_keys(self) -> tuple[rsa.PrivateKey, rsa.PublicKey]:
-        """Load keys from `keys` folder
+        """Load keys from config folder.
 
-        Returns
-        -------
-        named tuple
-            Private and public key
+        Make keys accessible via dot notation.
+        
+        Returns:
+            tuple: A named tuple holding the 
+                `public_key` and the `private_key`.
         """
         Keys = namedtuple("Keys", ["public_key", "private_key"])
 
@@ -79,37 +84,67 @@ class RsaTools():
         return Keys(public_key, private_key)
 
     def encrypt_pwd(self, pwd: str) -> bytes:
-        """Encrypt `pwd` with public key.
+        """Convert and encrypt input.
 
-        Parameters
-        ----------
-        pwd : str
-            String for encryption.
+        Convert the input string to bytes object
+        needed for storing in configuration files.  
+        Encrypt the object using the rsa library and the 
+        public key from the config folder.
+        
+        Note:
+            A bytes object is used because TOML files need
+            this data structure to store information.
 
-        Returns
-        -------
-        bytes
-            Encrypted input.
+        Args:
+            pwd (string): String for encryption.
+
+        Returns:
+            bytes: Encrypted input.
         """
         pwd_enc = pwd.encode('utf8')
         pwd_crypt = rsa.encrypt(pwd_enc, self._load_rsa_keys().public_key)
         return pwd_crypt
 
     def decrypt_pwd(self, pwd: bytes) -> str:
-        """Decrypt `pwd` with private key.
+        """Decrypt bytes object.
 
-        Parameters
-        ----------
-        pwd : bytes
-            Input for decryption.
+        Decrypt the input using the rsa library and the 
+        private key from the config folder.  
+        Decode the bytes object to string format.
+        
+        Note:
+            A bytes object is used because TOML files need
+            this data structure to store information.
 
-        Returns
-        -------
-        str
-            Decrypted input.
+        Args:
+            pwd (bytes): Input for decryption.
+
+        Returns:
+            string: Decrypted input.
         """
         pwd_decrypt = rsa.decrypt(pwd, self._load_rsa_keys().private_key)
         return pwd_decrypt.decode('utf8')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
+
+
+# Pdoc config get underscore methods
+__pdoc__ = {name: True
+            for name, classes in globals().items()
+            if name.startswith('_') and isinstance(classes, type)}
+
+
+__pdoc__.update({f'{name}.{member}': True
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member not in {'__module__', '__dict__',
+                                   '__weakref__', '__doc__'}})
+
+__pdoc__.update({f'{name}.{member}': False
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member.__contains__('__') and member not in {'__module__', '__dict__',
+                                                                 '__weakref__', '__doc__'}})
