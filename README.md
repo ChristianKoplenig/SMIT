@@ -3,6 +3,23 @@
 <p align='center'> Download and show your power usage </p>
 
 
+Contents
+--------
+
+ * [Intention](#intention)
+ * [About](#about)
+ * [Usage](#usage)
+ * [Roadmap](#roadmap)
+ * [Testing](#testing)
+ * [Documentation](#documentation)
+ * [Disclaimer](#disclaimer)
+ * [Requirements](#requirements)
+ * [Participation Guidlines](#participating-guidlines)
+ * [Folderstructure](#folderstructure)
+ * [Branches](#branches)
+ * [Licence](#licence)
+ * [Acknowledgements](#acknowledgements)
+
 ## Intention
 My main motivations for this application is to 
 - strengthen my coding skills and learn how to integrate libraries I have not used so far 
@@ -21,6 +38,10 @@ I'm **very happy** about user input but won't promise anything about implementin
 Additionally web scraping is always messy and if the "Stromnetz Graz" company changes anything at their website I wont promise to fix the scraper. However if I have the personal need for fixing it then I can promise that I will push the fix to the public repository.
 
 ## Usage
+
+## Roadmap
+
+## Testing
 
 ## Documentation
 [Modules](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html)  
@@ -97,7 +118,7 @@ See `requirements.txt` for all needed dependencies.
 ## Licence
 This project is under **insert_licence**. 
 
-## Aknowledgements
+## Acknowledgements
 I would like to thank [mike_landl](https://github.com/mike-landl) for all the 
 code contributions, input on best practice, things to think about and generall
 guiding how to write clean code! 
