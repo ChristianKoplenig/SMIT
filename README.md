@@ -3,8 +3,19 @@
 <p align='center'> Download and show your power usage </p>
 
 
-TOC
----
+## Intention
+
+My main motivations for this application are to 
+- simplify monitoring my power consumption
+- strengthen my coding skills and learn how to integrate libraries I have not used so far 
+- a playground for different methods to design applications
+- showcase for my coding skills and what I'm playing around with
+
+My goal is to make data which already exists easy acessible. I hope that this data
+make users aware of their power consumption patterns. Maybe some of them will then
+use this knowledge to **save energy**.
+
+## TOC
 
  * [Intention](#intention)
  * [About](#about)
@@ -20,16 +31,6 @@ TOC
  * [Branches](#branches)
  * [Licence](#licence)
  * [Acknowledgements](#acknowledgements)
-
-## Intention
-My main motivations for this application is to 
-- strengthen my coding skills and learn how to integrate libraries I have not used so far 
-- a playground for different methods to design applications
-- showcase for my coding skills and what I'm playing around with.
-
-My goal is to make data which already exists easy acessible. I hope that this data
-make users aware of their power consumption patterns. Maybe some of them will then
-use this knowledge to **save energy**.
 
 ## About
 The repository is a static fork of my `in progress` repo. I don't plan to update it regularly however if I implement some cool new features in my private repo I may push them to the public fork. 
@@ -81,18 +82,68 @@ You can use the 'Save user credentials' option to store your credentials in the 
 This file is located in the `./config` folder. See the disclaimer for information on password
 storage and handling.
 The buttons do exactly what their respective name implies. Implementation details are explained
-in the documentation section.
+in the [documentation](#documentation) section.
 
+### Example output
+At the moment the output is a really simple overview of your power usage. In future releases the 
+output will feature more detailed plots to get usefull insights regarding the own power consumption.
+
+<p align="center">
+  <img src="./docs/readme/jnb_output.png" width=100% /> 
+  <br>
+<br>
+<ins><b><i> Power Usage Sample Plot </i></b></ins>
+</p>
+</details>
 
 ## Roadmap
-- GUI with data view
+This roadmap is in no particular order. The priorization depends on which topic catches me the most at a given time.
+
+- API access -> Depends on availability of public API
+- Switch from Jupyter Notebook to modern GUI
+- Use Sphinx for documentation
+- Implement database
+- Create executable package
+- More detailed data plots
+- Enhance logging / Debug option
+- Implement more electricity providers
+
 ## Testing
+
+**All tests are run in dummy configuration**  
+
+From the command line in the root directory run `tox` command.
+
+### Setup
+Tests are located in the `./tests` folder.  
+As test framework the pytest library is used.  
+For managing and running the tests `tox` is used.  
+For each module a test file with the
+module name and the prefix 'test_' is used.  
+
+### Tox Configuration
+Environment: Python 3.11  
+Test Setup: `tox.ini`  
+Markers: `pyproject.toml`  
+   
 
 ## Issues
 - No Decline button in GUI
+- Main.ipynb -> Log gets printed multible times
+- Rsa Keys on initial run not working
+- SNG Data update not implemented
+
 ## Documentation
-[Modules](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html)  
-[Tests](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/tests/index.html)  
+The documentation for this project is done via docstrings. As format for the 
+docstrings the [Google Style Guide](https://google.github.io/styleguide/pyguide.html) is used. 
+I think it is good practice to invest time in writing detailed docstrings and thus the documentation is done on the fly.
+
+At the moment I use the pdoc3 library to generate html output from the docstrings.
+In future I want to switch to sphinx in combination with the readthedocs theme. Ideally
+this leads to a more compact documentation and a simpler README file. 
+
+The documentation for the modules and methods is found here: [Application](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html)  
+All tests are documented here: [Tests](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/tests/index.html)  
 
 ## Disclaimer
 The password is send in plain text to the login field. This is **not good practice**
@@ -104,8 +155,8 @@ Again this is not good practice but this project is about learning different
 tools and coding. 
 
 ## Requirements
-The virtual environment was created with **Python 3.11** as base.
-See `requirements.txt` for all needed dependencies. 
+The virtual environment was created with **Python 3.11** as base.  
+See [requirements.txt](./requirements.txt) for all needed dependencies. 
 
 ## Participating Guidlines
 - Input is appreciated
@@ -170,20 +221,3 @@ This project is under **insert_licence**.
 I would like to thank [mike_landl](https://github.com/mike-landl) for all the 
 code contributions, input on best practice, things to think about and generall
 guiding how to write clean code! 
-
----
-
-# <p align='center'> OLD Version </p>
-
-# Stromnetz Graz - Analyse Data from Smartmeter
-Automatically scrape and plot the data from 'Stromnetz Graz' web portal.
-## Setup
-Fill out user credentials in `user_data.py` located in `root` folder.  
-In `root` folder create:  
-- csv_raw folder
-- csv_workdir folder
-
-## Test System
-### OS
-- Ubuntu 23.04 Standart Distro
-- VSCode - direct install, no snap
