@@ -9,7 +9,7 @@ There are two different configuration files.
 One holds the __settings__ for the application and the other
 holds the user __credentials__.
 
-Each module instance is stored as a object in a dictionairy
+Each module instance is stored as a object in a dictionary
 with a trivial name as key.
 
 The existing folder structure is checked against the folders
