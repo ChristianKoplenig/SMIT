@@ -28,8 +28,8 @@ use this knowledge to **save energy**.
  * [Requirements](#requirements)
  * [Participation Guidlines](#participating-guidlines)
  * [Folderstructure](#folderstructure)
- * [Branches](#branches)
- * [Licence](#licence)
+ * [Implementations](#implementations)
+ * [License](#license)
  * [Acknowledgements](#acknowledgements)
 
 ## About
@@ -191,33 +191,33 @@ See [requirements.txt](./requirements.txt) for all needed dependencies.
 - `.tox`
 	- --> Data for running tests
 
-## Branches
-(Tech stack)
-### main
-- **Application** - Scrape data - tested on win/linux.
+## Implementations
+### Libraries
+
 - **Pickle** - Perist date values for automated scraping workflow.
+- **Pathlib** - Folder structure setup
 - **Pathlib** - Move files to input directory for python analysis.
-- **Application** - Modules as classes, first iteration
-- **Pandas** - Create dataframes for further analysis. 
-### develop
-- **Application** - Modules as classes, pep8 implemented
-- **Rsa** - Temporarily store encrypted password in user class.
-- **Application** - Import, Module and Folder management in Application class 
 - **Tomlkit** - Manage configs in `.toml` files
-- **Application** - Dummy option
-- **Tkinter** - Gui for user credentials
+- **Logger** - Log Application modules
 - **Rsa** - Encrypted password storage
 - **Selenium Webdriver** - Scrape data
-- **Application** - Automated scrape dates management
-- **Pathlib** - Folder structure setup
+- **Tkinter** - Gui for user credentials
+- **Pandas** - Create dataframes for further analysis. 
 - **Pytest** - Test Application modules
 - **Pdoc** - Generate documentation from docstrings
-- **Logger** - Log Application modules
 
-## Licence
-This project is under **insert_licence**. 
+### Application modules
+
+**application** - Provide core functionality
+**filehandling** - File operation related methods
+**filepersistence** - Preserve data via serialization
+**rsahandling** - Public key cryptography
+**scrapedata** - Selenium webdriver implementation
+**userinput** - Simple User Credentials Gui 
 
 ## Acknowledgements
-I would like to thank [mike_landl](https://github.com/mike-landl) for all the 
-code contributions, input on best practice, things to think about and generall
+I would like to thank [mike_landl](https://github.com/mike-landl) and [martinhecher](https://github.com/martinhecher) for all the code contributions, input on best practice, things to think about and generall 
 guiding how to write clean code! 
+
+## License
+This project is developed under the [MIT License](LICENSE). 
