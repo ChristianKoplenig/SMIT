@@ -134,16 +134,16 @@ Markers: `pyproject.toml`
 - SNG Data update not implemented
 
 ## Documentation
-The documentation for this project is done via docstrings. As format for the 
-docstrings the [Google Style Guide](https://google.github.io/styleguide/pyguide.html) is used. 
-I think it is good practice to invest time in writing detailed docstrings and thus the documentation is done on the fly.
+Detailled technical documentation can be found here:
 
-At the moment I use the pdoc3 library to generate html output from the docstrings.
-In future I want to switch to sphinx in combination with the readthedocs theme. Ideally
-this leads to a more compact documentation and a simpler README file. 
 
-The documentation for the modules and methods is found here: [Application](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html)  
-All tests are documented here: [Tests](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/tests/index.html)  
+- [Application Modules](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html) 
+- [Pytest Setup](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/tests/index.html)
+
+The documentation for this project is done via docstrings. As format the [Google Style Guide](https://google.github.io/styleguide/pyguide.html) is used. I think it is good practice to invest time in writing detailed docstrings and as free benefit the documentation is done on the fly.
+
+At the moment I use the pdoc3 library to generate html output from the docstrings. In future I want to switch to sphinx in combination with the readthedocs theme. Ideally this leads to a more compact documentation and a simpler README file. 
+
 
 ## Disclaimer
 The password is send in plain text to the login field. This is **not good practice**
@@ -194,26 +194,25 @@ See [requirements.txt](./requirements.txt) for all needed dependencies.
 ## Implementations
 ### Libraries
 
-- **Pickle** - Perist date values for automated scraping workflow.
-- **Pathlib** - Folder structure setup
-- **Pathlib** - Move files to input directory for python analysis.
+- **Pickle** - Perist date values for automated scraping workflow
+- **Pathlib** - Folder structure setup, Move files, Paths handling
 - **Tomlkit** - Manage configs in `.toml` files
-- **Logger** - Log Application modules
+- **Logger** - Log Application behaviour
 - **Rsa** - Encrypted password storage
 - **Selenium Webdriver** - Scrape data
 - **Tkinter** - Gui for user credentials
-- **Pandas** - Create dataframes for further analysis. 
+- **Pandas** - Create dataframes for further analysis
 - **Pytest** - Test Application modules
-- **Pdoc** - Generate documentation from docstrings
+- **Pdoc** - Generate documentation
 
 ### Application modules
 
-**application** - Provide core functionality
-**filehandling** - File operation related methods
-**filepersistence** - Preserve data via serialization
-**rsahandling** - Public key cryptography
-**scrapedata** - Selenium webdriver implementation
-**userinput** - Simple User Credentials Gui 
+- **application** - Provide core functionality
+- **filehandling** - File operation related methods
+- **filepersistence** - Preserve data via serialization
+- **rsahandling** - Public key cryptography
+- **scrapedata** - Selenium webdriver implementation
+- **userinput** - Simple User Credentials Gui 
 
 ## Acknowledgements
 I would like to thank [mike_landl](https://github.com/mike-landl) and [martinhecher](https://github.com/martinhecher) for all the code contributions, input on best practice, things to think about and generall 
