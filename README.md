@@ -76,8 +76,7 @@ the "Netzzugangsvertrag" under "Technische Details - Zählpunkt/Gerät"  from th
 <ins><b><i> "Stromnetz Graz" Data Page </i></b></ins>
 </p>
 </details>
-<br>
-Use the last 6 digits from each meter in the credentials dialog.
+
 You can use the 'Save user credentials' option to store your credentials in the `user_data.toml` file.
 This file is located in the `./config` folder. See the disclaimer for information on password
 storage and handling.
