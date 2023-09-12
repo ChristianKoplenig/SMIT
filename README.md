@@ -3,14 +3,15 @@
 <p align='center'> Download and show your power usage </p>
 
 
-Contents
---------
+TOC
+---
 
  * [Intention](#intention)
  * [About](#about)
  * [Usage](#usage)
  * [Roadmap](#roadmap)
  * [Testing](#testing)
+ * [Issues](#issues)
  * [Documentation](#documentation)
  * [Disclaimer](#disclaimer)
  * [Requirements](#requirements)
@@ -38,11 +39,58 @@ I'm **very happy** about user input but won't promise anything about implementin
 Additionally web scraping is always messy and if the "Stromnetz Graz" company changes anything at their website I wont promise to fix the scraper. However if I have the personal need for fixing it then I can promise that I will push the fix to the public repository.
 
 ## Usage
+- In project root folder open `Main.ipynb`.
+### Dummy usage
+This mode is used for demonstration purposes and testing via pytest.
+No "Stromnetz Graz" account is needed.
+The Gui and scraping modules are not used.
+The dummy data from `./opt/dummy_user` folder is used to setup a application mockup.
+This will create a temporary `.dummy` folder in the project directory.
+At the beginning of each dummy run the temporary folder will be deleted and newly created.
+
+### Live data usage
+
+<p align="center">
+  <img src="./docs/readme/credentials_gui.png" width=35% /> 
+  <br>
+<br>
+<ins><b><i> User Credentials GUI </i></b></ins>
+</p>
+
+Running with live data will first open a simple dialog to enter the "Stromnetz Graz" account data.
+Username and password are provided by the elictricity provider. Your meter numbers are either found in
+the "Netzzugangsvertrag" under "Technische Details - Zählpunkt/Gerät"  from the electricity provider or you can get them online following these steps:
+
+<details>
+	<summary>Get Meter Numbers</summary>
+
+1. Open https://webportal.stromnetz-graz.at/login
+2. Login
+3. Choose "Auswertung"
+4. In the "Zählpunktnummer" pull down menu you can see your meter numbers.
+
+<p align="center">
+  <img src="./docs/readme/select_meter.png" width=70% /> 
+  <br>
+<br>
+<ins><b><i> "Stromnetz Graz" Data Page </i></b></ins>
+</p>
+</details>
+<br>
+Use the last 6 digits from each meter in the credentials dialog.
+You can use the 'Save user credentials' option to store your credentials in the `user_data.toml` file.
+This file is located in the `./config` folder. See the disclaimer for information on password
+storage and handling.
+The buttons do exactly what their respective name implies. Implementation details are explained
+in the documentation section.
+
 
 ## Roadmap
-
+- GUI with data view
 ## Testing
 
+## Issues
+- No Decline button in GUI
 ## Documentation
 [Modules](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html)  
 [Tests](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/tests/index.html)  
@@ -94,6 +142,7 @@ See `requirements.txt` for all needed dependencies.
 	- --> Data for running tests
 
 ## Branches
+(Tech stack)
 ### main
 - **Application** - Scrape data - tested on win/linux.
 - **Pickle** - Perist date values for automated scraping workflow.
@@ -139,103 +188,3 @@ In `root` folder create:
 ### OS
 - Ubuntu 23.04 Standart Distro
 - VSCode - direct install, no snap
-
-### Tools
-- Python 3.9.15
-- Seaborn 0.12.1
-- Matplotlib 3.5.3
-- Pathlib 1.0.1
-- Pandas 1.4.4
-- Pickleshare 0.7.5
-- Selenium 4.10.0
-- Webdriver 115.0.2
-
-## Folderstructure
-- `root` --> Folder for Jupyther Notebook files and `user_data.py` file
-- `csv_raw` --> Download folder for webdriver
-- `csv_workdir` --> Python working directory
-- `log` --> Folder to store log-files
-- `modules` --> Folder for `module.py` files
-
-## Modules
-### `dynamicclass.py`
-**Dynamically creates a `User` class from `user_data.py` files**  
-`User` class makes all the user editable variables accesible 
-- `create_user()`
-	- Function to create user class
-	- **Input:** path to user data file, class name
-
-### `filehandling.py`
-**Functions to deal with operating system folders**
-- `_pathlib_move(src, dest, appendix)`
-	- Move and rename files
-	- **Input:** source filepath, destination filepath, text to append
-- `_move_files_to_workdir.py(meter_number)`
-	- Select files in webdriver download folder
-	- Filter files with creation date today
-	- Distinguish between files with different meter numbers
-	- Call `_pathlib_move()`
-	- **Input:** number for power meter
-- `scrapeandmove()`
-	- Start downloading `csv` files from web portal
-	- Copy files to python work directories
-- `create_dataframe(workdir, metertype)`
-	- Select all files in directory
-	- Distinguish between day/night meter type
-	- Combine all `csv` files to one dataframe
-	- Convert date and time
-	- Delete unused columns
-	- Sort by date
-	- Drop duplicates
-	- **Return:** dataframe
-	- **Input:** `csv` files directory, day/night meter type
-
-### `filepersistence.py`
-**Functions used to permanently store information on os filesystem (pickling)**
-- `initialize_dates_log()
-	- Create `dates` dict and fill for first run
-	- Save `dates` dict to log folder
-- `load_dates_log()`
-	- Load `dates` dict from storage to namespace
-	- **Return:** `dates`
-- `save_dates_log(dates)`
-	- Save `dates` dict to log folder
-	- **Input:** File to save
-
-### `scrapedata.py`
-**Functions for interacting with the web portal**
-- `wait_and_click(xpath)`
-	- Wait for web element availability and click on it
-	- **Input:** xPath of web element
-- `ff_options(dl_folder, headless)`
-	- Define options for firefox webdriver instance
-	- **Input:** path to download folder, headless mode switch
-- `start_date_updater(dates)`
-	- Set and update start date for automated scraping
-	- **Input:** `dates` dict
-- `_sng_input_dates(input_date)`
-	- Input start/end dates in web element
-	- **Input:** date for `csv` file
-- `sng_login(dl_folder, headless)`
-	- Load firefox instance
-	- Open website
-	- Login
-	- Go to data page
-	- Set units
-	- **Input:** path to download folder, headless mode for firefox
-- `_sng_fill_dates_element(start, end)`
-	- Activate web element for `daysum` download
-	- use `_sng_input_dates()` to populate date fields
-	- **Input:** start/end dates for file download
-- `_sng_start_download()`
-	- Push download button
-- `_sng_switch_day_night_meassurements(day_night)`
-	- Make dropdown menu for power meter input active
-	- Choose second entry if input is `night_meter`, else choose first entry
-	- **Input:** either day or night meter number
-- `get_daysum_files(headless)`
-	- Initialize dates logfile
-	- Update end date for scraping
-	- Check if files for today are already downloaded
-	- Call functions to download files
-	- **Input:** headless switch
