@@ -134,7 +134,7 @@ class Application:
         Returns
         -------
         dict
-            Dictionairy where keys are trivial names and values
+            Dictionary where keys are trivial names and values
             are intantiated modules objects.
         """
         modules = dict([
