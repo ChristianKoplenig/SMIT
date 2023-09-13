@@ -1,13 +1,18 @@
-# custom folder structure
+# SAFETY
+config/private_key.pem
+config/public_key.pem
+user_data.tomldebug.log
+
+# application specific
 csv_raw/
 csv_workdir/
 .dummy/
-docs/
 
-# SAFETY
-config/user_file.toml
-config/private_key.pem
-config/public_key.pem
+# documentation
+docs/SMIT
+docs/tests
+docs/index.html
+
 
 # system specific
 __pycache__/
@@ -22,6 +27,5 @@ __pycache__/
 # developement files
 testcode.py
 test_nb.ipynb
+testing.py
 
-# excluded for security issues
-user_data.tomldebug.log
