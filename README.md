@@ -28,12 +28,12 @@ This is a hobby project and I have a high motivation to keep it running though.
 	* [Application run](#application-run)
 	* [Dummy Mode](#dummy-usage)
 	* [Live Data](#live-data-usage)
- * [Roadmap](#roadmap)
- * [Issues](#issues)
  * [Documentation](#documentation)
 	* [Pytest Setup](#testing)
 	* [Application Structure](#application-structure)
 	* [Folder Structure](#folder-structure)
+ * [Roadmap](#roadmap)
+ * [Issues](#issues)
  * [Requirements](#requirements)
  * [Participation Guidlines](#participating-guidlines)
  * [Acknowledgements](#acknowledgements)
@@ -103,25 +103,6 @@ output will feature more detailed plots to get usefull insights regarding the ow
 <ins><b><i> Power Usage Sample Plot </i></b></ins>
 </p>
 </details>
-
-## Roadmap
-This roadmap is in no particular order. The priorization depends on which topic catches me the most at a given time.
-
-- API access -> Depends on availability of public API
-- Implement 15min resolution measurements (user OPT IN needed at provider site)
-- Switch from Jupyter Notebook to modern GUI
-- Use Sphinx for documentation
-- Implement database
-- Create executable package
-- More detailed data plots
-- Enhance logging / Debug option
-- Implement more electricity providers
-
-## Issues
-- No Decline button in GUI
-- Main.ipynb -> Log gets printed multiple times [#74](https://github.com/tmpck/strom/issues/74)
-- Rsa Keys on initial run not working [#60](https://github.com/tmpck/strom/issues/60)
-- SNG Data update not implemented [#43](https://github.com/tmpck/strom/issues/43)
 
 ## Documentation
 Detailled technical documentation for each class/method can be found here:
@@ -218,6 +199,24 @@ __Libraries__
 	- --> Data for running tests
 </p>
 </details>
+
+## Roadmap
+This roadmap is in no particular order. The priorization depends on which topic catches me the most at a given time.
+
+- API access -> Depends on availability of public API
+- Implement 15min resolution measurements (user OPT IN needed at provider site)
+- Switch from Jupyter Notebook to modern GUI
+- Use Sphinx for documentation
+- Implement database
+- Create executable package
+- More detailed data plots
+- Enhance logging / Debug option
+- Implement more electricity providers
+
+## Issues
+- Main.ipynb -> Log gets printed multiple times [#74](https://github.com/tmpck/strom/issues/74)
+- Rsa Keys on initial run not working [#60](https://github.com/tmpck/strom/issues/60)
+- SNG Data update not implemented [#43](https://github.com/tmpck/strom/issues/43)
 
 ## Requirements
 The virtual environment was created with **Python 3.11** as base.  
