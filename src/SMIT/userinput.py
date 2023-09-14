@@ -13,6 +13,7 @@ Typical usage:
     app = Application()
     app.gui.method()
 """
+import sys
 import tkinter as tk
 from tkinter import ttk
 import pathlib as pl
@@ -44,6 +45,7 @@ class UiTools():
         self.window = None
         # Tkinter widgets
         self.button_confirm = None
+        self.button_close = None
         self.button_delPwd = None
         self.checkbox_savePwd = None
         self.entry_password = None
@@ -102,6 +104,11 @@ class UiTools():
             command=self._button_accept
         )
 
+        self.button_close = tk.Button(
+            text='Close window',
+            command=self._button_close
+        )
+        
         self.button_delPwd = tk.Button(
             text='Delete stored password',
             command=self._button_delpwd
@@ -118,12 +125,15 @@ class UiTools():
             textvariable=self.var_password,
             show='*'
         )
+        
         self.entry_username = tk.Entry(
             textvariable=self.entry_username
         )
+        
         self.entry_meter_day = tk.Entry(
             textvariable=self.entry_meter_day
         )
+        
         self.entry_meter_night = tk.Entry(
             textvariable=self.entry_meter_night
         )
@@ -215,6 +225,20 @@ class UiTools():
         else:
             self.var_password.set('')
 
+    def _button_close(self) -> None:
+        """Define close button action.
+        
+        On button press the window will be closed.
+        
+        Note:
+            This raises a ugly error message when executed in
+            a Jupyter Notebook setup. To my knowledge the 
+            sys.exit() command is needed because the init of
+            the application should be stopped. 
+        """
+        self.window.destroy()
+        sys.exit('Close button pressed')
+    
     def _window_setup(self) -> None:
         """Define entries for "User credentials" dialog.
         
@@ -222,18 +246,20 @@ class UiTools():
         """
         self._text('Enter username')
         self.entry_username.pack()
-        self._text('Please enter your Stromnetz Graz password')
+        self._text('Enter your "Stromnetz Graz" password')
         self.entry_password.pack()
         self.entry_password.focus()
+        self._text('Please read the disclaimer for details on password handling')
         self._text('Select Meters (last six digits)')
         self._text('Day')
         self.entry_meter_day.pack()
         self._text('Night')
         self.entry_meter_night.pack()
         self.checkbox_savePwd.pack()
+        self._text('')
         self.button_delPwd.pack()
         self.button_confirm.pack()
-        self._text('Please read the disclaimer for details on password handling')
+        self.button_close.pack()
 
     def credentials_dialog(self) -> None:
         """Built top level window.
@@ -244,7 +270,7 @@ class UiTools():
         """
         self.window = tk.Tk()
         self.window.title('User credentials')
-        self.window.geometry('400x600')
+        self.window.geometry('400x655')
         self.window.bind('<Return>', self._return_pressed)
 
         self._def_variables()
