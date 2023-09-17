@@ -2,6 +2,9 @@
 config/private_key.pem
 config/public_key.pem
 user_data.tomldebug.log
+config/user_data.toml
+
+config/user_data.toml
 
 # application specific
 csv_raw/
