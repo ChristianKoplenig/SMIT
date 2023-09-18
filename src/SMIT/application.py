@@ -170,13 +170,17 @@ class Application:
         file_handler = logging.FileHandler(self.Path['log_file'])
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
 
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
 
+        # Attach logger handlers just once
+        if not self.logger.hasHandlers():
+            
+            self.logger.addHandler(file_handler)
+            self.logger.addHandler(console_handler)
+        
     def _setup_dummy_user(self):
         """Create environment for testing purposes.
         
