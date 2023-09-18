@@ -4,12 +4,11 @@ config/public_key.pem
 user_data.tomldebug.log
 config/user_data.toml
 
-config/user_data.toml
-
 # application specific
 csv_raw/
 csv_workdir/
 .dummy/
+log/dates.pkl
 
 # documentation
 docs/SMIT
@@ -31,4 +30,3 @@ __pycache__/
 testcode.py
 test_nb.ipynb
 testing.py
-
