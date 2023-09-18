@@ -62,6 +62,7 @@ class Application:
 
         if self.dummy is False:
             # Load paths to user configuration files
+            self._copy_userdata_template()
             self.user_data = pl.Path('config/user_data.toml')
             self.user_settings = pl.Path('config/user_settings.toml')
         else:
@@ -119,6 +120,18 @@ class Application:
         # pylint: disable=no-member
         for folder_path in self.Folder.values():
             os.makedirs(folder_path, exist_ok=True)
+            
+    def _copy_userdata_template(self) -> None:
+        """Initialize user data config
+        
+        On first run copy a user_data template to
+        config folder.
+        """
+        src = './opt/app_setup/user_data.toml'
+        dest = './config/user_data.toml'
+        if not pl.Path(dest).exists():
+            shutil.copy2(src, dest)
+            
 
     def _load_modules(self) -> dict:
         """Create dict with all modules.
