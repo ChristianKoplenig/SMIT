@@ -214,7 +214,6 @@ This roadmap is in no particular order. The priorization depends on which topic 
 - Implement more electricity providers
 
 ## Issues
-- Main.ipynb -> Log gets printed multiple times [#74](https://github.com/tmpck/strom/issues/74)
 - Rsa Keys on initial run not working [#60](https://github.com/tmpck/strom/issues/60)
 - SNG Data update not implemented [#43](https://github.com/tmpck/strom/issues/43)
 
