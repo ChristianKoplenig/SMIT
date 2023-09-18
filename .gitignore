@@ -27,6 +27,4 @@ __pycache__/
 .pytest_cache
 
 # developement files
-testcode.py
-test_nb.ipynb
 testing.py
