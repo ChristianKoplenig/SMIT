@@ -1,0 +1,29 @@
+[Init]
+csv_startDate = '01-01-2023'  # Start date for initial run
+
+[Options]
+# Firefox options
+headless_mode = true  # Run Firefox in headless mode, type: boolean
+
+[Folder]
+# scraping
+raw_daysum              = './csv_raw/daily'             # Download folder for Tageswerte csv files
+raw_15min               = './csv_raw/15min'             # Download folder for 15min resolution csv files
+
+# working
+work_daysum       = './csv_workdir/daily'   # Location of files to process
+work_15min        = './csv_workdir/15min'
+
+# application
+config = './config'     # Files to preserve
+log = './log' # Location for dates.pkl
+
+[Path]
+log_file                = './log/app.log'                       # Application log file
+persist_dates           = './log/dates.pkl'                     # Filename for dates persistence
+geckodriver_executable  = '/snap/bin/geckodriver'               # Path to geckodriver for Firefox
+webdriver_logFolder     = './log/geckodriver.log'               # Log file for webdriver
+private_key             = './config/private_key.pem'            # Location and file name for private key
+public_key              = './config/public_key.pem'             # Location and file name for private key
+user_settings           = './config/user_settings.toml'         # Location of user settings file
+user_data               = './config/user_data.toml'             # Location of user data file

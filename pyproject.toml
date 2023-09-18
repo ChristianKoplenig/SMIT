@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=42.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+markers = [ 
+    "smoke: Validate all core methods",
+    "application: Test setup of application class",
+    "crypto: Test rsa implementation",
+    "osinterface: Move files, generate pandas dataframe",
+    "persistence: Check dates variable",
+    "scraping: Webdriver setup",
+]
