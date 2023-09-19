@@ -214,8 +214,7 @@ This roadmap is in no particular order. The priorization depends on which topic 
 - Implement more electricity providers
 
 ## Issues
-- Rsa Keys on initial run not working [#60](https://github.com/tmpck/strom/issues/60)
-- SNG Data update not implemented [#43](https://github.com/tmpck/strom/issues/43)
+All issues are tracked and manged on the project's github page.
 
 ## Requirements
 The virtual environment was created with **Python 3.11** as base.  
