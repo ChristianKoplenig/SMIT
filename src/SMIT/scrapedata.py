@@ -264,13 +264,13 @@ class Webscraper():
             day_night (string): Accepts 'day' or 'night'.
         """
         # make dropdown active
-        self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/a')
+        self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[1]/ul/li/a')
         # choose night measurements
         if day_night == 'night':
-            self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[2]/a')
+            self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[1]/ul/li/ul/li[2]/a')
         # choose day measurements
         else:
-            self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[2]/ul/li/ul/li[1]/a')
+            self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[1]/ul/li/ul/li[1]/a')
 
         time.sleep(3)
 
