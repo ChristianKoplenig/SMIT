@@ -21,7 +21,7 @@ log = './.dummy/log' # Location for dates.pkl
 [Path]
 log_file                = './.dummy/log/app.log'                        # Application log file
 persist_dates           = './.dummy/log/dates.pkl'                      # Filename for dates persistence
-geckodriver_executable  = '/snap/bin/geckodriver'                       # Path to geckodriver for Firefox
+geckodriver_executable  = './config/geckodriver'                       # Path to geckodriver for Firefox
 webdriver_logFolder     = './log/geckodriver.log'                       # Log file for webdriver
 private_key             = './.dummy/config/private_key.pem'             # Location and file name for private key
 public_key              = './.dummy/config/public_key.pem'              # Location and file name for private key
