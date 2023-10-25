@@ -1,4 +1,5 @@
 {
+	"name": "SMIT",
     "build": {
         "dockerfile": "Dockerfile",
         "context": "../"
@@ -28,15 +29,12 @@
 			},
             "extensions": [
 				"mhutchie.git-graph",
-				"GitHub.codespaces",
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"ms-toolsai.jupyter"
 			]
 		}
 	},
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "pip3 install --user -r requirements.txt",
