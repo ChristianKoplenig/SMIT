@@ -49,6 +49,12 @@ The password is send in plain text to the login field. This is **not good practi
 At the moment the easiest way to use the application is to clone this repository.
 In the future distributable versions are planned. I want to further investigate into the [PyInstaller](https://pyinstaller.org/en/stable/) library. Additionally for demonstration purposes I plan to integrate the [VsCode Devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) feature.
 
+### DevContainer
+- Docker setup needed [Good Debian guide](https://www.linuxcapable.com/how-to-install-docker-on-debian-linux/) 
+- **Linux:** add docker user to x-window group: `xhost +local:<your_dockeruser>`
+- Clone repo
+- Build and run (tested with [VsCode Dev Containers Plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers))
+
 ### Dummy usage
 This mode is used for demonstration purposes and testing via pytest.
 No "Stromnetz Graz" account is needed.
