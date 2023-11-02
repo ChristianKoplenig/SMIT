@@ -24,7 +24,7 @@ This is a hobby project and I am highly motivated to keep it going.
  * [Intention](#intention)
  * [Disclaimer](#disclaimer)
  * [Usage](#usage)
-	* [Application run](#application-run)
+	* [Container setup](#devcontainer)
 	* [Dummy Mode](#dummy-usage)
 	* [Live Data](#live-data-usage)
  * [Documentation](#documentation)
