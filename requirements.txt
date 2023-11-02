@@ -6,3 +6,4 @@ setuptools==68.1.2
 tomlkit==0.12.1
 -e .
 seaborn==0.12.2
+tox==4.11.3
