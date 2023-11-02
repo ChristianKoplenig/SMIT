@@ -75,9 +75,9 @@ class Application:
         self._setup_logger()
         self._add_modules_to_attributes()
 
-        if dummy is False:
-            # Load Gui Dialog
-            self.gui.credentials_dialog()
+        # if dummy is False:
+        #     # Load Gui Dialog
+        #     self.gui.credentials_dialog()
 
         self.logger.info('Application with user "%s" instantiated', self.Login["username"])
 
@@ -185,7 +185,7 @@ class Application:
         file_handler.setFormatter(formatter)
 
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(logging.DEBUG)
         console_handler.setFormatter(formatter)
 
         # Attach logger handlers just once
