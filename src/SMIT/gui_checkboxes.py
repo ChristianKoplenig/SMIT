@@ -23,16 +23,16 @@ class CheckboxFrame(ctk.CTkFrame):
         self.title = ctk.CTkLabel(
             self,
             text='Options')
-        self.title.grid(row=0, padx=10, pady=(10,20), sticky='ew')
+        self.title.grid(row=0, padx=10, pady=(50,20), sticky='ew')
 
-        self.save_credentials = ctk.StringVar(value='off')
+        self.save_credentials = ctk.BooleanVar(value=False)
         self.save_credentials_chkbx = ctk.CTkCheckBox(
             self,
             text='Save credentials',
             command=self._save_credentials,
             variable=self.save_credentials,
-            onvalue='on',
-            offvalue='off'
+            onvalue=True,
+            offvalue=False
         )
         self.save_credentials_chkbx.grid(row=1)
 
