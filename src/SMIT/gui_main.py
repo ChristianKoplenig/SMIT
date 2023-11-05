@@ -14,6 +14,7 @@ import pathlib as pl
 
 from SMIT.gui_credentials import CredentialsFrame
 from SMIT.gui_buttons import ButtonFrame
+from SMIT.gui_checkboxes import CheckboxFrame
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -65,6 +66,10 @@ class AppGui(customtkinter.CTk):
 
         self.button_frame = ButtonFrame(self)
         self.button_frame.grid(row=0,column=1)
+        
+        self.checkbox_frame = CheckboxFrame(self)
+        self.checkbox_frame.grid(row=0, column=2)
+
 
 
 
