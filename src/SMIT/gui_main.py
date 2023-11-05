@@ -9,7 +9,7 @@
 Typical usage:
     On startup
 """
-import customtkinter
+import customtkinter as ctk
 import pathlib as pl
 
 from SMIT.gui_credentials import CredentialsFrame
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 ### Developement imports
 from SMIT.application import Application
 
-class AppGui(customtkinter.CTk):
+class AppGui(ctk.CTk):
     """Main GUI class
 
     ---
@@ -32,15 +32,15 @@ class AppGui(customtkinter.CTk):
     Generate main application window.
 
     Args:
-        customtkinter (_type_): _description_
+        ctk (_type_): _description_
     """
 
 
     def __init__(self, app: 'Application') -> None:
         super().__init__()
 
-        customtkinter.set_default_color_theme("dark-blue")
-        customtkinter.set_appearance_mode("dark")
+        ctk.set_default_color_theme("dark-blue")
+        ctk.set_appearance_mode("dark")
 
         self.user = app
         self.user_data_path = pl.Path(self.user.Path['user_data'])
@@ -65,10 +65,10 @@ class AppGui(customtkinter.CTk):
         self.credentials_frame.grid(row=0, column=0, sticky='w')
 
         self.button_frame = ButtonFrame(self)
-        self.button_frame.grid(row=0,column=1)
+        self.button_frame.grid(row=1,column=0, sticky='w')
         
         self.checkbox_frame = CheckboxFrame(self)
-        self.checkbox_frame.grid(row=0, column=2)
+        self.checkbox_frame.grid(row=2, column=0, sticky='w')
 
 
 

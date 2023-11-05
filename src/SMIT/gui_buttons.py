@@ -1,4 +1,4 @@
-"""Helper class for buttons frame in CustomTkinter GUI
+"""Helper class for buttons frame in ctk GUI
 
 ---
 'Classes for frames to build main GUI interface
@@ -9,14 +9,14 @@
 Typical usage:
     Call class in AppGui
 """
-import customtkinter
+import customtkinter as ctk
 import base64
 
-class ButtonFrame(customtkinter.CTkFrame):
+class ButtonFrame(ctk.CTkFrame):
     """Frame for buttons
 
     Args:
-        customtkinter (_type_): _description_
+        ctk (_type_): _description_
 
     Returns:
         _type_: _description_
@@ -28,20 +28,25 @@ class ButtonFrame(customtkinter.CTkFrame):
         # - confirm
 
         self.master = master
+
+        self.title = ctk.CTkLabel(
+            self,
+            text='Buttons')
+        self.title.grid(row=0, padx=10, pady=(10,20), sticky='ew')
     
-        self.button_close = customtkinter.CTkButton(
+        self.button_close = ctk.CTkButton(
             master=self,
             text='Close Application',
             command=self._button_close
         )
-        self.button_close.grid(row=0)
+        self.button_close.grid(row=1)
 
-        self.button_delpwd = customtkinter.CTkButton(
+        self.button_delpwd = ctk.CTkButton(
             master=self,
             text='Delete Password',
             command=self._button_delpwd
         )
-        self.button_delpwd.grid(row=1)
+        self.button_delpwd.grid(row=2)
 
     def _button_close(self) -> None:
         """Event on close button press

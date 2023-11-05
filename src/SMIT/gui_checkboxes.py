@@ -20,6 +20,11 @@ class CheckboxFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
 
+        self.title = ctk.CTkLabel(
+            self,
+            text='Options')
+        self.title.grid(row=0, padx=10, pady=(10,20), sticky='ew')
+
         self.save_credentials = ctk.StringVar(value='off')
         self.save_credentials_chkbx = ctk.CTkCheckBox(
             self,
@@ -29,7 +34,7 @@ class CheckboxFrame(ctk.CTkFrame):
             onvalue='on',
             offvalue='off'
         )
-        self.save_credentials_chkbx.grid(row=0)
+        self.save_credentials_chkbx.grid(row=1)
 
 
 
