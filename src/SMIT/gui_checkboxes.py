@@ -34,7 +34,7 @@ class CheckboxFrame(ctk.CTkFrame):
             onvalue=True,
             offvalue=False
         )
-        self.save_credentials_chkbx.grid(row=1)
+        self.save_credentials_chkbx.grid(row=1, padx=10)
 
 
 

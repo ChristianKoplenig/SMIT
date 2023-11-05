@@ -34,12 +34,12 @@ class CredentialsFrame(ctk.CTkFrame):
 
         # Read saved password
         if 'password' in master.user.Login:
-            # pwd_b64dec = base64.b64decode(master.user.Login['password'])
-            # self.password.set(
-            #     master.user.rsa.decrypt_pwd(pwd_b64dec)
-            # )
+            pwd_b64dec = base64.b64decode(master.user.Login['password'])
+            self.password.set(
+                master.user.rsa.decrypt_pwd(pwd_b64dec)
+            )
             ##### debugging
-            self.password.set(master.user.Login['password'])
+            #self.password.set(master.user.Login['password'])
 
         # Labels
         self.username_lbl = ctk.CTkLabel(
@@ -63,30 +63,30 @@ class CredentialsFrame(ctk.CTkFrame):
         self.password_lbl.grid(row=4, column=0, padx=20, pady=5)
 
         # Entries
-        self.username_conf = ctk.CTkEntry(
+        self.entry_username = ctk.CTkEntry(
             self,
             textvariable=self.username,
             width=250)
-        self.username_conf.grid(row=1, column=1, padx=(20, 20), pady=5)
+        self.entry_username.grid(row=1, column=1, padx=(20, 20), pady=5)
 
-        self.daymeter_conf = ctk.CTkEntry(
+        self.entry_daymeter = ctk.CTkEntry(
             self,
             textvariable=self.day_meter,
             width=70)
-        self.daymeter_conf.grid(row=2, column=1, padx=(20, 20), pady=5, sticky='w')
+        self.entry_daymeter.grid(row=2, column=1, padx=(20, 20), pady=5, sticky='w')
 
-        self.nightmeter_conf = ctk.CTkEntry(
+        self.entry_nightmeter = ctk.CTkEntry(
             self,
             textvariable=self.night_meter,
             width=70)
-        self.nightmeter_conf.grid(row=3, column=1, padx=(20, 20), pady=5, sticky='w')
+        self.entry_nightmeter.grid(row=3, column=1, padx=(20, 20), pady=5, sticky='w')
 
-        self.password_conf = ctk.CTkEntry(
+        self.entry_password = ctk.CTkEntry(
             self,
             textvariable=self.password,
             width=250,
             show='*')
-        self.password_conf.grid(row=4, column=1, padx=(20, 20), pady=5, sticky='w')
+        self.entry_password.grid(row=4, column=1, padx=(20, 20), pady=5, sticky='w')
 
     def update_pwd_entry(self,new_entry) -> None:
         """Update from outside credentials class
