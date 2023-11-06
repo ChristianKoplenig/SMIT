@@ -15,6 +15,7 @@ import pathlib as pl
 from SMIT.gui_credentials import CredentialsFrame
 from SMIT.gui_buttons import ButtonFrame
 from SMIT.gui_checkboxes import CheckboxFrame
+from SMIT.gui_plots import PlotFrame
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -58,6 +59,7 @@ class AppGui(ctk.CTk):
         self.title("SMIT")
         self.geometry("1440x900")
         self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
         #self.grid_rowconfigure(0, weight=1)
 
         # Frames
@@ -69,6 +71,9 @@ class AppGui(ctk.CTk):
         
         self.checkbox_frame = CheckboxFrame(self)
         self.checkbox_frame.grid(row=2, column=0, sticky='w')
+
+        self.plot_frame = PlotFrame(self)
+        self.plot_frame.grid(column=1, row=1)
 
 
 
