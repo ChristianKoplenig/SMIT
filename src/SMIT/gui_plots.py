@@ -39,7 +39,9 @@ class PlotFrame(ctk.CTkFrame):
 
         self.master = master
 
-        self._easy_plot()
+        # maybe put this into one frame to use navigation toolbar
+        ep = self._easy_plot().get_tk_widget()
+        ep.grid(row=0)
 
         #self._create_dataframes()
         # self._plot_all()
@@ -77,14 +79,14 @@ class PlotFrame(ctk.CTkFrame):
         popularity = data.values()
 
         # create a figure
-        figure = Figure(dpi=100)
-        #figure = Figure(figsize=(6, 4), dpi=100)
+        #figure = Figure(dpi=100)
+        figure = Figure(figsize=(9, 3), dpi=100)
 
         # create FigureCanvasTkAgg object
         figure_canvas = FigureCanvasTkAgg(figure, self)
 
         # create the toolbar
-        NavigationToolbar2Tk(figure_canvas, self)
+        #NavigationToolbar2Tk(figure_canvas, self)
 
         # create axes
         axes = figure.add_subplot()
@@ -94,7 +96,10 @@ class PlotFrame(ctk.CTkFrame):
         axes.set_title('Top 5 Programming Languages')
         axes.set_ylabel('Popularity')
 
-        figure_canvas.get_tk_widget().pack(fill='both', expand=True)
+        #self.figure_canvas.get_tk_widget()
+        #figure_canvas.grid(row=0, column=0)
+        #figure_canvas.get_tk_widget().pack(fill='both', expand=True)
+        return figure_canvas
 
     # def _plot_all(self):
     #     """Plot all data

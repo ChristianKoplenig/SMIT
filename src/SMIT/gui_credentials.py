@@ -26,7 +26,7 @@ class CredentialsFrame(ctk.CTkFrame):
             text='User Credentials')
         self.title.grid(row=0, padx=10, pady=(10,20), sticky='ew', columnspan=2)
 
-        # Initialize empty entries
+        # Initialize textvariables
         self.username = tk.StringVar(value=master.user.Login['username'])
         self.day_meter = tk.StringVar(value=master.user.Meter['day_meter'])
         self.night_meter = tk.StringVar(value=master.user.Meter['night_meter'])
