@@ -60,7 +60,7 @@ class AppGui(ctk.CTk):
         self.geometry("1440x900")
         self.grid_columnconfigure(0)
         self.grid_columnconfigure(1, weight=1)
-        #self.grid_rowconfigure(0, weight=1)
+        #self.grid_rowconfigure([0,1],weight=1)
 
         # Frames
         self.credentials_frame = CredentialsFrame(self)
@@ -73,7 +73,7 @@ class AppGui(ctk.CTk):
         self.checkbox_frame.grid(row=2, column=0, sticky='w')
 
         self.plot_frame = PlotFrame(self)
-        self.plot_frame.grid(column=1,row=0)
+        self.plot_frame.grid(column=1, sticky='n')
 
 
 

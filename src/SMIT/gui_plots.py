@@ -19,10 +19,10 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
                                                NavigationToolbar2Tk)
 
 # # Plot
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# import matplotlib.dates as md
-# import matplotlib.gridspec as gridspec
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.dates as md
+import matplotlib.gridspec as gridspec
 
 class PlotFrame(ctk.CTkFrame):
     """Frame for plots
@@ -39,11 +39,17 @@ class PlotFrame(ctk.CTkFrame):
 
         self.master = master
 
-        # maybe put this into one frame to use navigation toolbar
-        ep = self._easy_plot().get_tk_widget()
-        ep.grid(row=0)
+        self.df_day = self._create_dataframes('day_meter')
+        self.df_night = self._create_dataframes('night_meter')
 
-        #self._create_dataframes()
+        # maybe put this into one frame to use navigation toolbar
+        day = self._mod_plot(self.df_day, 'Day').get_tk_widget()
+        day.grid(row=0)
+
+        night = self._mod_plot(self.df_night, 'Night').get_tk_widget()
+        night.grid(row=1)
+        # ap = self._plot_all().get_tk_widget()
+        # ap.grid(row=0)
         # self._plot_all()
 
         # self.canvas = FigureCanvasTkAgg(self._plot_all(), master=self)
@@ -51,16 +57,18 @@ class PlotFrame(ctk.CTkFrame):
         # self.canvas.get_tk_widget().pack()
 
 
-    def _create_dataframes(self):
+    def _create_dataframes(self, meter):
         """Generate data frames for plots
+        args: meter --> 'day_meter';'night_meter'
         """
-        self.df_day = self.master.user.os_tools.create_dataframe(
+        dataframe = self.master.user.os_tools.create_dataframe(
             self.master.user.Folder['work_daysum'], 
-            self.master.user.Meter['day_meter'])
+            self.master.user.Meter[meter])
+        return dataframe
         
-        self.df_night = self.master.user.os_tools.create_dataframe(
-            self.master.user.Folder['work_daysum'], 
-            self.master.user.Meter['night_meter'])
+        # self.df_night = self.master.user.os_tools.create_dataframe(
+        #     self.master.user.Folder['work_daysum'], 
+        #     self.master.user.Meter['night_meter'])
         
     def _easy_plot(self):
         """testplot
@@ -100,36 +108,70 @@ class PlotFrame(ctk.CTkFrame):
         #figure_canvas.grid(row=0, column=0)
         #figure_canvas.get_tk_widget().pack(fill='both', expand=True)
         return figure_canvas
+    
+    def _mod_plot(self,df,title):
+        """testplot
+        """
+        #self.plot_title('Tkinter Matplotlib Demo')
 
-    # def _plot_all(self):
-    #     """Plot all data
-    #     """
-    #     fig = plt.figure(figsize =([30, 15]))
+        # prepare data
 
-    #     # Gridspec Setup
-    #     gs = gridspec.GridSpec(2, 2)
-    #     ax = plt.subplot(gs[0, 0])
-    #     gs.update(wspace = 0.1, hspace = 0.3)
 
-    #     ### AX1 ###
-    #     ax1 = plt.subplot(gs[0, :2])
-    #     sns.barplot(data=self.df_day,
-    #                 x='date',
-    #                 y='verbrauch')
-    #     ax1.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
-    #     ax1.xaxis.set_major_locator(md.MonthLocator())
-    #     ax1.xaxis.set_major_formatter(md.DateFormatter('%b'))
-    #     ax1.set_title('Tagesverbrauch')
+        # create a figure
+        #figure = Figure(dpi=100)
+        figure = Figure(figsize=(9, 3), dpi=100)
 
-    #     ### AX2 ###
-    #     ax2 = plt.subplot(gs[1, :2])
-    #     sns.barplot(data=self.df_night,
-    #                 x='date',
-    #                 y='verbrauch')
-    #     ax2.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
-    #     ax2.xaxis.set_major_locator(md.MonthLocator())
-    #     ax2.xaxis.set_major_formatter(md.DateFormatter('%b'))
-    #     ax2.set_title('Nachtstrom')
+        # create FigureCanvasTkAgg object
+        figure_canvas = FigureCanvasTkAgg(figure, self)
+
+        # create the toolbar
+        #NavigationToolbar2Tk(figure_canvas, self)
+
+        # create axes
+        axes = figure.add_subplot()
+
+        # create the barchart
+        axes.bar(df['date'], df['verbrauch'])
+        axes.set_title(title)
+        axes.set_ylabel('Wh')
+
+        #self.figure_canvas.get_tk_widget()
+        #figure_canvas.grid(row=0, column=0)
+        #figure_canvas.get_tk_widget().pack(fill='both', expand=True)
+        return figure_canvas
+
+    def _plot_all(self):
+        """Plot all data
+        """
+        fig = Figure(figsize =(9,3), dpi=100)
+        fig_canvas = FigureCanvasTkAgg(fig, self)
+
+        # Gridspec Setup
+        gs = gridspec.GridSpec(2, 2)
+        ax = fig.add_subplot(gs[0, 0])
+        gs.update(wspace = 0.1, hspace = 0.3)
+
+        ### AX1 ###
+        ax1 = plt.subplot(gs[0, :2])
+        sns.barplot(data=self.df_day,
+                    x='date',
+                    y='verbrauch')
+        ax1.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
+        ax1.xaxis.set_major_locator(md.MonthLocator())
+        ax1.xaxis.set_major_formatter(md.DateFormatter('%b'))
+        ax1.set_title('Tagesverbrauch')
+
+        ### AX2 ###
+        ax2 = plt.subplot(gs[1, :2])
+        sns.barplot(data=self.df_night,
+                    x='date',
+                    y='verbrauch')
+        ax2.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
+        ax2.xaxis.set_major_locator(md.MonthLocator())
+        ax2.xaxis.set_major_formatter(md.DateFormatter('%b'))
+        ax2.set_title('Nachtstrom')
+
+        return fig_canvas
 
     #     return fig
     
