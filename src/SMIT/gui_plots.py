@@ -11,7 +11,6 @@ Typical usage:
 """
 import customtkinter as ctk
 import matplotlib
-from matplotlib import figure
 
 matplotlib.use('TkAgg')
 
@@ -21,9 +20,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 
 # # Plot
 import seaborn as sns
-import matplotlib.pyplot as plt
 import matplotlib.dates as md
-import matplotlib.gridspec as gridspec
 
 class PlotFrame(ctk.CTkFrame):
     """Frame for plots
@@ -81,7 +78,7 @@ class PlotFrame(ctk.CTkFrame):
         axes.set_ylabel('Wh')
         return figure_canvas
 
-    def _seaborn_bar_plot(self, df, title):
+    def _seaborn_bar_plot(self, df, title) -> FigureCanvasTkAgg:
         """Plot data with seaborn module
         """
         figure = Figure(figsize =(9,3), dpi=100)
