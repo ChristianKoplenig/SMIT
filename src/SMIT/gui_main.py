@@ -41,7 +41,7 @@ class AppGui(ctk.CTk):
         super().__init__()
 
         ctk.set_default_color_theme("dark-blue")
-        ctk.set_appearance_mode("dark")
+        ctk.set_appearance_mode("light")
 
         self.user = app
         self.user_data_path = pl.Path(self.user.Path['user_data'])
@@ -58,22 +58,22 @@ class AppGui(ctk.CTk):
         # Main window
         self.title("SMIT")
         self.geometry("1440x900")
-        self.grid_columnconfigure(0)
-        self.grid_columnconfigure(1, weight=1)
+        #self.grid_columnconfigure(0)
+        self.grid_columnconfigure((0, 1), weight=1)
         #self.grid_rowconfigure([0,1],weight=1)
 
         # Frames
         self.credentials_frame = CredentialsFrame(self)
-        self.credentials_frame.grid(row=0, column=0, sticky='w')
+        self.credentials_frame.grid(row=0, column=0, sticky='ew')
 
         self.button_frame = ButtonFrame(self)
-        self.button_frame.grid(row=1,column=0, sticky='w')
+        self.button_frame.grid(row=1,column=0, sticky='ew')
         
         self.checkbox_frame = CheckboxFrame(self)
-        self.checkbox_frame.grid(row=2, column=0, sticky='w')
+        self.checkbox_frame.grid(row=2, column=0, sticky='ew')
 
         self.plot_frame = PlotFrame(self)
-        self.plot_frame.grid(column=1, sticky='n')
+        self.plot_frame.grid(row=0, column=1, rowspan=3, sticky='ew')
 
 
 

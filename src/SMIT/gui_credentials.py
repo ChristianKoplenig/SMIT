@@ -24,7 +24,7 @@ class CredentialsFrame(ctk.CTkFrame):
         self.title = ctk.CTkLabel(
             self,
             text='User Credentials')
-        self.title.grid(row=0, padx=10, pady=(10,20), sticky='ew', columnspan=2)
+        self.title.grid(row=0, padx=10, pady=(0,20), sticky='ew', columnspan=2)
 
         # Initialize textvariables
         self.username = tk.StringVar(value=master.user.Login['username'])
