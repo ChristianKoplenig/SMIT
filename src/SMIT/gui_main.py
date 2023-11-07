@@ -46,8 +46,6 @@ class AppGui(ctk.CTk):
         self.user = app
         self.user_data_path = pl.Path(self.user.Path['user_data'])
 
-        self.close_callback = False
-
         # Logger setup
         self.logger = app.logger
         msg  = f'Class {self.__class__.__name__} of the '
@@ -58,9 +56,7 @@ class AppGui(ctk.CTk):
         # Main window
         self.title("SMIT")
         self.geometry("1440x900")
-        #self.grid_columnconfigure(0)
         self.grid_columnconfigure((0, 1), weight=1)
-        #self.grid_rowconfigure([0,1],weight=1)
 
         # Frames
         self.credentials_frame = CredentialsFrame(self)

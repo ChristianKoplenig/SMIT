@@ -11,6 +11,7 @@ Typical usage:
 """
 import customtkinter as ctk
 import matplotlib
+from matplotlib import figure
 
 matplotlib.use('TkAgg')
 
@@ -43,19 +44,11 @@ class PlotFrame(ctk.CTkFrame):
         self.df_night = self._create_dataframes('night_meter')
 
         # maybe put this into one frame to use navigation toolbar
-        day = self._mod_plot(self.df_day, 'Day').get_tk_widget()
-        day.grid(row=0)
+        day = self._seaborn_bar_plot(self.df_day, 'Day').get_tk_widget()
+        day.grid(row=0, pady=20)
 
-        night = self._mod_plot(self.df_night, 'Night').get_tk_widget()
+        night = self._seaborn_bar_plot(self.df_night, 'Night').get_tk_widget()
         night.grid(row=1)
-        # ap = self._plot_all().get_tk_widget()
-        # ap.grid(row=0)
-        # self._plot_all()
-
-        # self.canvas = FigureCanvasTkAgg(self._plot_all(), master=self)
-        # self.canvas.draw()
-        # self.canvas.get_tk_widget().pack()
-
 
     def _create_dataframes(self, meter):
         """Generate data frames for plots
@@ -65,60 +58,12 @@ class PlotFrame(ctk.CTkFrame):
             self.master.user.Folder['work_daysum'], 
             self.master.user.Meter[meter])
         return dataframe
-        
-        # self.df_night = self.master.user.os_tools.create_dataframe(
-        #     self.master.user.Folder['work_daysum'], 
-        #     self.master.user.Meter['night_meter'])
-        
-    def _easy_plot(self):
-        """testplot
+           
+    def _mpl_bar_plot(self,df,title) -> FigureCanvasTkAgg:
+        """Draw a matplotlib bar chart
         """
-        #self.plot_title('Tkinter Matplotlib Demo')
-
-        # prepare data
-        data = {
-            'Python': 11.27,
-            'C': 11.16,
-            'Java': 10.46,
-            'C++': 7.5,
-            'C#': 5.26
-        }
-        languages = data.keys()
-        popularity = data.values()
 
         # create a figure
-        #figure = Figure(dpi=100)
-        figure = Figure(figsize=(9, 3), dpi=100)
-
-        # create FigureCanvasTkAgg object
-        figure_canvas = FigureCanvasTkAgg(figure, self)
-
-        # create the toolbar
-        #NavigationToolbar2Tk(figure_canvas, self)
-
-        # create axes
-        axes = figure.add_subplot()
-
-        # create the barchart
-        axes.bar(languages, popularity)
-        axes.set_title('Top 5 Programming Languages')
-        axes.set_ylabel('Popularity')
-
-        #self.figure_canvas.get_tk_widget()
-        #figure_canvas.grid(row=0, column=0)
-        #figure_canvas.get_tk_widget().pack(fill='both', expand=True)
-        return figure_canvas
-    
-    def _mod_plot(self,df,title):
-        """testplot
-        """
-        #self.plot_title('Tkinter Matplotlib Demo')
-
-        # prepare data
-
-
-        # create a figure
-        #figure = Figure(dpi=100)
         figure = Figure(figsize=(9, 3), dpi=100)
 
         # create FigureCanvasTkAgg object
@@ -134,53 +79,24 @@ class PlotFrame(ctk.CTkFrame):
         axes.bar(df['date'], df['verbrauch'])
         axes.set_title(title)
         axes.set_ylabel('Wh')
-
-        #self.figure_canvas.get_tk_widget()
-        #figure_canvas.grid(row=0, column=0)
-        #figure_canvas.get_tk_widget().pack(fill='both', expand=True)
         return figure_canvas
 
-    def _plot_all(self):
-        """Plot all data
+    def _seaborn_bar_plot(self, df, title):
+        """Plot data with seaborn module
         """
-        fig = Figure(figsize =(9,3), dpi=100)
-        fig_canvas = FigureCanvasTkAgg(fig, self)
+        figure = Figure(figsize =(9,3), dpi=100)
+        figure_canvas = FigureCanvasTkAgg(figure, self)
 
-        # Gridspec Setup
-        gs = gridspec.GridSpec(2, 2)
-        ax = fig.add_subplot(gs[0, 0])
-        gs.update(wspace = 0.1, hspace = 0.3)
+        axes = figure.add_subplot()
 
-        ### AX1 ###
-        ax1 = plt.subplot(gs[0, :2])
-        sns.barplot(data=self.df_day,
+        sns.barplot(data=df,
                     x='date',
-                    y='verbrauch')
-        ax1.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
-        ax1.xaxis.set_major_locator(md.MonthLocator())
-        ax1.xaxis.set_major_formatter(md.DateFormatter('%b'))
-        ax1.set_title('Tagesverbrauch')
-
-        ### AX2 ###
-        ax2 = plt.subplot(gs[1, :2])
-        sns.barplot(data=self.df_night,
-                    x='date',
-                    y='verbrauch')
-        ax2.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
-        ax2.xaxis.set_major_locator(md.MonthLocator())
-        ax2.xaxis.set_major_formatter(md.DateFormatter('%b'))
-        ax2.set_title('Nachtstrom')
-
-        return fig_canvas
-
-    #     return fig
-    
-    #     # tk addidtions
-    #     # canvas = FigureCanvasTkAgg(fig, master=self)
-    #     # #canvas.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
-    #     # canvas.get_tk_widget().grid(row=0)
-    #     # canvas.draw()
-
-
-    #     # ### Draw Plot ###
-    #     # plt.show()
+                    y='verbrauch',
+                    ax=axes)
+        
+        axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
+        axes.xaxis.set_major_locator(md.MonthLocator())
+        axes.xaxis.set_major_formatter(md.DateFormatter('%b'))
+        axes.set_title(title)
+        axes.set_xlabel('')
+        return figure_canvas

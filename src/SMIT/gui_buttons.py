@@ -55,6 +55,18 @@ class ButtonFrame(ctk.CTkFrame):
         )
         self.button_savecred.grid(row=3, padx=10, pady=20)
 
+        self.button_scrapemove = ctk.CTkButton(
+            master=self,
+            text='Update data',
+            command=self._button_srapemove
+        )
+        self.button_scrapemove.grid(row=1, column=1, padx=10, pady=20)
+
+    def _button_srapemove(self) -> None:
+        """trigger scrape move routine
+        """
+        self.master.user.os_tools.sng_scrape_and_move()
+
     def _button_close(self) -> None:
         """Event on close button press
         """
@@ -89,9 +101,6 @@ class ButtonFrame(ctk.CTkFrame):
         """
         ################### debug
         print('btn save cred pressed')
-
-
-
 
         #Encrypt credentials with rsa keys
         pwd_enc = self.master.user.rsa.encrypt_pwd(
