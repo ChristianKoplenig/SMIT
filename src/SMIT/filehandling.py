@@ -174,9 +174,26 @@ class OsInterface():
             self._move_files_to_workdir(self.user.Meter['day_meter'])
             self._move_files_to_workdir(self.user.Meter['night_meter'])
 
+    def slice_dataframe(self, st_date: str, end_date: str, workdir: pl.Path, metertype: str) -> pd.DataFrame:
+        """Slice pandas dataframe using date culomn
+
+        Use `.csv` files as input for `create_dataframes()` call.
+
+        Args:
+            st_date (str): Start date, Format: YYYY-MM-DD
+            end_date (str): End date, Format: YYYY-MM-DD
+            workdir (pathlib.Path): Path to directory for file import.
+            metertype (string): Day/Night meter device number.
+
+        Returns:
+            pd.DataFrame: Columns [`date`, `zaehlerstand`, `verbrauch`] for each meter.
+        """
+        raw_df = self.create_dataframe(workdir, metertype)
+        sliced_df = raw_df[(raw_df['date'] >= st_date) & (raw_df['date'] <= end_date) ]
+        return sliced_df
+
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
-
 
 class TomlTools():
     """Manipulate config files.
