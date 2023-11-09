@@ -190,6 +190,10 @@ class OsInterface():
         """
         raw_df = self.create_dataframe(workdir, metertype)
         sliced_df = raw_df[(raw_df['date'] >= st_date) & (raw_df['date'] <= end_date) ]
+
+        sliced_df.sort_values(by='date', inplace=True)
+        sliced_df.reset_index(drop=True, inplace=True)
+        sliced_df.drop_duplicates(subset='date', keep='first', inplace=True)
         return sliced_df
 
     def __repr__(self) -> str:

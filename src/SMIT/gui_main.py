@@ -35,8 +35,7 @@ class AppGui(ctk.CTk):
     Args:
         ctk (_type_): _description_
     """
-
-
+    
     def __init__(self, app: 'Application') -> None:
         super().__init__()
 
@@ -71,34 +70,12 @@ class AppGui(ctk.CTk):
         self.plot_frame = PlotFrame(self)
         self.plot_frame.grid(row=0, column=1, rowspan=3, sticky='ew')
 
-
-
-
-
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
     
-
 user = Application()
 ctk = AppGui(user)
 ctk.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # Pdoc config get underscore methods
 __pdoc__ = {name: True
