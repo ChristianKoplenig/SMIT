@@ -114,9 +114,12 @@ class ButtonFrame(ctk.CTkFrame):
             #############debug
             print('checkbox check succed')
 
+            self.master.checkbox_frame.save_credentials_chkbx.deselect()
+
 
             # Append credentials to user_data.toml
-            if pwd_str == self.master.credentials_frame.entry_password.get():
+            if self.master.credentials_frame.entry_password.get() == self.master.user.rsa.decrypt_pwd(
+                base64.b64decode(self.master.user.Login['password'])):
                 print('password not changed')
             else:
                 self.master.user.toml_tools.add_entry_to_config(
@@ -159,7 +162,7 @@ class ButtonFrame(ctk.CTkFrame):
             self.master.user.Login['password'] = pwd_str
             self.master.user.Meter['day_meter'] = self.master.credentials_frame.entry_daymeter.get()
             self.master.user.Meter['night_meter'] = self.master.credentials_frame.entry_nightmeter.get()
-            self.master.logger.debug('Credentials permanently added to user data')
+            self.master.logger.debug('Save credentials routine triggered')
 
         else:
             # Temporary store credentials in user instance
