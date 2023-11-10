@@ -39,7 +39,7 @@ class PlotFrame(ctk.CTkFrame):
         self.master = master
 
         # Create dataframes
-        self.slice_start = str((dt.datetime.today() - dt.timedelta(days=7)))[:10]
+        self.slice_start = str((dt.datetime.today() - dt.timedelta(days=8)))[:10]
         self.slice_end = str((dt.datetime.today() - dt.timedelta(days=1)))[:10]
         self.df_day = self._create_dataframes('day_meter')
         self.df_night = self._create_dataframes('night_meter')
@@ -54,11 +54,6 @@ class PlotFrame(ctk.CTkFrame):
 
         day_slice = self._seaborn_slice_plot(self.df_slice, 'Last Week').get_tk_widget()
         day_slice.grid(row=2)
-
-        print('-------------------')
-        print(self.df_slice.info())
-        print('-------------------')
-        print(self.df_slice.head(3))
 
     def _create_dataframes(self, meter) -> pd.DataFrame:
         """Generate data frames for plots
@@ -121,6 +116,7 @@ class PlotFrame(ctk.CTkFrame):
         sns.barplot(data=df,
                     x='date',
                     y='verbrauch',
+                    color='#3a7ebf',
                     ax=axes)
         
         axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
@@ -145,6 +141,7 @@ class PlotFrame(ctk.CTkFrame):
         sns.barplot(data=df,
                     x='date',
                     y='verbrauch',
+                    color='#3a7ebf',
                     ax=axes)
         
         axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
@@ -158,4 +155,4 @@ class PlotFrame(ctk.CTkFrame):
         axes.set_title(title)
         axes.set_xlabel('')
 
-        return figure_canvas    
+        return figure_canvas

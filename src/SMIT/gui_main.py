@@ -70,6 +70,17 @@ class AppGui(ctk.CTk):
         self.plot_frame = PlotFrame(self)
         self.plot_frame.grid(row=0, column=1, rowspan=3, sticky='ew')
 
+    def reload_plots(self) -> None:
+        """Desroy and re-init the plot frame
+        """
+        #Debug
+        print('---------------------')
+        print('update button pressed')
+        self.plot_frame.destroy()
+        self.plot_frame = PlotFrame(self)
+        self.plot_frame.grid(row=0, column=1, rowspan=3, sticky='ew')
+        ctk.update()
+
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
     

@@ -24,9 +24,6 @@ class ButtonFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
 
-        #Button list
-        # - confirm
-
         self.master = master
 
         self.title = ctk.CTkLabel(
@@ -58,14 +55,15 @@ class ButtonFrame(ctk.CTkFrame):
         self.button_scrapemove = ctk.CTkButton(
             master=self,
             text='Update data',
-            command=self._button_srapemove
+            command=self._button_update_data
         )
         self.button_scrapemove.grid(row=1, column=1, padx=10, pady=20)
 
-    def _button_srapemove(self) -> None:
+    def _button_update_data(self) -> None:
         """trigger scrape move routine
         """
         self.master.user.os_tools.sng_scrape_and_move()
+        self.master.reload_plots()
 
     def _button_close(self) -> None:
         """Event on close button press
