@@ -141,9 +141,30 @@ class OsInterface():
         df_return.sort_values(by='date', inplace=True)
         df_return.reset_index(drop=True, inplace=True)
         df_return.drop_duplicates(subset='date', keep='first', inplace=True)
+        df_return['rol_median'] = df_return['verbrauch'].rolling(21).median()
+        
         self.logger.debug(f'Created pandas dataframe for meter: {metertype}')
         return df_return
 
+    def slice_dataframe(self, st_date: str, end_date: str, workdir: pl.Path, metertype: str) -> pd.DataFrame:
+        """Slice pandas dataframe using date culomn
+
+        Use `.csv` files as input for `create_dataframes()` call.
+
+        Args:
+            st_date (str): Start date, Format: YYYY-MM-DD
+            end_date (str): End date, Format: YYYY-MM-DD
+            workdir (pathlib.Path): Path to directory for file import.
+            metertype (string): Day/Night meter device number.
+
+        Returns:
+            pd.DataFrame: Columns [`date`, `zaehlerstand`, `verbrauch`] for each meter.
+        """
+        raw_df = self.create_dataframe(workdir, metertype)
+        sliced_df = raw_df[(raw_df['date'] >= st_date) & (raw_df['date'] <= end_date) ]
+        sliced_df.reset_index(drop=True, inplace=True)
+        return sliced_df
+    
     def sng_scrape_and_move(self) -> None:
         """Download and move `.csv` files.
 
@@ -173,28 +194,6 @@ class OsInterface():
             # Move files for dummy user
             self._move_files_to_workdir(self.user.Meter['day_meter'])
             self._move_files_to_workdir(self.user.Meter['night_meter'])
-
-    def slice_dataframe(self, st_date: str, end_date: str, workdir: pl.Path, metertype: str) -> pd.DataFrame:
-        """Slice pandas dataframe using date culomn
-
-        Use `.csv` files as input for `create_dataframes()` call.
-
-        Args:
-            st_date (str): Start date, Format: YYYY-MM-DD
-            end_date (str): End date, Format: YYYY-MM-DD
-            workdir (pathlib.Path): Path to directory for file import.
-            metertype (string): Day/Night meter device number.
-
-        Returns:
-            pd.DataFrame: Columns [`date`, `zaehlerstand`, `verbrauch`] for each meter.
-        """
-        raw_df = self.create_dataframe(workdir, metertype)
-        sliced_df = raw_df[(raw_df['date'] >= st_date) & (raw_df['date'] <= end_date) ]
-#
-        # sliced_df.sort_values(by='date', inplace=True)
-        sliced_df.reset_index(drop=True, inplace=True)
-        # sliced_df.drop_duplicates(subset='date', keep='first', inplace=True)
-        return sliced_df
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
