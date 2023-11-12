@@ -141,7 +141,8 @@ class OsInterface():
         df_return.sort_values(by='date', inplace=True)
         df_return.reset_index(drop=True, inplace=True)
         df_return.drop_duplicates(subset='date', keep='first', inplace=True)
-        df_return['rol_median'] = df_return['verbrauch'].rolling(21).median()
+        df_return['rol_med_30'] = df_return['verbrauch'].rolling(30).median().round(decimals=2)
+        df_return['rol_med_7'] = df_return['verbrauch'].rolling(7).median().round(decimals=2)
         
         self.logger.debug(f'Created pandas dataframe for meter: {metertype}')
         return df_return

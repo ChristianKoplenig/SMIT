@@ -28,7 +28,7 @@ class PlotFrame(ctk.CTkFrame):
 
     - year overview
     - month overview
-    - week with folling mean
+    - week with rolling mean
 
     Args:
         ctk (_type_): _description_
@@ -43,7 +43,7 @@ class PlotFrame(ctk.CTkFrame):
         self.slice_end = str((dt.datetime.today() - dt.timedelta(days=1)))[:10]
         self.df_day = self._create_dataframes('day_meter')
         self.df_night = self._create_dataframes('night_meter')
-        self.df_slice = self._slice_dataframe(self.slice_start, self.slice_end, 'day_meter')
+        self.df_slice = self._slice_dataframe(self.slice_start, self.slice_end)
 
         # maybe put this into one frame to use navigation toolbar
         day = self._seaborn_bar_plot(self.df_day, 'Day').get_tk_widget()
@@ -64,16 +64,27 @@ class PlotFrame(ctk.CTkFrame):
             self.master.user.Meter[meter])
         return dataframe
     
-    def _slice_dataframe(self, st_date: str, end_date: str, metertype: str) -> pd.DataFrame:
+    def _slice_dataframe(self, st_date: str, end_date: str) -> pd.DataFrame:
         """Create sliced dataframe for plots
 
         """
-        dataframe = self.master.user.os_tools.slice_dataframe(
+        df_day = self.master.user.os_tools.slice_dataframe(
             st_date,
             end_date,
             self.master.user.Folder['work_daysum'], 
-            self.master.user.Meter[metertype]
+            self.master.user.Meter['day_meter']
         )
+        df_night = self.master.user.os_tools.slice_dataframe(
+            st_date,
+            end_date,
+            self.master.user.Folder['work_daysum'], 
+            self.master.user.Meter['night_meter']
+        )
+        dfd = pd.DataFrame(df_day['verbrauch'])
+        dfn = pd.DataFrame(df_night['verbrauch'])
+        dfsum = dfd.add(dfn, fill_value=0)
+        dataframe = pd.DataFrame(df_day['date'])
+        dataframe['verbrauch'] = dfsum['verbrauch']
         return dataframe
 
 
@@ -131,28 +142,24 @@ class PlotFrame(ctk.CTkFrame):
         """Plot data with seaborn module
         """
         figure = Figure(figsize =(9,3), dpi=100)
-
-
         figure_canvas = FigureCanvasTkAgg(figure, self)
-
-
+        
         axes = figure.add_subplot()
-
         sns.barplot(data=df,
                     x='date',
                     y='verbrauch',
                     color='#3a7ebf',
                     ax=axes)
-        
-        axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
 
-        # Define date element
+        # Format x-labels
         x_dates = df['date'].dt.date
-        # Define formatting for x labels
         x_date = x_dates.apply(lambda x: x.strftime('%a'))
-
         axes.set_xticklabels(labels=x_date)
+
         axes.set_title(title)
         axes.set_xlabel('')
+        axes.spines[['top', 'right', 'left']].set_visible(False)
+        axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
+        axes.bar_label(axes.containers[0])  # show values with bars
 
         return figure_canvas

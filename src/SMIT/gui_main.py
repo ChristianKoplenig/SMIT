@@ -16,6 +16,7 @@ from SMIT.gui_credentials import CredentialsFrame
 from SMIT.gui_buttons import ButtonFrame
 from SMIT.gui_checkboxes import CheckboxFrame
 from SMIT.gui_plots import PlotFrame
+from SMIT.gui_stats import StatsFrame
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -68,7 +69,11 @@ class AppGui(ctk.CTk):
         self.checkbox_frame.grid(row=2, column=0, sticky='ew')
 
         self.plot_frame = PlotFrame(self)
-        self.plot_frame.grid(row=0, column=1, rowspan=3, sticky='ew')
+        self.plot_frame.grid(row=0, column=1, rowspan=4, sticky='ew')
+        
+        self.stats_frame = StatsFrame(self)
+        self.stats_frame.grid(row=3, column=0, sticky='ew')
+
 
     def reload_plots(self) -> None:
         """Desroy and re-init the plot frame
