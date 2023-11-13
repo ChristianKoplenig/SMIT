@@ -45,7 +45,7 @@ class PlotFrame(ctk.CTkFrame):
         self.df_night = self._create_dataframes('night_meter')
         self.df_slice = self._slice_dataframe(self.slice_start, self.slice_end)
 
-        # maybe put this into one frame to use navigation toolbar
+        # Create plots
         day = self._seaborn_bar_plot(self.df_day, 'Day').get_tk_widget()
         day.grid(row=0)
 

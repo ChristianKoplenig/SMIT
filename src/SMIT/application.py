@@ -213,7 +213,7 @@ class Application:
 
         # Set paths for copying dummy files
         source_dummy_csv = pl.Path('./opt/dummy_user/').absolute()
-        dest_dummy_csv = pl.Path('./.dummy/csv_raw/daily').absolute()
+        dest_dummy_csv = pl.Path('./.dummy/csv_workdir/daily').absolute()
         dest_dummy_settings = pl.Path('./.dummy/config').absolute()
 
         # Create folders which are needed before user init 
