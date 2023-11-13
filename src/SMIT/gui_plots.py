@@ -38,9 +38,14 @@ class PlotFrame(ctk.CTkFrame):
 
         self.master = master
 
+        if self.master.user.dummy is True:
+            self.slice_start = '2023-03-24'
+            self.slice_end = '2023-03-31'
+        else:          
+            self.slice_start = str((dt.datetime.today() - dt.timedelta(days=8)))[:10]
+            self.slice_end = str((dt.datetime.today() - dt.timedelta(days=1)))[:10]
+        
         # Create dataframes
-        self.slice_start = str((dt.datetime.today() - dt.timedelta(days=8)))[:10]
-        self.slice_end = str((dt.datetime.today() - dt.timedelta(days=1)))[:10]
         self.df_day = self._create_dataframes('day_meter')
         self.df_night = self._create_dataframes('night_meter')
         self.df_slice = self._slice_dataframe(self.slice_start, self.slice_end)
@@ -52,7 +57,7 @@ class PlotFrame(ctk.CTkFrame):
         night = self._seaborn_bar_plot(self.df_night, 'Night').get_tk_widget()
         night.grid(row=1)
 
-        day_slice = self._seaborn_slice_plot(self.df_slice, 'Last Week').get_tk_widget()
+        day_slice = self._mpl_slice_plot(self.df_slice, 'Last Week').get_tk_widget()
         day_slice.grid(row=2)
 
     def _create_dataframes(self, meter) -> pd.DataFrame:
@@ -107,12 +112,14 @@ class PlotFrame(ctk.CTkFrame):
 
         # create the barchart
         axes.bar(df['date'], df['verbrauch'])
-        axes.set_title(title)
-        axes.set_ylabel('Wh')
 
-        # Format xlabel
-        myFmt = md.DateFormatter('%Y')
-        axes.xaxis.set_major_formatter(myFmt)
+        # Format labels
+        axes.xaxis.set_major_locator(md.MonthLocator())
+        axes.xaxis.set_major_formatter(md.DateFormatter('%b'))
+        axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
+
+        axes.set_title(title)
+        #axes.set_xlabel('')
 
         return figure_canvas
 
@@ -138,27 +145,21 @@ class PlotFrame(ctk.CTkFrame):
         axes.set_xlabel('')
         return figure_canvas
     
-    def _seaborn_slice_plot(self, df, title) -> FigureCanvasTkAgg:
+    def _mpl_slice_plot(self, df, title) -> FigureCanvasTkAgg:
         """Plot data with seaborn module
         """
         figure = Figure(figsize =(9,3), dpi=100)
         figure_canvas = FigureCanvasTkAgg(figure, self)
         
         axes = figure.add_subplot()
-        sns.barplot(data=df,
-                    x='date',
-                    y='verbrauch',
-                    color='#3a7ebf',
-                    ax=axes)
+        axes.bar(df['date'], df['verbrauch'])
 
-        # Format x-labels
-        x_dates = df['date'].dt.date
-        x_date = x_dates.apply(lambda x: x.strftime('%a'))
-        axes.set_xticklabels(labels=x_date)
+        myFmt = md.DateFormatter('%a')
+        axes.xaxis.set_major_formatter(myFmt)
 
         axes.set_title(title)
         axes.set_xlabel('')
-        axes.spines[['top', 'right', 'left']].set_visible(False)
+        axes.spines[['top', 'bottom', 'right', 'left']].set_visible(False)
         axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
         axes.bar_label(axes.containers[0])  # show values with bars
 
