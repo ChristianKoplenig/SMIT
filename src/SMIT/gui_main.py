@@ -80,18 +80,26 @@ class AppGui(ctk.CTk):
         """
         #Debug
         print('---------------------')
-        print('update button pressed')
+        print('update button pressed') 
         self.plot_frame.destroy()
         self.plot_frame = PlotFrame(self)
-        self.plot_frame.grid(row=0, column=1, rowspan=3, sticky='ew')
-        ctk.update()
+        self.plot_frame.grid(row=0, column=1, rowspan=4, sticky='ew')
+        gui.update()
+
+    def initiate_dummy(self) -> None:
+        """Start dummy gui
+        """
+        self.destroy()
+        user = Application(True)
+        ctk = AppGui(user)
+        ctk.mainloop()
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
     
 user = Application()
-ctk = AppGui(user)
-ctk.mainloop()
+gui = AppGui(user)
+gui.mainloop()
 
 # Pdoc config get underscore methods
 __pdoc__ = {name: True

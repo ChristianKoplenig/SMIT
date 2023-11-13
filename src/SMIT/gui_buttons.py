@@ -59,6 +59,13 @@ class ButtonFrame(ctk.CTkFrame):
         )
         self.button_scrapemove.grid(row=1, column=1, padx=10, pady=20)
 
+        self.button_dummy = ctk.CTkButton(
+            master=self,
+            text='Dummy',
+            command=self._button_dummy
+        )
+        self.button_dummy.grid(row=2, column=1, padx=10, pady=20)
+
     def _button_update_data(self) -> None:
         """trigger scrape move routine
         """
@@ -70,6 +77,11 @@ class ButtonFrame(ctk.CTkFrame):
         """
         print('All tk windows closed on button press')
         self.quit()
+
+    def _button_dummy(self) -> None:
+        """Load dummy user
+        """
+        self.master.initiate_dummy()
 
     def _button_delpwd(self) -> None:
         """Delete password entry from user configuration.
