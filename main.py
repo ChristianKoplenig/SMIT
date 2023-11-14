@@ -13,11 +13,11 @@ class SMIT:
 
         if self.user.dummy is True:
             print('dummy true main detected')
-            self.rw_reload()
+            self.dummy_reload()
 
 
 
-    def rw_reload(self) -> None:
+    def dummy_reload(self) -> None:
         """Reload the root window with dummy settings.
         """
         self.user = Application(True)
