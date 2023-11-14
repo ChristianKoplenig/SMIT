@@ -130,7 +130,13 @@ class ButtonFrame(ctk.CTkFrame):
 
 
             # Append credentials to user_data.toml
-            if self.master.credentials_frame.entry_password.get() == self.master.user.rsa.decrypt_pwd(
+            if not 'password' in self.master.user.Login:
+                self.master.user.toml_tools.add_entry_to_config(
+                    self.master.user_data_path,
+                    'Login',
+                    'password',
+                    pwd_str)
+            elif self.master.credentials_frame.entry_password.get() == self.master.user.rsa.decrypt_pwd(
                 base64.b64decode(self.master.user.Login['password'])):
                 print('password not changed')
             else:
