@@ -46,6 +46,9 @@ class AppGui(ctk.CTk):
         self.user = app
         self.user_data_path = pl.Path(self.user.Path['user_data'])
 
+        if self.user.dummy is True:
+            ctk.set_appearance_mode('dark')
+
         # Logger setup
         self.logger = app.logger
         msg  = f'Class {self.__class__.__name__} of the '
@@ -84,23 +87,17 @@ class AppGui(ctk.CTk):
         self.plot_frame.destroy()
         self.plot_frame = PlotFrame(self)
         self.plot_frame.grid(row=0, column=1, rowspan=4, sticky='ew')
-        gui.update()
+        #self.master.root.update()
 
     def initiate_dummy(self) -> None:
-        """Start dummy gui
+        """Set dummy flag and close root window.
         """
+        self.user.dummy = True
         self.destroy()
-        user = Application(True)
-        ctk = AppGui(user)
-        ctk.mainloop()
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
     
-user = Application()
-gui = AppGui(user)
-gui.mainloop()
-
 # Pdoc config get underscore methods
 __pdoc__ = {name: True
             for name, classes in globals().items()
