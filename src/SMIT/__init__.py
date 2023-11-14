@@ -1,18 +1,15 @@
-"""Smart Meter Interface Modules Documentation.
+"""Scrape and visualize power usage data.
 
 ---
 
-This documentation is generated from the docstrings 
-using the pdoc3 library.
+Features:
 
-Implemented Features:
----------------------
 - Scraping data from Stromnetz Graz Web Portal.
 - Keep track of scraping dates.
 - Use Rsa Encryption for password storing.
 - Application logging.
-- Simple Gui with credentials dialog.
 - Configuration via TOML files.
 - Testing with pytest and tox.
+- Gui for credentials management and data visualization.
 - Dummy user for demonstration purposes.
 """

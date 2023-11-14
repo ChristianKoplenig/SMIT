@@ -1,13 +1,15 @@
-"""GUI
+"""Arrange main window.
 
----
-'Custom TKinter Framework`
--------------------------
+----
 
-- Main entry point for the application.
+- Logger setup
+- Theme
+- Main window grid and properties
 
 Typical usage:
-    On startup
+
+    user = Application()
+    window = AppGui(user)
 """
 import customtkinter as ctk
 import pathlib as pl
@@ -26,15 +28,16 @@ if TYPE_CHECKING:
 from SMIT.application import Application
 
 class AppGui(ctk.CTk):
-    """Main GUI class
+    """Build main window for SMIT Gui.
 
-    ---
+    - Root window setup
+    - Load dummy theme
+    - Logger
+    - Reload plot frame
+    - Window restart for dummy usage
 
-    Use as entry point.
-    Generate main application window.
-
-    Args:
-        ctk (_type_): _description_
+    Attributes:
+        app (Application): Userdata and config information.
     """
     
     def __init__(self, app: 'Application') -> None:
@@ -79,7 +82,7 @@ class AppGui(ctk.CTk):
 
 
     def reload_plots(self) -> None:
-        """Desroy and re-init the plot frame
+        """Call `PlotFrame` class.
         """
         #Debug
         print('---------------------')
@@ -90,7 +93,7 @@ class AppGui(ctk.CTk):
         #self.master.root.update()
 
     def initiate_dummy(self) -> None:
-        """Set dummy flag and close root window.
+        """Set dummy flag and close main window.
         """
         self.user.dummy = True
         self.destroy()

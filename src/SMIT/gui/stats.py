@@ -1,28 +1,30 @@
-"""Helper class for stats frame in CustomTkinter GUI
+"""Create variables tabel.
 
 ---
-'Classes for frames to build main GUI interface
------------------------------------------------
 
-    - Helper classes for GUI
+- Draw a widget for single data variables
 
 Typical usage:
-    Call class in AppGui
+
+    windowframe = StatsFrame()
 """
 import tkinter as tk
 import customtkinter as ctk
-import pandas
 
 class StatsFrame(ctk.CTkFrame):
-    """Generate frame with statistics
+    """Generate frame with statistic data
 
-    Args:
-        ctk (customtkinter): Inherit from frame class
+    - Create label widgets
+    - Create entry widgets
+    - Show rolling median value for:   
+        - last seven days
+        - last 30 days
+
+    Returns:
+
     """
     def __init__(self, master):
         super().__init__(master)
-
-        #self.master = master
 
         # Text variables for entries
         self.stat_week = tk.StringVar(value=master.plot_frame.df_day.iloc[-1,4])
@@ -58,3 +60,23 @@ class StatsFrame(ctk.CTkFrame):
             textvariable=self.stat_month,
             width=75)
         self.entry_month.grid(row=2, column=1, padx=(20, 20), pady=5)
+
+# Pdoc config get underscore methods
+__pdoc__ = {name: True
+            for name, classes in globals().items()
+            if name.startswith('_') and isinstance(classes, type)}
+
+
+__pdoc__.update({f'{name}.{member}': True
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member not in {'__module__', '__dict__',
+                                   '__weakref__', '__doc__'}})
+
+__pdoc__.update({f'{name}.{member}': False
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member.__contains__('__') and member not in {'__module__', '__dict__',
+                                                                 '__weakref__', '__doc__'}})

@@ -1,13 +1,13 @@
-"""Helper class for credentials frame in ctk GUI
+"""Get and show user credentials.
 
 ---
-'Classes for frames to build main GUI interface
------------------------------------------------
 
-    - Helper classes for GUI
+- Create and arrange label widgets  
+- Create and arrange entry widgets   
 
 Typical usage:
-    Call class in AppGui
+
+    windowframe = ButtonFrame()
 """
 import tkinter as tk
 import base64
@@ -15,7 +15,15 @@ import customtkinter as ctk
 
 
 class CredentialsFrame(ctk.CTkFrame):
-    """Frame for credentials
+    """Credentials setup for SMIT Gui
+
+    - Setup entries for entry widgets
+    - Decrypt password from `user_data.toml`
+    - Create and arrange label widgets
+    - Create and arrange entry widgets
+    - Update password entry widget
+
+    Returns:  
 
     """
     def __init__(self, master):
@@ -95,3 +103,23 @@ class CredentialsFrame(ctk.CTkFrame):
             new_entry (string): new password entry
         """
         self.password.set(new_entry)
+
+# Pdoc config get underscore methods
+__pdoc__ = {name: True
+            for name, classes in globals().items()
+            if name.startswith('_') and isinstance(classes, type)}
+
+
+__pdoc__.update({f'{name}.{member}': True
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member not in {'__module__', '__dict__',
+                                   '__weakref__', '__doc__'}})
+
+__pdoc__.update({f'{name}.{member}': False
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member.__contains__('__') and member not in {'__module__', '__dict__',
+                                                                 '__weakref__', '__doc__'}})

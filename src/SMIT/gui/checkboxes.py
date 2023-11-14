@@ -1,21 +1,24 @@
-"""Helper class for checkboxes frame in CustomTkinter GUI
+"""Save credentials checkbox.
 
 ---
-'Classes for frames to build main GUI interface
------------------------------------------------
 
-    - Helper classes for GUI
+- Checkbox for saving user credentials
 
 Typical usage:
-    Call class in AppGui
+
+    windowframe = CheckboxFrame()
 """
 import customtkinter as ctk
 
 class CheckboxFrame(ctk.CTkFrame):
-    """Generate checkboxes in top row
+    """Generate frame with checkbox.
 
-    Args:
-        ctk (customtkinter): Inherit from frame class
+    Attributes:
+
+        `ctk.CTkFrame`  
+
+    Returns:
+
     """
     def __init__(self, master):
         super().__init__(master)
@@ -29,17 +32,28 @@ class CheckboxFrame(ctk.CTkFrame):
         self.save_credentials_chkbx = ctk.CTkCheckBox(
             self,
             text='Save credentials',
-            command=self._save_credentials,
             variable=self.save_credentials,
             onvalue=True,
             offvalue=False
         )
         self.save_credentials_chkbx.grid(row=1, padx=10)
 
+# Pdoc config get underscore methods
+__pdoc__ = {name: True
+            for name, classes in globals().items()
+            if name.startswith('_') and isinstance(classes, type)}
 
 
+__pdoc__.update({f'{name}.{member}': True
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member not in {'__module__', '__dict__',
+                                   '__weakref__', '__doc__'}})
 
-    def _save_credentials(self) -> None:
-        """Helper function for credentials checkbox
-        """    
-        print('cred chkbx: ',self.save_credentials.get())
+__pdoc__.update({f'{name}.{member}': False
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member.__contains__('__') and member not in {'__module__', '__dict__',
+                                                                 '__weakref__', '__doc__'}})

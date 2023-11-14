@@ -1,13 +1,13 @@
-"""Helper class for plot frame in ctk GUI
+"""Create dataframes, draw plots.
 
 ---
-'Classes for frames to build main GUI interface
------------------------------------------------
 
-    - Helper classes for GUI
+- Create pandas dataframes
+- Use matplotlib and seaborn to draw plots 
 
 Typical usage:
-    Call class in AppGui
+
+    windowframe = PlotFrame()
 """
 import customtkinter as ctk
 import matplotlib
@@ -24,14 +24,15 @@ import seaborn as sns
 import matplotlib.dates as md
 
 class PlotFrame(ctk.CTkFrame):
-    """Frame for plots
+    """Setup plot column for SMIT Gui.
 
-    - year overview
-    - month overview
-    - week with rolling mean
+    - Define slice dates
+    - Create day/night/slice dataframe
+    - Create and arrange widgets for matplotlib canvases
+    - Functions to draw matplotlib canvases
 
-    Args:
-        ctk (_type_): _description_
+    Returns:
+
     """
     def __init__(self, master):
         super().__init__(master)
@@ -42,7 +43,7 @@ class PlotFrame(ctk.CTkFrame):
             self.slice_start = '2023-03-24'
             self.slice_end = '2023-03-31'
         else:          
-            self.slice_start = str((dt.datetime.today() - dt.timedelta(days=8)))[:10]
+            self.slice_start = str((dt.datetime.today() - dt.timedelta(days=7)))[:10]
             self.slice_end = str((dt.datetime.today() - dt.timedelta(days=1)))[:10]
         
         # Create dataframes
@@ -60,9 +61,15 @@ class PlotFrame(ctk.CTkFrame):
         day_slice = self._mpl_slice_plot(self.df_slice, 'Last Week').get_tk_widget()
         day_slice.grid(row=2)
 
-    def _create_dataframes(self, meter) -> pd.DataFrame:
-        """Generate data frames for plots
-        args: meter --> 'day_meter';'night_meter'
+    def _create_dataframes(self, meter: str) -> pd.DataFrame:
+        """Generate data frames for plots.
+        
+        Attributes:
+
+            meter (str): Meter number to identify raw `.csv` files  
+
+        Returns:
+            dataframe (`pd.DataFrame`): Power readings for given meter
         """
         dataframe = self.master.user.os_tools.create_dataframe(
             self.master.user.Folder['work_daysum'], 
@@ -70,7 +77,15 @@ class PlotFrame(ctk.CTkFrame):
         return dataframe
     
     def _slice_dataframe(self, st_date: str, end_date: str) -> pd.DataFrame:
-        """Create sliced dataframe for plots
+        """Create sliced dataframe for plots.
+
+        Attributes:
+
+            st_date (str): Start date for data slice; Format: 'YYYY-MM-DD'  
+            end_date (str): End date for data slice; Format: 'YYYY-MM-DD'  
+
+        Returns:
+            dataframe (`pd.DataFrame`): Sum of power readings for day/night meter
 
         """
         df_day = self.master.user.os_tools.slice_dataframe(
@@ -94,10 +109,16 @@ class PlotFrame(ctk.CTkFrame):
 
 
            
-    def _mpl_bar_plot(self,df,title) -> FigureCanvasTkAgg:
-        """Draw a matplotlib bar chart
-        """
+    def _mpl_bar_plot(self,df: pd.DataFrame,title: str) -> FigureCanvasTkAgg:
+        """Draw a matplotlib bar plot.
 
+        Args:
+            df (pd.DataFrame): Input data for plot
+            title (str): Title for plot
+
+        Returns:
+            FigureCanvasTkAgg: Input canvas for gui widget
+        """
         # create a figure
         figure = Figure(figsize=(9, 3), dpi=100)
 
@@ -124,7 +145,14 @@ class PlotFrame(ctk.CTkFrame):
         return figure_canvas
 
     def _seaborn_bar_plot(self, df, title) -> FigureCanvasTkAgg:
-        """Plot data with seaborn module
+        """Draw a seaborn bar plot on a matplotlib canvas.
+
+        Args:
+            df (pd.DataFrame): Input data for plot
+            title (str): Title for plot
+
+        Returns:
+            FigureCanvasTkAgg: Input canvas for gui widget
         """
         figure = Figure(figsize =(9,3), dpi=100)
         figure_canvas = FigureCanvasTkAgg(figure, self)
@@ -146,7 +174,14 @@ class PlotFrame(ctk.CTkFrame):
         return figure_canvas
     
     def _mpl_slice_plot(self, df, title) -> FigureCanvasTkAgg:
-        """Plot data with seaborn module
+        """Use sliced dataframe for matplotlib bar plot.
+
+        Args:
+            df (pd.DataFrame): Input data for plot
+            title (str): Title for plot
+
+        Returns:
+            FigureCanvasTkAgg: Input canvas for gui widget
         """
         figure = Figure(figsize =(9,3), dpi=100)
         figure_canvas = FigureCanvasTkAgg(figure, self)
@@ -164,3 +199,23 @@ class PlotFrame(ctk.CTkFrame):
         axes.bar_label(axes.containers[0])  # show values with bars
 
         return figure_canvas
+    
+# Pdoc config get underscore methods
+__pdoc__ = {name: True
+            for name, classes in globals().items()
+            if name.startswith('_') and isinstance(classes, type)}
+
+
+__pdoc__.update({f'{name}.{member}': True
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member not in {'__module__', '__dict__',
+                                   '__weakref__', '__doc__'}})
+
+__pdoc__.update({f'{name}.{member}': False
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member.__contains__('__') and member not in {'__module__', '__dict__',
+                                                                 '__weakref__', '__doc__'}})

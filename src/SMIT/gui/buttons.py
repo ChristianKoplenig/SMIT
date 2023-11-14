@@ -1,25 +1,32 @@
-"""Helper class for buttons frame in ctk GUI
+"""Application and credentials Buttons
 
----
-'Classes for frames to build main GUI interface
------------------------------------------------
+----
 
-    - Helper classes for GUI
+- Create and arrange button widgets
+- Functions for button commands
 
 Typical usage:
-    Call class in AppGui
+
+    windowframe = ButtonFrame()
 """
 import customtkinter as ctk
 import base64
 
 class ButtonFrame(ctk.CTkFrame):
-    """Frame for buttons
+    """Buttons setup for SMIT Gui.
 
-    Args:
-        ctk (_type_): _description_
+    - Setup label
+    - Create buttons
+    - Arrange buttons
+    - Define button commands
+
+    Attributes:
+
+        `ctk.CTkFrame`  
 
     Returns:
-        _type_: _description_
+
+      
     """
     def __init__(self, master):
         super().__init__(master)
@@ -67,19 +74,19 @@ class ButtonFrame(ctk.CTkFrame):
         self.button_dummy.grid(row=2, column=1, padx=10, pady=20)
 
     def _button_update_data(self) -> None:
-        """trigger scrape move routine
+        """Srape data, reload plots.
         """
         self.master.user.os_tools.sng_scrape_and_move()
         self.master.reload_plots()
 
     def _button_close(self) -> None:
-        """Event on close button press
+        """Close root window.
         """
         print('All tk windows closed on button press')
         self.quit()
 
     def _button_dummy(self) -> None:
-        """Load dummy user
+        """Call dummy function from root frame
         """
         self.master.initiate_dummy()
 
@@ -101,9 +108,9 @@ class ButtonFrame(ctk.CTkFrame):
                 'password')
             
     def _button_savecred(self) -> None:
-        """Define accept button action.
+        """Define confirm credentials button action.
 
-        If the "Save user credentials..." checkbox is activated then the 
+        If the "Save credentials" checkbox is activated then the 
         entered data will be added to the `user_data.toml` file 
         and the user instance.  
         Else everything entered will be added to the active user instance and
@@ -189,3 +196,23 @@ class ButtonFrame(ctk.CTkFrame):
             self.master.user.Meter['day_meter'] = self.master.credentials_frame.entry_daymeter.get()
             self.master.user.Meter['night_meter'] = self.master.credentials_frame.entry_nightmeter.get()
             self.master.logger.debug('Credentials temporarily added to user attributes')
+
+# Pdoc config get underscore methods
+__pdoc__ = {name: True
+            for name, classes in globals().items()
+            if name.startswith('_') and isinstance(classes, type)}
+
+
+__pdoc__.update({f'{name}.{member}': True
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member not in {'__module__', '__dict__',
+                                   '__weakref__', '__doc__'}})
+
+__pdoc__.update({f'{name}.{member}': False
+                 for name, classes in globals().items()
+                 if isinstance(classes, type)
+                 for member in classes.__dict__.keys()
+                 if member.__contains__('__') and member not in {'__module__', '__dict__',
+                                                                 '__weakref__', '__doc__'}})
