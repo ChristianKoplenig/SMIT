@@ -12,11 +12,11 @@ Typical usage:
 import customtkinter as ctk
 import pathlib as pl
 
-from SMIT.gui_credentials import CredentialsFrame
-from SMIT.gui_buttons import ButtonFrame
-from SMIT.gui_checkboxes import CheckboxFrame
-from SMIT.gui_plots import PlotFrame
-from SMIT.gui_stats import StatsFrame
+from SMIT.gui.credentials import CredentialsFrame
+from SMIT.gui.buttons import ButtonFrame
+from SMIT.gui.checkboxes import CheckboxFrame
+from SMIT.gui.plots import PlotFrame
+from SMIT.gui.stats import StatsFrame
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:

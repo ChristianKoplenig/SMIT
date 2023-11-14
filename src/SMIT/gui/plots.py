@@ -1,4 +1,4 @@
-"""Helper class for buttons frame in ctk GUI
+"""Helper class for plot frame in ctk GUI
 
 ---
 'Classes for frames to build main GUI interface
