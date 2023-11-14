@@ -39,7 +39,6 @@ class Application:
     - On initial run create folder structure according to `./config/user_settings.toml`.
     - Configure logging function.
     - Instantiate modules and assign to application instance.
-    - Call user credentials GUI.
 
     Dummy usage
     -----------
@@ -74,10 +73,6 @@ class Application:
         self._initialize_folder_structure()
         self._setup_logger()
         self._add_modules_to_attributes()
-
-        # if dummy is False:
-        #     # Load Gui Dialog
-        #     self.gui.credentials_dialog()
 
         self.logger.info('Application with user "%s" instantiated', self.Login["username"])
 
