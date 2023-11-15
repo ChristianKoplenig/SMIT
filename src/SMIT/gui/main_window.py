@@ -80,23 +80,24 @@ class AppGui(ctk.CTk):
         self.stats_frame = StatsFrame(self)
         self.stats_frame.grid(row=3, column=0, sticky='ew')
 
+        self.logger.info(f'Gui root window with dummy: {self.user.dummy} loaded')
 
     def reload_plots(self) -> None:
         """Call `PlotFrame` class.
         """
-        #Debug
-        print('---------------------')
-        print('update button pressed') 
         self.plot_frame.destroy()
         self.plot_frame = PlotFrame(self)
         self.plot_frame.grid(row=0, column=1, rowspan=4, sticky='ew')
-        #self.master.root.update()
+        
+        self.logger.debug(f'Plot frame reloaded')
 
     def initiate_dummy(self) -> None:
         """Set dummy flag and close main window.
         """
         self.user.dummy = True
         self.destroy()
+
+        self.logger.debug(f'Destroy root window for dummy restart')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"

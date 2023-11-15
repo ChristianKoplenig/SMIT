@@ -59,6 +59,14 @@ class Application:
         # Attribute needed for scrape and move routine
         self.dummy = dummy
 
+        # Logging, Path hardcoded because of init order
+        self.logfilepath = './log/app.log'
+        self._setup_logger(self.logfilepath)
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
+
         if self.dummy is False:
             # Load paths to user configuration files
             self._copy_userdata_template()
@@ -71,7 +79,6 @@ class Application:
         self._add_TOML_to_attributes(self.user_data)
         self._add_TOML_to_attributes(self.user_settings)
         self._initialize_folder_structure()
-        self._setup_logger()
         self._add_modules_to_attributes()
 
         self.logger.info('Application with user "%s" instantiated', self.Login["username"])
@@ -153,9 +160,12 @@ class Application:
             ('persistence', Persistence(self)),
             ('scrape', Webscraper(self))
         ])
+
+        self.logger.debug(f'Modules dict loaded')
+
         return modules
 
-    def _setup_logger(self) -> None:
+    def _setup_logger(self, filepath) -> None:
         """Configuration for logging.
         
         The default log folder is `./log` and the logfile is called `app.log`.  
@@ -175,7 +185,8 @@ class Application:
 
         formatter = logging.Formatter('%(asctime)s :: %(levelname)-8s :: [%(module)s:%(lineno)d] :: %(message)s')
 
-        file_handler = logging.FileHandler(self.Path['log_file'])
+        file_handler = logging.FileHandler(filepath)
+        # file_handler = logging.FileHandler(self.Path['log_file'])
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
 
@@ -228,6 +239,9 @@ class Application:
         # Set paths to dummy configuration
         self.user_data = pl.Path('./.dummy/config/dummy_data.toml')
         self.user_settings = pl.Path('./.dummy/config/dummy_settings.toml')
+
+        # Logging
+        self.logger.info('Dummy user instantiated')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"

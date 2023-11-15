@@ -40,6 +40,11 @@ class RsaTools():
 
         self.user = app
         self.logger = app.logger
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
+        
         self.pub_path = pl.Path(self.user.Path['public_key'])
         self.priv_path = pl.Path(self.user.Path['private_key'])
         no_public_key = not self.pub_path.exists()
