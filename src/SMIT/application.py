@@ -25,7 +25,6 @@ from SMIT.scrapedata import Webscraper
 from SMIT.filepersistence import Persistence
 from SMIT.rsahandling import RsaTools
 from SMIT.filehandling import OsInterface, TomlTools
-from SMIT.userinput import UiTools
 
 
 class Application:
@@ -153,7 +152,6 @@ class Application:
             are intantiated modules objects.
         """
         modules = dict([
-            ('gui', UiTools(self)),
             ('rsa', RsaTools(self)),
             ('toml_tools', TomlTools(self)),
             ('os_tools', OsInterface(self)),
