@@ -82,7 +82,7 @@ class ButtonFrame(ctk.CTkFrame):
     def _button_close(self) -> None:
         """Close root window.
         """
-        print('All tk windows closed on button press')
+        self.master.logger.info(f'All windows closed on button press')
         self.quit()
 
     def _button_dummy(self) -> None:

@@ -64,11 +64,6 @@ class RsaTools():
                 key.write(private_key.save_pkcs1('PEM'))
                 self.logger.info('Private key written')
 
-        msg  = f'Class {self.__class__.__name__} of the '
-        msg += f'module {self.__class__.__module__} '
-        msg +=  'successfully initialized.'
-        self.logger.debug(msg)
-
     def _load_rsa_keys(self) -> tuple[rsa.PrivateKey, rsa.PublicKey]:
         """Load keys from config folder.
 

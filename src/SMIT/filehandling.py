@@ -145,6 +145,7 @@ class OsInterface():
         df_return['rol_med_7'] = df_return['verbrauch'].rolling(7).median().round(decimals=2)
         
         self.logger.debug(f'Created pandas dataframe for meter: {metertype}')
+        
         return df_return
 
     def slice_dataframe(self, st_date: str, end_date: str, workdir: pl.Path, metertype: str) -> pd.DataFrame:
