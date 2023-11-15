@@ -137,7 +137,7 @@ class PlotFrame(ctk.CTkFrame):
         # Format labels
         axes.xaxis.set_major_locator(md.MonthLocator())
         axes.xaxis.set_major_formatter(md.DateFormatter('%b'))
-        axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
+        axes.set_ylabel('Consumption [Wh]', labelpad = 0, fontsize = 12)
 
         axes.set_title(title)
         #axes.set_xlabel('')
@@ -165,7 +165,7 @@ class PlotFrame(ctk.CTkFrame):
                     color='#3a7ebf',
                     ax=axes)
         
-        axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
+        axes.set_ylabel('Consumption [Wh]', labelpad = 0, fontsize = 12)
         axes.xaxis.set_major_locator(md.MonthLocator())
         axes.xaxis.set_major_formatter(md.DateFormatter('%b'))
 
@@ -195,7 +195,7 @@ class PlotFrame(ctk.CTkFrame):
         axes.set_title(title)
         axes.set_xlabel('')
         axes.spines[['top', 'bottom', 'right', 'left']].set_visible(False)
-        axes.set_ylabel('Verbrauch [Wh]', labelpad = 0, fontsize = 12)
+        axes.set_ylabel('Consumption [Wh]', labelpad = 0, fontsize = 12)
         axes.bar_label(axes.containers[0])  # show values with bars
 
         return figure_canvas
