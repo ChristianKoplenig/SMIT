@@ -100,11 +100,14 @@ class PlotFrame(ctk.CTkFrame):
             self.master.user.Folder['work_daysum'], 
             self.master.user.Meter['night_meter']
         )
+        
+        # Sum day and night values
         dfd = pd.DataFrame(df_day['verbrauch'])
         dfn = pd.DataFrame(df_night['verbrauch'])
         dfsum = dfd.add(dfn, fill_value=0)
         dataframe = pd.DataFrame(df_day['date'])
         dataframe['verbrauch'] = dfsum['verbrauch']
+
         return dataframe
 
 
