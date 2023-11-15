@@ -46,7 +46,7 @@ The password is sent in plain text to the login field. This is **not good practi
 
 To start the application use   
 
-	```SMIT/python3 ./main.py```  
+	SMIT/python3 ./main.py
 
 <p align="center">
   <img src="./docs/readme/gui2.png" width=85% /> 
