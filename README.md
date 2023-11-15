@@ -24,9 +24,10 @@ This is a hobby project and I am highly motivated to keep it going.
  * [Intention](#intention)
  * [Disclaimer](#disclaimer)
  * [Usage](#usage)
-	* [Container setup](#devcontainer)
-	* [Dummy Mode](#dummy-usage)
+	* [Initial Setup](#initial-application-setup)
 	* [Live Data](#live-data-usage)
+	* [Dummy Data](#dummy-usage)
+	* [Container setup](#devcontainer)
  * [Documentation](#documentation)
 	* [Pytest Setup](#testing)
 	* [Application Structure](#application-structure)
@@ -43,35 +44,47 @@ The password is sent in plain text to the login field. This is **not good practi
 
 ## Usage
 
-- In project root folder open `Main.ipynb`.
+To start the application use   
 
-At the moment the easiest way to use the application is to clone this repository.
-In the future distributable versions are planned. I want to further investigate into the [PyInstaller](https://pyinstaller.org/en/stable/) library. Additionally, for demonstration purposes I plan to integrate the [VsCode Devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) feature.
-
-### DevContainer
-- Docker setup needed [Good Debian guide](https://www.linuxcapable.com/how-to-install-docker-on-debian-linux/) 
-- **Linux:** add docker user to x-window group: `xhost +local:<your_dockeruser>`
-- Clone repo
-- Build and run (tested with [VsCode Dev Containers Plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers))
-
-### Dummy usage
-This mode is used for demonstration purposes and testing via pytest.
-No "Stromnetz Graz" account is needed.
-The Gui and scraping modules are not used.
-The dummy data from `./opt/dummy_user` folder is used to set up an application mockup.
-This will create a temporary `.dummy` folder in the project directory.
-At the beginning of each dummy run the temporary folder will be deleted and newly created.
-
-### Live data usage
+	```SMIT/python3 ./main.py```  
 
 <p align="center">
-  <img src="./docs/readme/credentials_gui.png" width=35% /> 
+  <img src="./docs/readme/gui2.png" width=85% /> 
   <br>
 <br>
-<ins><b><i> User Credentials GUI </i></b></ins>
+<ins><b><i> SMIT GUI </i></b></ins>
 </p>
 
-Running with live data will first open a simple dialog to enter the "Stromnetz Graz" account data.
+
+### Initial application setup
+
+- Fill in user credentials
+- Confirm new credentials (Button)
+- Update data (Button)
+
+See [Live Data usage](#live-data-usage) for instructions on getting the needed credentials from the service provider. The **confirm credentials button** will save the credentials to the momentarily running instance of the application. If you want to store the credentials permanently check the **save credentials checkbox** before confirming the credentials. See [Disclaimer](#disclaimer) for security thoughts on handling the password storage. The **update data button** triggers the login and scrape data routine. The plots will be automatically updated after the new data is scraped.
+
+<details>
+	<summary>Save credentials</summary>
+</p>
+
+You can use the 'Save credentials' option to store your credentials in the `user_data.toml` file. This file is located in the `./config` folder. See the disclaimer for information on password storage and handling. Implementation details are explained in the [documentation](#documentation) section.
+
+</details>
+</p>
+
+The **dummy button** restarts the whole application with dummy data. See [Dummy setup](#dummy-setup) for information on this application mode.
+
+### Visualized data
+- Median power consumption per day 
+	- Average over the last 7 days
+	- Average over the last 30 days
+- Power consumption per day
+	- for day meter, overview 
+	- for night meter, overview
+- Sum of power consumption for the last 7 days
+
+### Live data usage
 Username and password are provided by the electricity provider. Your meter numbers are either found in
 the "Netzzugangsvertrag" under "Technische Details - Zählpunkt/Gerät"  from the electricity provider, or you can get them online following these steps:
 
@@ -91,27 +104,19 @@ the "Netzzugangsvertrag" under "Technische Details - Zählpunkt/Gerät"  from th
 </p>
 </details>
 
-You can use the 'Save user credentials' option to store your credentials in the `user_data.toml` file.
-This file is located in the `./config` folder. See the disclaimer for information on password
-storage and handling.
-The buttons do exactly what their respective name implies. Implementation details are explained
-in the [documentation](#documentation) section.
+### Dummy setup
+- Activate with **Dummy Button** on Gui.
 
-### Example output
-At the moment the output is a really simple overview of your power usage. In future releases the 
-output will feature more detailed plots to get useful insights regarding the own power consumption.
+This mode is used for demonstration purposes and testing via pytest. No "Stromnetz Graz" account is needed. The scraping modules are not used. The dummy data from `./opt/dummy_user` folder is used to set up an application mockup. This will create a temporary `.dummy` folder in the project directory. At the beginning of each dummy run the temporary folder will be deleted and newly created.
 
-<p align="center">
-  <img src="./docs/readme/jnb_output.png" width=100% /> 
-  <br>
-<br>
-<ins><b><i> Power Usage Sample Plot </i></b></ins>
-</p>
-</details>
+### DevContainer
+- Docker setup needed [Good Debian guide](https://www.linuxcapable.com/how-to-install-docker-on-debian-linux/) 
+- **Linux:** add docker user to x-window group: `xhost +local:<your_dockeruser>`
+- Clone repo
+- Build and run (tested with [VsCode Dev Containers Plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers))
 
 ## Documentation
 Detailed technical documentation for each class/method can be found here:
-
 
 - [Application Modules](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html) 
 - [Pytest Setup](https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/tests/index.html)
@@ -138,7 +143,6 @@ Environment: Python 3.11
 Test Setup: [tox.ini](./tox.ini)  
 Markers: [pyproject.toml](./pyproject.toml)  
    
-
 ### Application Structure
 <details>
 <summary>View</summary>
@@ -151,7 +155,7 @@ __Application modules__
 - **filepersistence** - Preserve data via serialization
 - **rsahandling** - Public key cryptography
 - **scrapedata** - Selenium webdriver implementation
-- **userinput** - Simple user credentials GUI 
+- **gui** - Modules for Gui, grouped by frame 
 
 __Libraries__
 
@@ -210,7 +214,6 @@ This roadmap is in no particular order. The prioritization depends on which topi
 
 - API access --> Depends on availability of public API
 - Implement 15min resolution measurements (user OPT IN needed at provider site)
-- Switch from Jupyter Notebook to modern GUI
 - Use Sphinx for documentation
 - Implement database
 - Create executable package
@@ -219,8 +222,7 @@ This roadmap is in no particular order. The prioritization depends on which topi
 - Implement more electricity providers
 
 ## Issues
-- Rsa Keys on initial run not working [#60](https://github.com/tmpck/strom/issues/60)
-- SNG Data update not implemented [#43](https://github.com/tmpck/strom/issues/43)
+Issues are managed via the projects [Github Issues](https://github.com/ChristianKoplenig/SMIT/issues) page.
 
 ## Requirements
 The virtual environment was created with **Python 3.11** as base.  
