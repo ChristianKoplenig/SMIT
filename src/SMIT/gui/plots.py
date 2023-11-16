@@ -9,19 +9,16 @@ Typical usage:
 
     windowframe = PlotFrame()
 """
-import customtkinter as ctk
-import matplotlib
-import pandas as pd
 import datetime as dt
-
-matplotlib.use('TkAgg')
-
+import pandas as pd
+import matplotlib
+import matplotlib.dates as md
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
-
-# # Plot
 import seaborn as sns
-import matplotlib.dates as md
+import customtkinter as ctk
+
+matplotlib.use('TkAgg')
 
 class PlotFrame(ctk.CTkFrame):
     """Setup plot column for SMIT Gui.
@@ -107,9 +104,7 @@ class PlotFrame(ctk.CTkFrame):
         self.master.logger.debug(f'Sliced dataframe with start: {st_date} and end: {end_date} created')
 
         return dataframe
-
-
-           
+          
     def _mpl_bar_plot(self,df: pd.DataFrame,title: str) -> FigureCanvasTkAgg:
         """Draw a matplotlib bar plot.
 

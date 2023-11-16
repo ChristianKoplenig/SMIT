@@ -47,7 +47,6 @@ class StatsFrame(ctk.CTkFrame):
         )
         self.month_lbl.grid(row=2, column=0, padx=20, pady=5)
 
-
         # Entries
         self.entry_week = ctk.CTkEntry(
             self,

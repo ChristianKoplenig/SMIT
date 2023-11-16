@@ -9,10 +9,8 @@ Typical usage:
 
     windowframe = ButtonFrame()
 """
-import customtkinter as ctk
 import base64
-
-from numpy import mask_indices
+import customtkinter as ctk
 
 class ButtonFrame(ctk.CTkFrame):
     """Buttons setup for SMIT Gui.
@@ -128,7 +126,6 @@ class ButtonFrame(ctk.CTkFrame):
 
         save_credentials_activated = self.master.checkbox_frame.save_credentials.get()
 
-        #if self.master.checkbox_frame.save_credentials.get() == 'on':
         if save_credentials_activated:
 
             self.master.checkbox_frame.save_credentials_chkbx.deselect()

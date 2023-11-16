@@ -11,8 +11,10 @@ Typical usage:
     user = Application()
     window = AppGui(user)
 """
-import customtkinter as ctk
 import pathlib as pl
+import customtkinter as ctk
+
+from SMIT.application import Application
 
 from SMIT.gui.credentials import CredentialsFrame
 from SMIT.gui.buttons import ButtonFrame
@@ -23,9 +25,6 @@ from SMIT.gui.stats import StatsFrame
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from SMIT.application import Application
-
-### Developement imports
-from SMIT.application import Application
 
 class AppGui(ctk.CTk):
     """Build main window for SMIT Gui.
