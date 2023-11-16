@@ -40,6 +40,11 @@ class RsaTools():
 
         self.user = app
         self.logger = app.logger
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
+        
         self.pub_path = pl.Path(self.user.Path['public_key'])
         self.priv_path = pl.Path(self.user.Path['private_key'])
         no_public_key = not self.pub_path.exists()
@@ -59,13 +64,8 @@ class RsaTools():
                 key.write(private_key.save_pkcs1('PEM'))
                 self.logger.info('Private key written')
 
-        msg  = f'Class {self.__class__.__name__} of the '
-        msg += f'module {self.__class__.__module__} '
-        msg +=  'successfully initialized.'
-        self.logger.debug(msg)
-
     def _load_rsa_keys(self) -> tuple[rsa.PrivateKey, rsa.PublicKey]:
-        """Load keys from config folder.
+        """Create named tuple with rsa keys.
 
         Make keys accessible via dot notation.
         
@@ -80,6 +80,8 @@ class RsaTools():
 
         with open(self.priv_path, 'rb') as key:
             private_key = rsa.PrivateKey.load_pkcs1(key.read())
+
+        self.logger.debug('Rsa keys tuple loaded')
 
         return Keys(public_key, private_key)
 
@@ -103,6 +105,9 @@ class RsaTools():
         """
         pwd_enc = pwd.encode('utf8')
         pwd_crypt = rsa.encrypt(pwd_enc, self._load_rsa_keys().public_key)
+
+        self.logger.debug('Password encrypted')
+
         return pwd_crypt
 
     def decrypt_pwd(self, pwd: bytes) -> str:
@@ -123,6 +128,9 @@ class RsaTools():
             string: Decrypted input.
         """
         pwd_decrypt = rsa.decrypt(pwd, self._load_rsa_keys().private_key)
+
+        self.logger.debug('Password decrypted')
+        
         return pwd_decrypt.decode('utf8')
 
     def __repr__(self) -> str:

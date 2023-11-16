@@ -39,6 +39,12 @@ class UiTools():
     def __init__(self, app: 'Application') -> None:
 
         self.user = app
+        self.logger = app.logger
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
+        
         self.user_data_path = pl.Path(self.user.Path['user_data'])
 
         # Tkinter setup

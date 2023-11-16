@@ -73,6 +73,8 @@ class OsInterface():
         new_filename = dest / str(str(dt.date.today().strftime('%Y%m%d') + '_' + str(appendix)) + '.csv')
         path.rename(new_filename)
 
+        self.logger.debug(f'File: {src} moved to: {new_filename}')
+
     def _move_files_to_workdir(self, meter_number: str) -> None:
         """Move files from download dir to work dir.
 
@@ -141,9 +143,35 @@ class OsInterface():
         df_return.sort_values(by='date', inplace=True)
         df_return.reset_index(drop=True, inplace=True)
         df_return.drop_duplicates(subset='date', keep='first', inplace=True)
+        df_return['rol_med_30'] = df_return['verbrauch'].rolling(30).median().round(decimals=2)
+        df_return['rol_med_7'] = df_return['verbrauch'].rolling(7).median().round(decimals=2)
+        
         self.logger.debug(f'Created pandas dataframe for meter: {metertype}')
+        
         return df_return
 
+    def slice_dataframe(self, st_date: str, end_date: str, workdir: pl.Path, metertype: str) -> pd.DataFrame:
+        """Slice pandas dataframe using date column
+
+        Use `.csv` files as input for `create_dataframes()` call.
+
+        Args:
+            st_date (str): Start date, Format: YYYY-MM-DD
+            end_date (str): End date, Format: YYYY-MM-DD
+            workdir (pathlib.Path): Path to directory for file import.
+            metertype (string): Day/Night meter device number.
+
+        Returns:
+            pd.DataFrame: Columns [`date`, `zaehlerstand`, `verbrauch`] for each meter.
+        """
+        raw_df = self.create_dataframe(workdir, metertype)
+        sliced_df = raw_df[(raw_df['date'] >= st_date) & (raw_df['date'] <= end_date) ]
+        sliced_df.reset_index(drop=True, inplace=True)
+
+        self.logger.debug(f'Created dataframe slice with start date: {st_date} and end date: {end_date}')
+
+        return sliced_df
+    
     def sng_scrape_and_move(self) -> None:
         """Download and move `.csv` files.
 
@@ -173,10 +201,10 @@ class OsInterface():
             # Move files for dummy user
             self._move_files_to_workdir(self.user.Meter['day_meter'])
             self._move_files_to_workdir(self.user.Meter['night_meter'])
+            self.logger.debug('Files for dummy user moved to workdir')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
-
 
 class TomlTools():
     """Manipulate config files.
@@ -210,6 +238,8 @@ class TomlTools():
         """
         with open(filename, mode='rt', encoding='utf-8') as file:
             data = tomlkit.load(file)
+
+        self.logger.debug(f'Toml file {filename} read')
         return data
 
     def save_toml_file(self, filename: pl.Path, toml_object: tomlkit.TOMLDocument) -> None:
@@ -221,6 +251,8 @@ class TomlTools():
         """
         with open(filename, mode='wt', encoding='utf-8') as file:
             tomlkit.dump(toml_object, file)
+
+        self.logger.debug(f'Toml file: {filename} written')
 
     def add_entry_to_config(self, toml_path: pl.Path,
                             section: str,
@@ -241,7 +273,7 @@ class TomlTools():
         config[section][config_attribute] = entry
         config[section][config_attribute].comment('Data collected via Gui')
         self.save_toml_file(toml_path, config)
-        self.logger.debug(f'{config_attribute} added to user data')
+        self.logger.debug(f'{config_attribute} added to {toml_path}')
 
     def delete_entry_from_config(self,
                                  toml_path: pl.Path,
@@ -260,7 +292,7 @@ class TomlTools():
         config = self.load_toml_file(toml_path)
         del config[section][config_attribute]
         self.save_toml_file(toml_path, config)
-        self.logger.debug(f'{config_attribute} deleted from config')
+        self.logger.debug(f'{config_attribute} deleted from {toml_path}')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
