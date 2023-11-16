@@ -64,7 +64,7 @@ class Application:
         msg  = f'Class {self.__class__.__name__} of the '
         msg += f'module {self.__class__.__module__} '
         msg +=  'successfully initialized.'
-        self.logger.debug(msg)
+        self.logger.info(msg)
 
         if self.dummy is False:
             # Load paths to user configuration files
@@ -80,7 +80,7 @@ class Application:
         self._initialize_folder_structure()
         self._add_modules_to_attributes()
 
-        self.logger.info('Application with user "%s" instantiated', self.Login["username"])
+        self.logger.info(f'Application with user {self.Login["username"]} instantiated.')
 
     def _add_modules_to_attributes(self) -> None:
         """Assign modules to application instance.
@@ -92,6 +92,8 @@ class Application:
         """
         for key, value in self._load_modules().items():
             setattr(self, key, value)
+
+        self.logger.info('All modules added to user instance')
 
     def _add_TOML_to_attributes(self, file_path: pl.Path) -> None:
         """Read config file and assign parameters to application instance.
@@ -111,6 +113,8 @@ class Application:
         for key, value in data.items():
             setattr(self, key, value)
 
+        self.logger.debug(f'Attributes from {file_path} added to application instance.')
+
     def _initialize_folder_structure(self) -> None:
         """Create folder structure.
 
@@ -121,6 +125,8 @@ class Application:
         # pylint: disable=no-member
         for folder_path in self.Folder.values():
             os.makedirs(folder_path, exist_ok=True)
+
+        self.logger.debug('Folderstructure checked and initialized.')
             
     def _copy_userdata_template(self) -> None:
         """Initialize user data config
@@ -132,6 +138,8 @@ class Application:
         dest = './config/user_data.toml'
         if not pl.Path(dest).exists():
             shutil.copy2(src, dest)
+
+            self.logger.debug(f'User data template copied from: {src} to: {dest}')
             
 
     def _load_modules(self) -> dict:
@@ -159,7 +167,7 @@ class Application:
             ('scrape', Webscraper(self))
         ])
 
-        self.logger.debug(f'Modules dict loaded')
+        self.logger.debug('All Modules instantiated')
 
         return modules
 
@@ -184,7 +192,6 @@ class Application:
         formatter = logging.Formatter('%(asctime)s :: %(levelname)-8s :: [%(module)s:%(lineno)d] :: %(message)s')
 
         file_handler = logging.FileHandler(filepath)
-        # file_handler = logging.FileHandler(self.Path['log_file'])
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
 

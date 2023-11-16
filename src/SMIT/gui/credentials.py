@@ -46,8 +46,6 @@ class CredentialsFrame(ctk.CTkFrame):
             self.password.set(
                 master.user.rsa.decrypt_pwd(pwd_b64dec)
             )
-            ##### debugging
-            #self.password.set(master.user.Login['password'])
 
         # Labels
         self.username_lbl = ctk.CTkLabel(

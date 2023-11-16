@@ -27,8 +27,8 @@ class StatsFrame(ctk.CTkFrame):
         super().__init__(master)
 
         # Text variables for entries
-        self.stat_week = tk.StringVar(value=master.plot_frame.df_day.iloc[-1,4])
-        self.stat_month = tk.StringVar(value=master.plot_frame.df_day.iloc[-1,3])
+        self.stat_week = tk.StringVar(value=master.plot_frame.df_slice.iloc[-1,-1])
+        self.stat_month = tk.StringVar(value=master.plot_frame.df_slice.iloc[-1,-2])
 
 
         self.title = ctk.CTkLabel(
@@ -48,7 +48,7 @@ class StatsFrame(ctk.CTkFrame):
         self.month_lbl.grid(row=2, column=0, padx=20, pady=5)
 
 
-        # entries
+        # Entries
         self.entry_week = ctk.CTkEntry(
             self,
             textvariable=self.stat_week,

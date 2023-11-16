@@ -60,6 +60,7 @@ class Persistence():
                 dates['last_scrape'] = 'never'
                 pickle.dump(dates, pk)
             pk.close()
+
         self.logger.debug('Dates log initialized')
 
     def load_dates_log(self) -> dict:
@@ -76,6 +77,9 @@ class Persistence():
         """
         with open(self.user.Path['persist_dates'], 'rb') as pk:
             dates = pickle.load(pk)
+
+        self.logger.debug('Dates log loaded')
+
         return dates
 
     def save_dates_log(self, dates: dict):
@@ -89,6 +93,8 @@ class Persistence():
         with open(self.user.Path['persist_dates'], 'wb') as dpk:
             pickle.dump(dates, dpk)
         dpk.close()
+
+        self.logger.debug('Dates log written')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"

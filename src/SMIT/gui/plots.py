@@ -49,7 +49,7 @@ class PlotFrame(ctk.CTkFrame):
         # Create dataframes
         self.df_day = self._create_dataframes('day_meter')
         self.df_night = self._create_dataframes('night_meter')
-        self.df_slice = self._slice_dataframe(self.slice_start, self.slice_end)
+        self.df_slice = self._slice_dataframe(self.slice_start, self.slice_end, self.df_day, self.df_night)
 
         # Create plots
         day = self._seaborn_bar_plot(self.df_day, 'Day').get_tk_widget()
@@ -74,39 +74,37 @@ class PlotFrame(ctk.CTkFrame):
         dataframe = self.master.user.os_tools.create_dataframe(
             self.master.user.Folder['work_daysum'], 
             self.master.user.Meter[meter])
+        
         return dataframe
     
-    def _slice_dataframe(self, st_date: str, end_date: str) -> pd.DataFrame:
+    def _slice_dataframe(self, st_date: str, end_date: str, day: pd.DataFrame, night: pd.DataFrame) -> pd.DataFrame:
         """Create sliced dataframe for plots.
 
         Attributes:
 
             st_date (str): Start date for data slice; Format: 'YYYY-MM-DD'  
-            end_date (str): End date for data slice; Format: 'YYYY-MM-DD'  
+            end_date (str): End date for data slice; Format: 'YYYY-MM-DD' 
+            day (pd.DataFrame): Data frame with measurements for day meter 
+            night (pd.DataFrame): Data frame with measurements for night meter 
 
         Returns:
             dataframe (`pd.DataFrame`): Sum of power readings for day/night meter
 
         """
-        df_day = self.master.user.os_tools.slice_dataframe(
-            st_date,
-            end_date,
-            self.master.user.Folder['work_daysum'], 
-            self.master.user.Meter['day_meter']
-        )
-        df_night = self.master.user.os_tools.slice_dataframe(
-            st_date,
-            end_date,
-            self.master.user.Folder['work_daysum'], 
-            self.master.user.Meter['night_meter']
-        )
+        df_day = day[['date', 'verbrauch']]
+        df_night = night[['date', 'verbrauch']]
         
-        # Sum day and night values
-        dfd = pd.DataFrame(df_day['verbrauch'])
-        dfn = pd.DataFrame(df_night['verbrauch'])
-        dfsum = dfd.add(dfn, fill_value=0)
-        dataframe = pd.DataFrame(df_day['date'])
-        dataframe['verbrauch'] = dfsum['verbrauch']
+        df_sum = pd.merge(df_day, df_night, on='date', suffixes=('_day', '_night'))
+        df_sum['sum_verbrauch'] = df_sum['verbrauch_day'] + df_sum['verbrauch_night']
+        df_sum = df_sum.round(0)
+
+        df_sum['median30'] = df_sum['sum_verbrauch'].rolling(30).median()
+        df_sum['median7'] = df_sum['sum_verbrauch'].rolling(7).median()
+
+        dataframe = df_sum[['date', 'sum_verbrauch', 'median30', 'median7']]
+        dataframe = dataframe[(dataframe['date'] >= st_date) & (dataframe['date'] <= end_date)]
+
+        self.master.logger.debug(f'Sliced dataframe with start: {st_date} and end: {end_date} created')
 
         return dataframe
 
@@ -190,7 +188,7 @@ class PlotFrame(ctk.CTkFrame):
         figure_canvas = FigureCanvasTkAgg(figure, self)
         
         axes = figure.add_subplot()
-        axes.bar(df['date'], df['verbrauch'])
+        axes.bar(df['date'], df['sum_verbrauch'])
 
         myFmt = md.DateFormatter('%a')
         axes.xaxis.set_major_formatter(myFmt)

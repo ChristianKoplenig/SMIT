@@ -12,6 +12,8 @@ Typical usage:
 import customtkinter as ctk
 import base64
 
+from numpy import mask_indices
+
 class ButtonFrame(ctk.CTkFrame):
     """Buttons setup for SMIT Gui.
 
@@ -76,13 +78,14 @@ class ButtonFrame(ctk.CTkFrame):
     def _button_update_data(self) -> None:
         """Srape data, reload plots.
         """
+        self.master.logger.debug('Data update initialized')
         self.master.user.os_tools.sng_scrape_and_move()
         self.master.reload_plots()
 
     def _button_close(self) -> None:
         """Close root window.
         """
-        self.master.logger.info(f'All windows closed on button press')
+        self.master.logger.info('All windows closed on button press')
         self.quit()
 
     def _button_dummy(self) -> None:
@@ -106,6 +109,7 @@ class ButtonFrame(ctk.CTkFrame):
                 self.master.user_data_path,
                 'Login',
                 'password')
+        self.master.logger.info('Password removed from application instance and config file')
             
     def _button_savecred(self) -> None:
         """Define confirm credentials button action.
@@ -116,9 +120,6 @@ class ButtonFrame(ctk.CTkFrame):
         Else everything entered will be added to the active user instance and
         won't get stored in a file.
         """
-        ################### debug
-        print('btn save cred pressed')
-
         #Encrypt credentials with rsa keys
         pwd_enc = self.master.user.rsa.encrypt_pwd(
             self.master.credentials_frame.entry_password.get())
@@ -130,11 +131,7 @@ class ButtonFrame(ctk.CTkFrame):
         #if self.master.checkbox_frame.save_credentials.get() == 'on':
         if save_credentials_activated:
 
-            #############debug
-            print('checkbox check succed')
-
             self.master.checkbox_frame.save_credentials_chkbx.deselect()
-
 
             # Append credentials to user_data.toml
             if not 'password' in self.master.user.Login:
@@ -143,42 +140,49 @@ class ButtonFrame(ctk.CTkFrame):
                     'Login',
                     'password',
                     pwd_str)
+                self.master.logger.info('New password added to config file')
+                
             elif self.master.credentials_frame.entry_password.get() == self.master.user.rsa.decrypt_pwd(
                 base64.b64decode(self.master.user.Login['password'])):
-                print('password not changed')
+                self.master.logger.debug('Password not changed')
+
             else:
                 self.master.user.toml_tools.add_entry_to_config(
                     self.master.user_data_path,
                     'Login',
                     'password',
                     pwd_str)
+                self.master.logger.info('New password added to config file')
             
             if self.master.user.Login['username'] == self.master.credentials_frame.entry_username.get():
-                print('user not changed')
+                self.master.logger.debug('User not changed')
             else:
                 self.master.user.toml_tools.add_entry_to_config(
                     self.master.user_data_path,
                     'Login',
                     'username',
                     self.master.credentials_frame.entry_username.get())
+                self.master.logger.info('New username added to config')
                 
             if self.master.user.Meter['day_meter'] == self.master.credentials_frame.entry_daymeter.get():
-                print('daymeter not changed')
+                self.master.logger.debug('Day meter number not changed')
             else:            
                 self.master.user.toml_tools.add_entry_to_config(
                     self.master.user_data_path,
                     'Meter',
                     'day_meter',
                     self.master.credentials_frame.entry_daymeter.get())
+                self.master.logger.info('New day meter number added to config')
 
             if self.master.user.Meter['night_meter'] == self.master.credentials_frame.entry_nightmeter.get():
-                print('nightmeter not changed')
+                self.master.logger.debug('Night meter number not changed')
             else:            
                 self.master.user.toml_tools.add_entry_to_config(
                     self.master.user_data_path,
                     'Meter',
                     'night_meter',
                     self.master.credentials_frame.entry_nightmeter.get())
+                self.master.logger.info('New night meter number added to config')
 
 
 
