@@ -114,6 +114,9 @@ This mode is used for demonstration purposes and testing via pytest. No "Stromne
 - **Linux:** add docker user to x-window group: `xhost +local:<your_dockeruser>`
 - Clone repo
 - Build and run (tested with [VsCode Dev Containers Plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers))
+- Run container with following options:
+	
+	docker run --rm -it --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix ssh_image_tag_3
 
 ## Documentation
 Detailed technical documentation for each class/method can be found here:

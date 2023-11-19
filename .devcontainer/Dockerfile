@@ -1,14 +1,31 @@
-ARG VARIANT=3-bookworm
+ARG VARIANT=3.11-slim
 FROM python:${VARIANT}
 
 # Image Properties
-LABEL version="0.2"
+LABEL version="0.3"
 LABEL description="Image for SMIT application"
 
-# Install Firefox
+# Configure sources
 RUN echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends firefox
 
-# Jupyter Kernel
-RUN python3 -m pip install ipykernel
+# Install additional packages
+RUN apt-get update && apt-get install -y \
+    python3-tk \
+    --no-install-recommends firefox 
+
+RUN apt-get autoremove -y \
+    && apt-get clean -y
+
+# Project Folder
+WORKDIR /smit
+
+# Pip requirements
+COPY ../requirements.txt /smit/requirements.txt
+RUN pip3 install -r requirements.txt
+
+# Application setup
+COPY . /smit/
+RUN pip3 install -e .
+
+# Default command, Arguements will be appended
+ENTRYPOINT ["python", "main.py"]
