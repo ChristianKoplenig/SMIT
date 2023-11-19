@@ -9,6 +9,7 @@ Typical usage:
 
     windowframe = PlotFrame()
 """
+from pathlib import Path
 import datetime as dt
 import pandas as pd
 import matplotlib
@@ -42,19 +43,16 @@ class PlotFrame(ctk.CTkFrame):
         else:          
             self.slice_start = str((dt.datetime.today() - dt.timedelta(days=7)))[:10]
             self.slice_end = str((dt.datetime.today() - dt.timedelta(days=1)))[:10]
-        
+
         # Create dataframes
         self.df_day = self._create_dataframes('day_meter')
         self.df_night = self._create_dataframes('night_meter')
         self.df_slice = self._slice_dataframe(self.slice_start, self.slice_end, self.df_day, self.df_night)
-
         # Create plots
         day = self._seaborn_bar_plot(self.df_day, 'Day').get_tk_widget()
         day.grid(row=0)
-
         night = self._seaborn_bar_plot(self.df_night, 'Night').get_tk_widget()
         night.grid(row=1)
-
         day_slice = self._mpl_slice_plot(self.df_slice, 'Last Week').get_tk_widget()
         day_slice.grid(row=2)
 

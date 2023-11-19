@@ -47,6 +47,8 @@ class AppGui(ctk.CTk):
 
         self.user = app
         self.user_data_path = pl.Path(self.user.Path['user_data'])
+        self.wdempty = pl.Path(self.user.Folder['work_daysum'])
+
 
         if self.user.dummy is True:
             ctk.set_appearance_mode('dark')
@@ -72,23 +74,36 @@ class AppGui(ctk.CTk):
         
         self.checkbox_frame = CheckboxFrame(self)
         self.checkbox_frame.grid(row=2, column=0, sticky='ew')
-
-        self.plot_frame = PlotFrame(self)
-        self.plot_frame.grid(row=0, column=1, rowspan=4, sticky='ew')
         
-        self.stats_frame = StatsFrame(self)
-        self.stats_frame.grid(row=3, column=0, sticky='ew')
+        if not any(self.wdempty.iterdir()):
+            
+            self.logger.info('Raw input folder empty. Update data')
+        else:
+
+            self.plot_frame = PlotFrame(self)
+            self.plot_frame.grid(row=0, column=1, rowspan=4, sticky='ew')
+
+            self.stats_frame = StatsFrame(self)
+            self.stats_frame.grid(row=3, column=0, sticky='ew')
 
         self.logger.info(f'Gui root window with dummy: {self.user.dummy} loaded')
 
     def reload_plots(self) -> None:
         """Call `PlotFrame` class.
         """
-        self.plot_frame.destroy()
+        if hasattr(self, 'plot_frame'):
+            self.plot_frame.destroy()
+
+        if hasattr(self, 'stats_frame'):
+            self.stats_frame.destroy()
+
         self.plot_frame = PlotFrame(self)
         self.plot_frame.grid(row=0, column=1, rowspan=4, sticky='ew')
+
+        self.stats_frame = StatsFrame(self)
+        self.stats_frame.grid(row=3, column=0, sticky='ew')
         
-        self.logger.debug('Plot frame reloaded')
+        self.logger.debug('Plots/Stats frame reloaded')
 
     def initiate_dummy(self) -> None:
         """Set dummy flag and close main window.
