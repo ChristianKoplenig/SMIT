@@ -9,12 +9,8 @@ csv_raw/
 csv_workdir/
 .dummy/
 log/dates.pkl
-
-# documentation
-docs/SMIT
-docs/tests
-docs/index.html
-
+docs/
+*.ipynb
 
 # system specific
 __pycache__/
@@ -26,6 +22,8 @@ __pycache__/
 .mypy_cache
 .pytest_cache
 .vscode/
-
-# developement files
-testing.py
+.gitattributes
+.github/
+.devcontainer/
+.git/
+.gitignore

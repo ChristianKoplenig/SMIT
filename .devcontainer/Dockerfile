@@ -2,7 +2,7 @@ ARG VARIANT=3.11-slim
 FROM python:${VARIANT}
 
 # Image Properties
-LABEL version="0.3"
+LABEL version="0.2"
 LABEL description="Image for SMIT application"
 
 # Configure sources
@@ -27,5 +27,5 @@ RUN pip3 install -r requirements.txt
 COPY . /smit/
 RUN pip3 install -e .
 
-# Default command, Arguements will be appended
+# Default command, Arguments to `docker run` will be appended
 ENTRYPOINT ["python", "main.py"]
