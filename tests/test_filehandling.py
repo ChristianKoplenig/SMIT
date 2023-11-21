@@ -45,7 +45,7 @@ def fh_tests_setup():
     file_stem = str(str(dt.date.today().strftime('%Y%m%d') 
                             + '_' + str(199996)))
     test_meter = app.Meter['day_meter']
-    df_columns = ['date', 'zaehlerstand', 'verbrauch']
+    df_columns = ['date', 'zaehlerstand', 'verbrauch', 'rol_med_30', 'rol_med_7']
     
     return Path(source_dir,
                 dest_dir,
@@ -56,7 +56,7 @@ def fh_tests_setup():
                 df_columns,
                 app) 
     
-@pytest.mark.smoke
+# @pytest.mark.smoke
 @pytest.mark.osinterface
 def test_move_files(fh_tests_setup):
     """Test move files method.

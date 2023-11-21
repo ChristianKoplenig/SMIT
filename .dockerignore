@@ -1,0 +1,29 @@
+# SAFETY
+config/private_key.pem
+config/public_key.pem
+user_data.tomldebug.log
+config/user_data.toml
+
+# application specific
+csv_raw/
+csv_workdir/
+.dummy/
+log/dates.pkl
+docs/
+*.ipynb
+
+# system specific
+__pycache__/
+.ipynb_checkpoints/
+*.log
+.venv/
+*.egg-info
+.tox
+.mypy_cache
+.pytest_cache
+.vscode/
+.gitattributes
+.github/
+.devcontainer/
+.git/
+.gitignore
