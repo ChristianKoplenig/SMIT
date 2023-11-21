@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "smit"
+version = "0.2.0"
+description = "Scrape and plot energy usage data."
+authors = ["Christian Koplenig <tmpck@gmx.net>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
