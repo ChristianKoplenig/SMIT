@@ -28,8 +28,7 @@ This is a hobby project and I am highly motivated to keep it going.
  * [Usage](#usage)
 	* [Initial Setup](#initial-application-setup)
 	* [Live Data](#live-data-usage)
-	* [Dummy Data](#dummy-usage)
-	* [Container setup](#devcontainer)
+	* [Dummy Data](#dummy-setup)
  * [Documentation](#documentation)
 	* [Pytest Setup](#testing)
 	* [Application Structure](#application-structure)
@@ -46,7 +45,8 @@ The password is sent in plain text to the login field. This is **not good practi
 
 ## Installation
 ### Docker
->[!Info]
+
+> [!Important]
 > Docker needs to access the hosts window manager.
 
 __Guide for Debian based systems__  
@@ -69,8 +69,8 @@ __Guide for Debian based systems__
 - Run container with following options:
 	
 		 docker run --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix --name <your_container_name> <your_image_name>
-	> [!Note]
-	> Add `--rm` flag to remove the container after each use. No user data will be persisted or stored on your system.
+  
+	- Add `--rm` flag to remove the container after each use. No user data will be persisted or stored on your system.
 
 ## Usage
 
