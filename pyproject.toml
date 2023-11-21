@@ -6,6 +6,10 @@ authors = ["Christian Koplenig <tmpck@gmx.net>"]
 license = "MIT"
 readme = "README.md"
 
+packages = [
+    {include = "SMIT", from = "src"},
+]
+
 [tool.poetry.dependencies]
 python = "^3.11"
 
