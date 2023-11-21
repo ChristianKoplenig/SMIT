@@ -20,7 +20,7 @@ RUN apt-get autoremove -y \
 WORKDIR /smit
 
 # Pip requirements
-COPY ../requirements.txt /smit/requirements.txt
+COPY ../requirements_docker.txt /smit/requirements.txt
 RUN pip3 install -r requirements.txt
 
 # Application setup
