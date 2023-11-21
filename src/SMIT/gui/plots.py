@@ -9,7 +9,6 @@ Typical usage:
 
     windowframe = PlotFrame()
 """
-from pathlib import Path
 import datetime as dt
 import pandas as pd
 import matplotlib
