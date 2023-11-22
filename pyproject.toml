@@ -5,7 +5,8 @@ description = "Scrape and plot energy usage data."
 authors = ["Christian Koplenig <tmpck@gmx.net>"]
 license = "MIT"
 readme = "README.md"
-
+repository = "https://github.com/ChristianKoplenig/SMIT"
+documentation = "https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html"
 packages = [
     {include = "SMIT", from = "src"},
 ]
