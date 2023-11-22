@@ -15,13 +15,11 @@ python = "^3.11"
 customtkinter = "5.2.1"
 matplotlib = "3.8.0"
 pandas = "2.1.3"
-pytest = "7.4.2"
 rsa = "4.9"
 seaborn = "0.13.0"
 selenium = "4.15.2"
 setuptools = "68.1.2"
 tomlkit = "0.12.3"
-tox = "4.11.3"
 
 [tool.poetry.group.dev.dependencies]
 pandas = "2.1.3"
@@ -31,7 +29,21 @@ selenium = "4.15.2"
 setuptools = "68.1.2"
 tomlkit = "0.12.3"
 seaborn = "0.13.0"
-tox = "4.11.3"
+tox = "^4.11.3"
+tox-poetry-installer = "1.0.0b1"
+
+
+[tool.pytest.ini_options]
+markers = [ 
+    "smoke: Validate all core methods",
+    "application: Test setup of application class",
+    "crypto: Test rsa implementation",
+    "osinterface: Move files, generate pandas dataframe",
+    "persistence: Check dates variable",
+    "scraping: Webdriver setup",
+]
+
+
 
 [build-system]
 requires = ["poetry-core"]

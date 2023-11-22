@@ -754,6 +754,17 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "poetry-core"
+version = "1.8.1"
+description = "Poetry PEP 517 Build Backend"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "poetry_core-1.8.1-py3-none-any.whl", hash = "sha256:194832b24f3283e01c5402eae71a6aae850ecdfe53f50a979c76bf7aa5010ffa"},
+    {file = "poetry_core-1.8.1.tar.gz", hash = "sha256:67a76c671da2a70e55047cddda83566035b701f7e463b32a2abfeac6e2a16376"},
+]
+
+[[package]]
 name = "pyasn1"
 version = "0.5.1"
 description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
@@ -1024,6 +1035,24 @@ docs = ["furo (>=2023.8.19)", "sphinx (>=7.2.4)", "sphinx-argparse-cli (>=1.11.1
 testing = ["build[virtualenv] (>=0.10)", "covdefaults (>=2.3)", "detect-test-pollution (>=1.1.1)", "devpi-process (>=1)", "diff-cover (>=7.7)", "distlib (>=0.3.7)", "flaky (>=3.7)", "hatch-vcs (>=0.3)", "hatchling (>=1.18)", "psutil (>=5.9.5)", "pytest (>=7.4)", "pytest-cov (>=4.1)", "pytest-mock (>=3.11.1)", "pytest-xdist (>=3.3.1)", "re-assert (>=1.1)", "time-machine (>=2.12)", "wheel (>=0.41.2)"]
 
 [[package]]
+name = "tox-poetry-installer"
+version = "1.0.0b1"
+description = "A plugin for Tox that lets you install test environment dependencies from the Poetry lockfile"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "tox_poetry_installer-1.0.0b1-py3-none-any.whl", hash = "sha256:012d507b38d407ec4a5abd6c868ca6d8b8a7548f550e227d9d3d8cf553aff6aa"},
+    {file = "tox_poetry_installer-1.0.0b1.tar.gz", hash = "sha256:92e8306393264861941091c4901782122271360d274d7e0c150475a3ad502025"},
+]
+
+[package.dependencies]
+poetry-core = ">=1.1.0,<2.0.0"
+tox = ">=4,<5"
+
+[package.extras]
+poetry = ["cleo (>=1.0,<3.0)", "poetry (>=1.5.0,<2.0.0)"]
+
+[[package]]
 name = "trio"
 version = "0.23.1"
 description = "A friendly Python library for async concurrency and I/O"
@@ -1135,4 +1164,4 @@ h11 = ">=0.9.0,<1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "7dfd675b94d81c09821f101ab74a8646ed9497af3a8544d64d4526fb9e147fff"
+content-hash = "27d47f28bbcdb760ce0d67afa41833e3de0cde9a0620c3bfbd9ca359d3473f39"
