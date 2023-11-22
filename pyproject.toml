@@ -32,7 +32,6 @@ seaborn = "0.13.0"
 tox = "^4.11.3"
 tox-poetry-installer = "1.0.0b1"
 
-
 [tool.pytest.ini_options]
 markers = [ 
     "smoke: Validate all core methods",
@@ -42,8 +41,6 @@ markers = [
     "persistence: Check dates variable",
     "scraping: Webdriver setup",
 ]
-
-
 
 [build-system]
 requires = ["poetry-core"]
