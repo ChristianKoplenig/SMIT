@@ -59,8 +59,8 @@ class Application:
         self.dummy = dummy
 
         # Logging, Path hardcoded because of init order
-        self.logfilepath = './log/app.log'
-        self._setup_logger(self.logfilepath)
+        logfilepath = './log/app.log'
+        self._setup_logger(logfilepath)
         msg  = f'Class {self.__class__.__name__} of the '
         msg += f'module {self.__class__.__module__} '
         msg +=  'successfully initialized.'
@@ -186,6 +186,10 @@ class Application:
         - ERROR
         - CRITICAL
         """
+        # Create log file on init
+        os.makedirs('./log', exist_ok=True)
+        
+        
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
