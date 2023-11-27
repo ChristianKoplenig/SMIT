@@ -12,7 +12,6 @@ class SMIT:
         self.root.mainloop()
 
         if self.user.dummy is True:
-            print('dummy true main detected')
             self.dummy_reload()
 
 
@@ -20,6 +19,7 @@ class SMIT:
     def dummy_reload(self) -> None:
         """Reload the root window with dummy settings.
         """
+        self.user.logger.info(' ---- Reload with dummy configuration ---- ')
         self.user = Application(True)
         self.root = AppGui(self.user)
         self.root.mainloop()

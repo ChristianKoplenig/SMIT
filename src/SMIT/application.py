@@ -228,7 +228,7 @@ class Application:
 
         # Set paths for copying dummy files
         source_dummy_csv = pl.Path('./opt/dummy_user/').absolute()
-        dest_dummy_csv = pl.Path('./.dummy/csv_workdir/daily').absolute()
+        dest_dummy_csv = pl.Path('./.dummy/csv_raw/daily').absolute()
         dest_dummy_settings = pl.Path('./.dummy/config').absolute()
 
         # Create folders which are needed before user init 
@@ -250,7 +250,7 @@ class Application:
         self.user_settings = pl.Path('./.dummy/config/dummy_settings.toml')
 
         # Logging
-        self.logger.info('Dummy user instantiated')
+        self.logger.info('Dummy user initiated')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
