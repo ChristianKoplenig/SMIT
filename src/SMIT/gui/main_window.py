@@ -52,6 +52,8 @@ class AppGui(ctk.CTk):
 
         if self.user.dummy is True:
             ctk.set_appearance_mode('dark')
+            self.user.os_tools._move_files_to_workdir('199996')
+            self.user.os_tools._move_files_to_workdir('199997')
 
         # Logger setup
         self.logger = app.logger

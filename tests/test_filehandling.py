@@ -56,7 +56,7 @@ def fh_tests_setup():
                 df_columns,
                 app) 
     
-# @pytest.mark.smoke
+@pytest.mark.smoke
 @pytest.mark.osinterface
 def test_move_files(fh_tests_setup):
     """Test move files method.
