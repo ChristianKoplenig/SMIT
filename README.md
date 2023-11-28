@@ -15,9 +15,9 @@ makes users aware of their power consumption patterns. Maybe some of them will t
 use this knowledge to **save energy**.
 
 **Thoughts on web scraping**  
-Web scraping is always messy. If the "Stromnetz Graz" company changes anything at their website I have to rewrite the scraper. I can promise to push a fix to the main branch but can't make a statement about a time frame. To fix this **getting API access would be highly appreciated** but this is a whole different topic...
+Web scraping is always messy. If the "Stromnetz Graz" company changes anything at their website I have to rewrite the scraper. I can promise to push a fix to the main branch but can't make a statement about a time frame. To fix this **getting API access would be highly appreciated**, but this is a whole different topic...
 
-This is a hobby project and I am highly motivated to keep it going.
+This is a hobby project, and I am highly motivated to keep it going.
 
 ## Table of Contents
 
@@ -108,9 +108,7 @@ __Guide for Debian based systems__
 
 ## Usage
 
-To start the application use   
-
-	SMIT/python3 ./main.py
+To start the application use the `main.py` file in the project root folder.
 
 <p align="center">
   <img src="./docs/readme/gui2.png" width=85% /> 
@@ -137,8 +135,6 @@ You can use the 'Save credentials' option to store your credentials in the `user
 </details>
 </p>
 
-The **dummy button** restarts the whole application with dummy data. See [Dummy setup](#dummy-setup) for information on this application mode.
-
 ### Visualized data
 - Median power consumption per day 
 	- Average over the last 7 days
@@ -150,7 +146,7 @@ The **dummy button** restarts the whole application with dummy data. See [Dummy 
 
 ### Live data usage
 Username and password are provided by the electricity provider. Your meter numbers are either found in
-the "Netzzugangsvertrag" under "Technische Details - Zählpunkt/Gerät"  from the electricity provider, or you can get them online following these steps:
+the "Netzzugangsvertrag" under "Technische Details - Zählpunkt/Gerät" from the electricity provider, or you can get them online following these steps:
 
 <details>
 	<summary>Get Meter Numbers</summary>
@@ -169,7 +165,7 @@ the "Netzzugangsvertrag" under "Technische Details - Zählpunkt/Gerät"  from th
 </details>
 
 ### Dummy setup
-- Activate with **Dummy Button** on Gui.
+- Activate with **Dummy Button** on GUI.
 
 This mode is used for demonstration purposes and testing via pytest. No "Stromnetz Graz" account is needed. The scraping modules are not used. The dummy data from `./opt/dummy_user` folder is used to set up an application mockup. This will create a temporary `.dummy` folder in the project directory. At the beginning of each dummy run the temporary folder will be deleted and newly created.
 
@@ -181,7 +177,7 @@ Detailed technical documentation for each class/method can be found here:
 
 The documentation for this project is done via docstrings. As format the [Google Style Guide](https://google.github.io/styleguide/pyguide.html) is used. I think it is good practice to invest time in writing detailed docstrings and as a free benefit the documentation is done on the fly.
 
-At the moment I use the pdoc3 library to generate HTML output from the docstrings. In future I want to switch to sphinx in combination with the readthedocs theme. Ideally this leads to a more compact documentation and a simpler README file. 
+At the moment I use the pdoc3 library to generate HTML output from the docstrings. In future, I want to switch to sphinx in combination with the readthedocs theme. Ideally this leads to a more compact documentation and a simpler README file. 
 
 ### Testing
 
@@ -213,7 +209,7 @@ __Application modules__
 - **filepersistence** - Preserve data via serialization
 - **rsahandling** - Public key cryptography
 - **scrapedata** - Selenium webdriver implementation
-- **gui** - Modules for Gui, grouped by frame 
+- **gui folder** - Modules for GUI, grouped by frame 
 
 __Libraries__
 
@@ -221,9 +217,10 @@ __Libraries__
 - **Pathlib** - Folder structure setup, Move files, Paths handling
 - **Tomlkit** - Manage configs in `.toml` files
 - **Logger** - Log Application behavior
+- **Poetry** - Package and dependency management
 - **Rsa** - Encrypted password storage
 - **Selenium Webdriver** - Scrape data
-- **Tkinter** - GUI for user credentials
+- **Custom Tkinter** - GUI Setup
 - **Pandas** - Create data frames for further analysis
 - **Pytest** - Test application setup
 - **Pdoc** - Generate documentation
