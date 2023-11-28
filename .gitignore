@@ -25,6 +25,6 @@ __pycache__/
 .tox
 .mypy_cache
 .pytest_cache
-
+.vscode/
 # developement files
 testing.py
