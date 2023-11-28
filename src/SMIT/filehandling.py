@@ -142,7 +142,7 @@ class OsInterface():
         df_return['verbrauch'] = df_return['verbrauch'].astype(float)
         df_return.sort_values(by='date', inplace=True)
         df_return.reset_index(drop=True, inplace=True)
-        df_return.drop_duplicates(subset='date', keep='first', inplace=True)
+        df_return.drop_duplicates(subset='date', keep='last', inplace=True)
         df_return['rol_med_30'] = df_return['verbrauch'].rolling(30).median().round(decimals=2)
         df_return['rol_med_7'] = df_return['verbrauch'].rolling(7).median().round(decimals=2)
         
@@ -150,28 +150,6 @@ class OsInterface():
         
         return df_return
 
-    def slice_dataframe(self, st_date: str, end_date: str, workdir: pl.Path, metertype: str) -> pd.DataFrame:
-        """Slice pandas dataframe using date column
-
-        Use `.csv` files as input for `create_dataframes()` call.
-
-        Args:
-            st_date (str): Start date, Format: YYYY-MM-DD
-            end_date (str): End date, Format: YYYY-MM-DD
-            workdir (pathlib.Path): Path to directory for file import.
-            metertype (string): Day/Night meter device number.
-
-        Returns:
-            pd.DataFrame: Columns [`date`, `zaehlerstand`, `verbrauch`] for each meter.
-        """
-        raw_df = self.create_dataframe(workdir, metertype)
-        sliced_df = raw_df[(raw_df['date'] >= st_date) & (raw_df['date'] <= end_date) ]
-        sliced_df.reset_index(drop=True, inplace=True)
-
-        self.logger.debug(f'Created dataframe slice with start date: {st_date} and end date: {end_date}')
-
-        return sliced_df
-    
     def sng_scrape_and_move(self) -> None:
         """Download and move `.csv` files.
 
@@ -190,13 +168,12 @@ class OsInterface():
             dates = self.user.persistence.load_dates_log()
 
             # Scrape just once a day
-            if not dates['start'] == dt.date.today().strftime('%d-%m-%Y'):
-
+            if dates['last_scrape'] == dt.date.today().strftime('%d-%m-%Y'):
+                self.logger.info('Most recent data already downloaded')
+            else:
                 self.user.scrape.get_daysum_files(self.user.Options['headless_mode'])
                 self._move_files_to_workdir(self.user.Meter['day_meter'])
                 self._move_files_to_workdir(self.user.Meter['night_meter'])
-            else:
-                self.logger.info('Most recent data already downloaded')
         else:
             # Move files for dummy user
             self._move_files_to_workdir(self.user.Meter['day_meter'])

@@ -33,7 +33,6 @@ from selenium.webdriver.support import expected_conditions as EC
 if TYPE_CHECKING:
     from SMIT.application import Application
 
-
 class Webscraper():
     """Interact with selenium webdriver library.
     
@@ -129,15 +128,10 @@ class Webscraper():
         Args:
             dates (dict): Object for scrape date management.
         """
-        # Update dates after first run
-        if dates['last_scrape'] == 'never':
-            dates['start'] = date.today().strftime('%d-%m-%Y')
-        # Update start/end dates
-        if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):
-            dates['start'] = dates['last_scrape']
-
         dates['last_scrape'] = date.today().strftime('%d-%m-%Y')
-        dates['start'] = date.today().strftime('%d-%m-%Y')
+        
+        # Re-scrape last 4 days to update delayed sng data update
+        dates['start'] = (date.today() - timedelta(days=5)).strftime('%d-%m-%Y')
 
         self.user.persistence.save_dates_log(dates)
 
@@ -306,26 +300,21 @@ class Webscraper():
 
         self.logger.debug('Scraping routine triggered')
 
-        # scrape just once a day
-        if not dates['start'] == date.today().strftime('%d-%m-%Y'):
-            self.sng_login(self.user.Folder['raw_daysum'], headless)
-            self._sng_switch_day_night_meassurements('night')
-            self._sng_fill_dates_element(dates['start'], dates['end'])
-            self._sng_start_download()
-            self._sng_switch_day_night_meassurements('day')
-            self._sng_fill_dates_element(dates['start'], dates['end'])
-            self._sng_start_download()
-            self.logger.info('Downloaded data with the following arguments:')
-            self.logger.info('Start date: ' + dates['start'])
-            self.logger.info('End date: ' + dates['end'])
-            self.start_date_updater(dates)
-
-        else:
-            self.logger.info('Most recent data already downloaded')
+        # Login to "Stromnetz Graz" and scrape data for each meter
+        self.sng_login(self.user.Folder['raw_daysum'], headless)
+        self._sng_switch_day_night_meassurements('night')
+        self._sng_fill_dates_element(dates['start'], dates['end'])
+        self._sng_start_download()
+        self._sng_switch_day_night_meassurements('day')
+        self._sng_fill_dates_element(dates['start'], dates['end'])
+        self._sng_start_download()
+        self.logger.info('Downloaded data with the following arguments:')
+        self.logger.info('Start date: ' + dates['start'])
+        self.logger.info('End date: ' + dates['end'])
+        self.start_date_updater(dates)
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
-
 
 # Pdoc config get underscore methods
 __pdoc__ = {name: True
