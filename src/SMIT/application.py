@@ -25,7 +25,6 @@ from SMIT.scrapedata import Webscraper
 from SMIT.filepersistence import Persistence
 from SMIT.rsahandling import RsaTools
 from SMIT.filehandling import OsInterface, TomlTools
-from SMIT.userinput import UiTools
 
 
 class Application:
@@ -39,7 +38,6 @@ class Application:
     - On initial run create folder structure according to `./config/user_settings.toml`.
     - Configure logging function.
     - Instantiate modules and assign to application instance.
-    - Call user credentials GUI.
 
     Dummy usage
     -----------
@@ -60,6 +58,14 @@ class Application:
         # Attribute needed for scrape and move routine
         self.dummy = dummy
 
+        # Logging, Path hardcoded because of init order
+        logfilepath = './log/app.log'
+        self._setup_logger(logfilepath)
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.info(msg)
+
         if self.dummy is False:
             # Load paths to user configuration files
             self._copy_userdata_template()
@@ -72,14 +78,9 @@ class Application:
         self._add_TOML_to_attributes(self.user_data)
         self._add_TOML_to_attributes(self.user_settings)
         self._initialize_folder_structure()
-        self._setup_logger()
         self._add_modules_to_attributes()
 
-        if dummy is False:
-            # Load Gui Dialog
-            self.gui.credentials_dialog()
-
-        self.logger.info('Application with user "%s" instantiated', self.Login["username"])
+        self.logger.info(f'Application with user {self.Login["username"]} instantiated.')
 
     def _add_modules_to_attributes(self) -> None:
         """Assign modules to application instance.
@@ -91,6 +92,8 @@ class Application:
         """
         for key, value in self._load_modules().items():
             setattr(self, key, value)
+
+        self.logger.info('All modules added to user instance')
 
     def _add_TOML_to_attributes(self, file_path: pl.Path) -> None:
         """Read config file and assign parameters to application instance.
@@ -110,6 +113,8 @@ class Application:
         for key, value in data.items():
             setattr(self, key, value)
 
+        self.logger.debug(f'Attributes from {file_path} added to application instance.')
+
     def _initialize_folder_structure(self) -> None:
         """Create folder structure.
 
@@ -120,6 +125,8 @@ class Application:
         # pylint: disable=no-member
         for folder_path in self.Folder.values():
             os.makedirs(folder_path, exist_ok=True)
+
+        self.logger.debug('Folderstructure checked and initialized.')
             
     def _copy_userdata_template(self) -> None:
         """Initialize user data config
@@ -131,6 +138,8 @@ class Application:
         dest = './config/user_data.toml'
         if not pl.Path(dest).exists():
             shutil.copy2(src, dest)
+
+            self.logger.debug(f'User data template copied from: {src} to: {dest}')
             
 
     def _load_modules(self) -> dict:
@@ -151,16 +160,18 @@ class Application:
             are intantiated modules objects.
         """
         modules = dict([
-            ('gui', UiTools(self)),
             ('rsa', RsaTools(self)),
             ('toml_tools', TomlTools(self)),
             ('os_tools', OsInterface(self)),
             ('persistence', Persistence(self)),
             ('scrape', Webscraper(self))
         ])
+
+        self.logger.debug('All Modules instantiated')
+
         return modules
 
-    def _setup_logger(self) -> None:
+    def _setup_logger(self, filepath) -> None:
         """Configuration for logging.
         
         The default log folder is `./log` and the logfile is called `app.log`.  
@@ -175,12 +186,16 @@ class Application:
         - ERROR
         - CRITICAL
         """
+        # Create log file on init
+        os.makedirs('./log', exist_ok=True)
+        
+        
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
         formatter = logging.Formatter('%(asctime)s :: %(levelname)-8s :: [%(module)s:%(lineno)d] :: %(message)s')
 
-        file_handler = logging.FileHandler(self.Path['log_file'])
+        file_handler = logging.FileHandler(filepath)
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
 
@@ -233,6 +248,9 @@ class Application:
         # Set paths to dummy configuration
         self.user_data = pl.Path('./.dummy/config/dummy_data.toml')
         self.user_settings = pl.Path('./.dummy/config/dummy_settings.toml')
+
+        # Logging
+        self.logger.info('Dummy user initiated')
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"

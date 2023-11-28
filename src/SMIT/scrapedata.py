@@ -33,7 +33,6 @@ from selenium.webdriver.support import expected_conditions as EC
 if TYPE_CHECKING:
     from SMIT.application import Application
 
-
 class Webscraper():
     """Interact with selenium webdriver library.
     
@@ -112,6 +111,8 @@ class Webscraper():
             profile.add_argument("-headless")
             self.logger.info('Firefox headless mode activated')
 
+        self.logger.debug('Firefox profile loaded')
+
         return profile
 
     def start_date_updater(self, dates: dict) -> None:
@@ -127,17 +128,14 @@ class Webscraper():
         Args:
             dates (dict): Object for scrape date management.
         """
-        # Update dates after first run
-        if dates['last_scrape'] == 'never':
-            dates['start'] = date.today().strftime('%d-%m-%Y')
-        # Update start/end dates
-        if not dates['last_scrape'] == 'never' and not dates['last_scrape'] == date.today().strftime('%d-%m-%Y'):
-            dates['start'] = dates['last_scrape']
-
         dates['last_scrape'] = date.today().strftime('%d-%m-%Y')
-        dates['start'] = date.today().strftime('%d-%m-%Y')
+        
+        # Re-scrape last 4 days to update delayed sng data update
+        dates['start'] = (date.today() - timedelta(days=5)).strftime('%d-%m-%Y')
 
         self.user.persistence.save_dates_log(dates)
+
+        self.logger.debug(f'Dates log updated: {dates}')
 
     def _decode_password(self) -> str:
         """Read and decode stored password.
@@ -160,6 +158,9 @@ class Webscraper():
         b64_decode = base64.b64decode(pwd_enc)
         # Decrypt rsa encryption
         password = self.user.rsa.decrypt_pwd(b64_decode)
+
+        self.logger.debug('Password decoded for scraping')
+
         return password
 
     def sng_login(self, dl_folder: pl.Path,
@@ -192,7 +193,8 @@ class Webscraper():
         self.wait_and_click('/html/body/div/app-root/main/div/app-dashboard/div[2]/div/div[1]/div[1]/div')
         # Set unit to [Wh]
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/div/div[2]/div[3]/app-unit-selector/div/div[2]')
-        self.logger.debug('Login to Stromnetz Graz successful')
+        
+        self.logger.info('Login to Stromnetz Graz successful')
 
     def _sng_input_dates(self, input_date: str) -> None:
         """Pass dates to web form.
@@ -221,6 +223,8 @@ class Webscraper():
         actions.send_keys(Keys.TAB)
         actions.perform()
 
+        self.logger.debug(f'Date: {input_date} send to web element')
+
     def _sng_fill_dates_element(self, start: str, end: str) -> None:
         """Activate daily average computation and fill dates.
         
@@ -244,12 +248,16 @@ class Webscraper():
 
         time.sleep(3)   # Wait for element to load
 
+        self.logger.debug('Web element for date inputs filled')
+
     def _sng_start_download(self) -> None:
         """Click download button.
         
         Start downloading files with filled dates from scraper.
         """
         self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-header-nav/nav/div/div/div/div/div[2]/div/div[3]/div/div[2]/span')
+
+        self.logger.debug('Download of raw files started')
 
     def _sng_switch_day_night_meassurements(self, day_night: str) -> None:
         """Select meter for data setup.
@@ -268,9 +276,11 @@ class Webscraper():
         # choose night measurements
         if day_night == 'night':
             self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[1]/ul/li/ul/li[2]/a')
+            self.logger.debug('Night meter measurements selected in web element')
         # choose day measurements
         else:
             self.wait_and_click('/html/body/div/app-root/main/div/app-overview/reports-nav/app-meter-point-selector/div/div[2]/div/div[1]/ul/li/ul/li[1]/a')
+            self.logger.debug('Day meter measurements selected in web element')
 
         time.sleep(3)
 
@@ -288,23 +298,23 @@ class Webscraper():
         dates = self.user.persistence.load_dates_log()
         dates['end'] = (date.today() - timedelta(days=1)).strftime('%d-%m-%Y')
 
-        # scrape just once a day
-        if not dates['start'] == date.today().strftime('%d-%m-%Y'):
-            self.sng_login(self.user.Folder['raw_daysum'], headless)
-            self._sng_switch_day_night_meassurements('night')
-            self._sng_fill_dates_element(dates['start'], dates['end'])
-            self._sng_start_download()
-            self._sng_switch_day_night_meassurements('day')
-            self._sng_fill_dates_element(dates['start'], dates['end'])
-            self._sng_start_download()
-            self.logger.info('Downloaded data with the following arguments:')
-            self.logger.info('Start date: ' + dates['start'])
-            self.logger.info('End date: ' + dates['end'])
-            self.start_date_updater(dates)
+        self.logger.debug('Scraping routine triggered')
+
+        # Login to "Stromnetz Graz" and scrape data for each meter
+        self.sng_login(self.user.Folder['raw_daysum'], headless)
+        self._sng_switch_day_night_meassurements('night')
+        self._sng_fill_dates_element(dates['start'], dates['end'])
+        self._sng_start_download()
+        self._sng_switch_day_night_meassurements('day')
+        self._sng_fill_dates_element(dates['start'], dates['end'])
+        self._sng_start_download()
+        self.logger.info('Downloaded data with the following arguments:')
+        self.logger.info('Start date: ' + dates['start'])
+        self.logger.info('End date: ' + dates['end'])
+        self.start_date_updater(dates)
 
     def __repr__(self) -> str:
         return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
-
 
 # Pdoc config get underscore methods
 __pdoc__ = {name: True

@@ -61,7 +61,6 @@ def test_load_modules():
         with a static dict.
     """
     modules = dict([
-    ('gui', 'UiTools'),
     ('rsa', 'RsaTools'),
     ('toml_tools', 'TomlTools'),
     ('os_tools', 'OsInterface'),
