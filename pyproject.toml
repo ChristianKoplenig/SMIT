@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "smit"
-version = "0.2.0"
+version = "0.3.0"
 description = "Scrape and plot energy usage data."
 authors = ["Christian Koplenig <tmpck@gmx.net>"]
 license = "MIT"
@@ -10,6 +10,7 @@ documentation = "https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html"
 packages = [
     {include = "smit", from = "src"},
     {include = "gui", from = "src"},
+    {include = "webgui", from  = "src"}
 ]
 
 [tool.poetry.dependencies]
@@ -21,6 +22,7 @@ rsa = "^4.9"
 seaborn = "0.13.0"
 selenium = "4.15.2"
 tomlkit = "^0.12.3"
+streamlit = "^1.29.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
