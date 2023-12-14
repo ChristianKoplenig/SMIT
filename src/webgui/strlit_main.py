@@ -15,15 +15,31 @@ st.markdown(
 
 # Initiate Smit Instance
 @st.cache_resource
-def load_smit() -> None:
-    """Assign Smit attributes to session state.
+def load_smit() -> Application:
+    """Cache backend init.
     """
     #st.session_state['user'] = Application()
     dummy = Application(True)
-    
-    for key, value in vars(dummy).items():
+    return dummy
+
+def session_init(backend) -> None:
+    """Add backend to current session
+
+    Args:
+        backend (Application): Instantiation of backend class.
+    """
+    for key, value in vars(backend).items():
         st.session_state[key] = value
-load_smit()
+
+# Load backend
+dummy = load_smit()
+session_init(dummy)
+
+# # Logging
+# msg  = f'Class {__class__.__name__} of the '
+# msg += f'module {__class__.__module__} '
+# msg +=  'successfully initialized.'
+st.session_state.logger.debug('Streamlit init')
 
 ## Readme ##
 # Get path for Readme file
