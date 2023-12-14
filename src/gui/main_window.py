@@ -14,7 +14,7 @@ Typical usage:
 import pathlib as pl
 import customtkinter as ctk
 
-from smit.application import Application
+from smit.core import Application
 
 from gui.credentials import CredentialsFrame
 from gui.buttons import ButtonFrame
@@ -24,7 +24,7 @@ from gui.stats import StatsFrame
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from smit.application import Application
+    from smit.core import Application
 
 class AppGui(ctk.CTk):
     """Build main window for SMIT Gui.

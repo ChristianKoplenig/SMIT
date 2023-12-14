@@ -12,7 +12,7 @@ from datetime import date,timedelta
 from collections import namedtuple
 import pytest # pylint: disable=import-error
 
-from smit.application import Application
+from smit.core import Application
 
 app = Application(True)
 

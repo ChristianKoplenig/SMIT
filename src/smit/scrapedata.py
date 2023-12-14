@@ -31,7 +31,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 # Import just for type hints
 if TYPE_CHECKING:
-    from smit.application import Application
+    from smit.core import Application
 
 class Webscraper():
     """Interact with selenium webdriver library.

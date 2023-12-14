@@ -15,7 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 
-from smit.application import Application
+from smit.core import Application
 
 app = Application(True)
 

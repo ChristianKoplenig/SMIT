@@ -11,7 +11,7 @@ in the config folder.
 import rsa
 import pytest # pylint: disable=import-error
 
-from smit.application import Application
+from smit.core import Application
 
 app = Application(True)
 
