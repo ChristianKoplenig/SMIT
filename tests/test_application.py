@@ -20,7 +20,7 @@ they are created.
 import os
 import pytest # pylint: disable=import-error
 
-from SMIT.application import Application
+from smit.application import Application
 
 app = Application(True)
 

@@ -14,17 +14,17 @@ Typical usage:
 import pathlib as pl
 import customtkinter as ctk
 
-from SMIT.application import Application
+from smit.application import Application
 
-from SMIT.gui.credentials import CredentialsFrame
-from SMIT.gui.buttons import ButtonFrame
-from SMIT.gui.checkboxes import CheckboxFrame
-from SMIT.gui.plots import PlotFrame
-from SMIT.gui.stats import StatsFrame
+from gui.credentials import CredentialsFrame
+from gui.buttons import ButtonFrame
+from gui.checkboxes import CheckboxFrame
+from gui.plots import PlotFrame
+from gui.stats import StatsFrame
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from SMIT.application import Application
+    from smit.application import Application
 
 class AppGui(ctk.CTk):
     """Build main window for SMIT Gui.

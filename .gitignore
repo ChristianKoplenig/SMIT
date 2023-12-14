@@ -9,6 +9,7 @@ csv_raw/
 csv_workdir/
 .dummy/
 log/dates.pkl
+.flask/
 
 # documentation
 docs/SMIT
