@@ -21,10 +21,10 @@ import shutil
 # 3rd party libraries
 import tomlkit
 # Import Custom Modules
-from SMIT.scrapedata import Webscraper
-from SMIT.filepersistence import Persistence
-from SMIT.rsahandling import RsaTools
-from SMIT.filehandling import OsInterface, TomlTools
+from smit.scrapedata import Webscraper
+from smit.filepersistence import Persistence
+from smit.rsahandling import RsaTools
+from smit.filehandling import OsInterface, TomlTools
 
 
 class Application:

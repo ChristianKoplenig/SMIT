@@ -1,7 +1,7 @@
 """Main entry point for SMIT
 """
-from SMIT.application import Application
-from SMIT.gui.main_window import AppGui
+from smit.application import Application
+from gui.main_window import AppGui
 
 class SMIT:
     """Main entry point

@@ -8,7 +8,8 @@ readme = "README.md"
 repository = "https://github.com/ChristianKoplenig/SMIT"
 documentation = "https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html"
 packages = [
-    {include = "SMIT", from = "src"},
+    {include = "smit", from = "src"},
+    {include = "gui", from = "src"},
 ]
 
 [tool.poetry.dependencies]
@@ -35,6 +36,31 @@ markers = [
     "persistence: Check dates variable",
     "scraping: Webdriver setup",
 ]
+
+[tool.tox]
+legacy_tox_ini = """
+    [tox]
+    minversion = 4.10.0
+    envlist = py311, #flake8
+    isolated_build = true
+
+    [testenv]
+    skip_install = true
+    description = Use dummy setup to test SMIT application
+    allowlist_externals = poetry
+    require_locked_deps = true
+    poetry_dep_groups = 
+        dev
+    commands_pre =
+        poetry install
+    commands =
+        poetry run pytest --basetemp={envtmpdir} -v -m "smoke" #combine markers with or/and syntax
+
+    [testenv:flake8]
+    basepython = python3.11
+    deps = flake8
+    commands = flake8 --ignore=E201,E202,E203,E221,E222,E241 src
+"""
 
 [build-system]
 requires = ["poetry-core"]

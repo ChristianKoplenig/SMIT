@@ -19,7 +19,7 @@ import rsa
 # Type hints
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from SMIT.application import Application
+    from smit.application import Application
 
 
 class RsaTools():

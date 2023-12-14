@@ -15,7 +15,7 @@ import pathlib as pl
 from collections import namedtuple
 import pytest # pylint: disable=import-error
 
-from SMIT.application import Application
+from smit.application import Application
 
 app = Application(True)
 
