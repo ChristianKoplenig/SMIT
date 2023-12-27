@@ -30,6 +30,8 @@ def session_init(backend) -> None:
     """
     for key, value in vars(backend).items():
         st.session_state[key] = value
+    
+    st.session_state.logger.debug('Streamlit session state init')
 
 # Load backend
 dummy = load_smit()
@@ -39,7 +41,7 @@ session_init(dummy)
 # msg  = f'Class {__class__.__name__} of the '
 # msg += f'module {__class__.__module__} '
 # msg +=  'successfully initialized.'
-st.session_state.logger.debug('Streamlit init')
+st.session_state.logger.debug('--- Streamlit initialized ---')
 
 ## Readme ##
 # Get path for Readme file
