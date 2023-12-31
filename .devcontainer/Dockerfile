@@ -1,34 +1,46 @@
-ARG VARIANT=3.11-slim
+ARG VARIANT=3.11-bookworm
 FROM python:${VARIANT} as python_base
 
 # Image Properties
-LABEL version="0.3"
+LABEL version="0.4"
 LABEL description="Image for SMIT application"
 
-# Configure sources
-RUN echo "deb http://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list.d/debian.list
+# Version Tags
+ARG PYTHON_VERSION=3.11
+ARG POETRY_VERSION=1.7.1
 
-FROM python_base as smith_base
+# Application Arguments
+ARG APP_NAME=smit
+ARG APP_PATH=/${APP_NAME}
+ARG STL_ENTRY=${APP_PATH}/src/webgui/st_main.py
 
-# Install base packages with apt
-RUN apt-get update && apt-get install -y \
-    python3-tk \
-    --no-install-recommends firefox 
-RUN apt-get autoremove -y \
-    && apt-get clean -y
-RUN pip install poetry
+# Environment setup
+ENV \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONFAULTHANDLER=1 
+ENV \
+    POETRY_VERSION=${POETRY_VERSION} \
+    POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_NO_INTERACTION=1
 
-# Application Dependencies
+# Install Poetry - respects $POETRY_VERSION & $POETRY_HOME
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH="${POETRY_HOME}/bin:$PATH"
+
+
+FROM python_base as smit_base
+# Install Smit dependencies
+WORKDIR $APP_PATH
 COPY poetry.lock pyproject.toml ./
-RUN poetry install --no-root
+RUN poetry install --without dev --no-root
 
-FROM smith_base as smith_runtime
+FROM smit_base as smit_runtime
+# Install Smit application
+COPY . ./
+RUN poetry install --without dev
 
-WORKDIR /smit
-
-# Application setup
-COPY . /smit/
-RUN poetry install
-
-# Default command, Arguments to `docker run` will be appended
-ENTRYPOINT ["poetry", "run", "python", "main.py"]
+# Run streamlit framework
+ENTRYPOINT [ "poetry", "run" ]
+CMD [ "streamlit", "run", "src/webgui/st_main.py" ]
