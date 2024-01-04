@@ -4,6 +4,7 @@ config/public_key.pem
 user_data.tomldebug.log
 config/user_data.toml
 .streamlit/secrets.toml
+src/db/smitdb_secrets.py
 
 # application specific
 csv_raw/
