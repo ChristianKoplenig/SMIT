@@ -3,7 +3,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker
 
 from db import smitdb_secrets as secrets
-from db.auth_schema import Auth
+from db.auth_schema import auth_table_setup, Auth
 
 db_user = secrets.username
 db_pwd = secrets.password
@@ -21,29 +21,28 @@ url = URL.create(
 engine = create_engine(url)
 connection = engine.connect()
 
+# Create authentication table
+Base= auth_table_setup()
+Base.metadata.create_all(engine)
 
+# Open session
+smit_db = sessionmaker(engine)
+session = smit_db()
 
-# ########Schema###################
-# from datetime import datetime
-# from sqlalchemy import Column, Integer, String, DateTime
-# from sqlalchemy.orm import declarative_base
+# Create dummy user
+dummy = Auth(
+    username= 'dummy_user',
+    password= 'dummy_pwd',
+    email= 'dummy@dummymail.com',
+    sng_username= 'dummy_sng_login',
+    sng_password= 'dummy_sng_password',
+    daymeter= '199996',
+    nightmeter= '199997',
+)
+session.add(dummy)
+session.commit()
 
-# Base = declarative_base()
-
-# class SomeUser(Base):
-#     """Schema for user table
-
-#     Args:
-#         Base (declarative_base): Base schema definition
-#     """
-#     __tablename__ = 'someuser'
-
-#     id = Column(Integer(), primary_key=True)
-#     username = Column(String(100), nullable=False, unique=True)
-#     created_on = Column(DateTime(), default=datetime.now)
-# #########################
-
-# Base.metadata.create_all(engine)
+########################################################
 
 # ############Session##########
 # pg_session = sessionmaker(engine)
