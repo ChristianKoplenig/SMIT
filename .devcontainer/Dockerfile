@@ -12,7 +12,7 @@ ARG POETRY_VERSION=1.7.1
 # Application Arguments
 ARG APP_NAME=smit
 ARG APP_PATH=/${APP_NAME}
-ARG STL_ENTRY=${APP_PATH}/src/webgui/st_main.py
+#ARG STL_ENTRY=${APP_PATH}/src/webgui/st_main.py
 
 # Environment setup
 ENV \

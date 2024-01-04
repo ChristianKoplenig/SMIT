@@ -1,0 +1,24 @@
+version: "3.8"
+name: smit
+services:
+  postgres:
+    container_name: smit_db
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+    ports:
+      - "5432:5432"
+    volumes:
+     - db:/var/lib/postgresql/data
+  streamlit:
+    container_name: smit_streamlit
+    build: 
+      dockerfile: ./.devcontainer/Dockerfile
+      #target: smit_runtime
+      context: ./
+    ports:
+      - "8501:8501"
+volumes:
+  db: 
