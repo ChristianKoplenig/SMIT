@@ -9,7 +9,7 @@ repository = "https://github.com/ChristianKoplenig/SMIT"
 documentation = "https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html"
 packages = [
     {include = "smit", from = "src"},
-    {include = "webgui", from  = "src"},
+    {include = "st_gui", from  = "src"},
     {include = "db", from = "src"}
 ]
 
@@ -23,7 +23,7 @@ selenium = "4.15.2"
 tomlkit = "^0.12.3"
 streamlit = "^1.29.0"
 sqlalchemy = "^2.0.24"
-psycopg = {extras = ["binary", "pool"], version = "^3.1.16"}
+psycopg2-binary = "^2.9.9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"

@@ -3,6 +3,7 @@ config/private_key.pem
 config/public_key.pem
 user_data.tomldebug.log
 config/user_data.toml
+.streamlit/secrets.toml
 
 # application specific
 csv_raw/

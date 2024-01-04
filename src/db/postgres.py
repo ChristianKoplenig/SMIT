@@ -2,16 +2,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker
 
-#from db import schema
-
 ## Connect to postgres daemon
 url = URL.create(
     drivername='postgresql+psycopg',
-    username='postgres',
-    password='UsAr6FdY2aMOBlu',
-    host='137.66.21.37',
-    database='smit',
-    port='5432'
+
 )
 engine = create_engine(url)
 connection = engine.connect()
@@ -44,8 +38,8 @@ this_session = pg_session()
 
 #########Inser###############
 
-a = SomeUser(username='a')
-b = SomeUser(username='b')
+a = SomeUser(username='c')
+b = SomeUser(username='d')
 
 this_session.add_all([a,b])
 this_session.commit()
