@@ -33,9 +33,26 @@ def session_init(backend) -> None:
     
     st.session_state.logger.debug('Streamlit session state init')
 
+
+# Connect to fly.io smit database
+# Use auth table
+@st.cache_resource
+def connect_users_db() -> None:
+    """Connect to fly.io smit database.
+    """
+    # Database connection
+    users_db = st.connection('flyio', type='sql')
+    st.session_state.logger.debug('Database connection established')
+    return users_db
+
 # Load backend
 dummy = load_smit()
 session_init(dummy)
+
+# Connect to auth table 
+users_db = connect_users_db()
+
+
 
 # # Logging
 # msg  = f'Class {__class__.__name__} of the '

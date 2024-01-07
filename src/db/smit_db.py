@@ -30,9 +30,10 @@ smit_db = sessionmaker(engine)
 session = smit_db()
 
 # Create dummy user
+# password = 'dummy_pwd'; generated with streamlit_authenticator.Hasher
 dummy = Auth(
     username= 'dummy_user',
-    password= 'dummy_pwd',
+    password= '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
     email= 'dummy@dummymail.com',
     sng_username= 'dummy_sng_login',
     sng_password= 'dummy_sng_password',
