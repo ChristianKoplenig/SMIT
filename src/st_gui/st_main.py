@@ -1,4 +1,6 @@
 import streamlit as st
+import streamlit_authenticator as stauth
+
 from smit.core import Application
 
 st.set_page_config(
@@ -42,22 +44,66 @@ def connect_users_db() -> None:
     """
     # Database connection
     users_db = st.connection('flyio', type='sql')
-    st.session_state.logger.debug('Database connection established')
+    st.session_state.logger.debug('Connected to fly.io database')
     return users_db
+
+
+
+######################
+# Authenticator credentials dictionary
+def create_credentials_dict(db_auth: st.connection) -> dict:
+    """Create credentials dictionary from database.
+
+    Args:
+        db_auth (st.connection): Database connection.
+
+    Returns:
+        dict: Dictionary of credentials.
+    """
+    cred_dict = {}
+
+    for row in db_auth.itertuples():
+        un = row.username
+        n = row.sng_username
+        p = row.password
+        em = row.email
+        
+        # Append to dictionary
+        cred_dict.setdefault('usernames', {}).setdefault(un, {'email': em, 'name': n, 'password': p})
+    return cred_dict
+
+# Initialize Authenticator
+def init_authenticator()  -> stauth.Authenticate:
+    """Initialize authenticator instance.
+
+    Args:
+        db_auth (st.connection): Database connection.
+
+    Returns:
+        stauth.Authenticate: Authenticator instance.
+    """
+    db_auth = st.session_state.users_db.query('SELECT * FROM auth;', ttl="10m")
+    authenticator = stauth.Authenticate(
+        create_credentials_dict(db_auth),
+        'st_dummy_cookie',
+        'cookey',
+    )
+    return authenticator
+
+
+######################
 
 # Load backend
 dummy = load_smit()
 session_init(dummy)
 
 # Connect to auth table 
-users_db = connect_users_db()
+st.session_state.users_db = connect_users_db()
 
+# Load authenticator instance
+#st.session_state.authenticator = init_authenticator()
 
-
-# # Logging
-# msg  = f'Class {__class__.__name__} of the '
-# msg += f'module {__class__.__module__} '
-# msg +=  'successfully initialized.'
+# Logging
 st.session_state.logger.debug('--- Streamlit initialized ---')
 
 ## Readme ##
