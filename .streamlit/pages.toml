@@ -7,4 +7,8 @@ path = 'src/st_gui/pages/register.py'
 name = 'Authentication'
 
 [[pages]]
+path = 'src/st_gui/pages/pydantic_auth.py'
+name = 'Pydantic'
+
+[[pages]]
 path = 'src/st_gui/pages/debug.py'

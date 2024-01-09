@@ -17,7 +17,7 @@ class SmitAuth(SQLModel, table=True):
         daymeter (str, optional): The day meter value.
         nightmeter (str, optional): The night meter value.
     """
-    __tablename__ = 'auth_dev'
+    __tablename__ = 'auth'
 
     id: Optional[int] = Field(default=None, primary_key=True)
         
