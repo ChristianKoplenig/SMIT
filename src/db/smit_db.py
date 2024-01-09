@@ -4,7 +4,7 @@ from sqlmodel import Session, SQLModel, create_engine
 from db import smitdb_secrets as secrets
 
 # Import database schemas
-from db.users_schema import SmitUser
+from db.auth_schema import SmitAuth
 
 db_user = secrets.username
 db_pwd = secrets.password
@@ -32,7 +32,7 @@ def create_tables() -> None:
 def create_dummy_user() -> None:
     """Creates dummy user.
     """
-    dummy = SmitUser(
+    dummy = SmitAuth(
     username= 'dummy_user',
     password= '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
     email= 'dummy@dummymail.com',
@@ -67,7 +67,7 @@ def write_user_to_db(username: str,
     Returns:
         None
     """
-    user = SmitUser(
+    user = SmitAuth(
         username= username,
         password= password,
         email= email,
@@ -85,3 +85,7 @@ def init_auth_table() -> None:
     """
     create_tables()
     create_dummy_user()
+    
+# Run
+if __name__ == '__main__':
+    init_auth_table()

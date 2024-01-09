@@ -1,32 +1,33 @@
+from typing import Optional
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import declarative_base
 
-Base = declarative_base()
+from sqlmodel import Field, SQLModel
 
-class Auth(Base):
-    """Schema for authentication module.
-
-    Args:
-        Base (declarative_base): SqlAlchemy Base Class
+class SmitAuth(SQLModel, table=True):
     """
-    __tablename__ = 'auth'
+    Table for user management.
 
-    id = Column(Integer(), primary_key=True)
-    created_on = Column(DateTime(), default=datetime.now)
-
-    username = Column(String(100), nullable=False, unique=True)
-    password = Column(String(100), nullable=False)
-    email = Column(String(100), nullable=False)
-    sng_username = Column(String(100), nullable=False)
-    sng_password = Column(String(100), nullable=False)
-    daymeter = Column(String(100), nullable=False)
-    nightmeter = Column(String(100), nullable=False)
-
-def auth_table_setup() -> declarative_base:
-    """Return constructor for auth table.
-
-    Returns:
-        declarative base: Base object for auth table
+    Attributes:
+        id (Optional[int]): The unique identifier of the user.
+        username (str): Smit Application username.
+        password (str): Smit Application password.
+        email (str, optional): The email address of the user.
+        sng_username (str, optional): The username for energy provider login.
+        sng_password (str, optional): The password for energy provider login.
+        daymeter (str, optional): The day meter value.
+        nightmeter (str, optional): The night meter value.
     """
-    return Base
+    __tablename__ = 'auth_dev'
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+        
+    username: str = Field(description="Smit Application username")
+    password: str = Field(description="Smit Application password")
+    email: Optional[str] = Field(None, description="Mail address for pwd recovery")
+    sng_username: Optional[str] = Field(None, description="Elictricity provider username")
+    sng_password: Optional[str] = Field(None, description="Elictricity provider password")
+    daymeter: Optional[str] = Field(None, description="Day meter endpoint number")
+    nightmeter: Optional[str] = Field(None, description="Night meter endpoint number")
+    
+    created_on: Optional[datetime] = Field(default_factory=datetime.now, description="User creation date")
+    
