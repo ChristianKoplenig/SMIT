@@ -3,6 +3,7 @@ from streamlit_extras.switch_page_button import switch_page
 
 # Custom modules
 import st_auth.authenticate as stauth
+from db.smit_db import write_user_to_db
 
 def create_credentials_dict(db_table: st.dataframe) -> dict:
     """Create credentials dictionary from database.
@@ -35,6 +36,7 @@ authenticator = stauth.Authenticate(
 # Register user form
 try:
     if authenticator.register_user('Register new user', preauthorization=False):
+        write_user_to_db(st.session_state.username, st.session_state.password)
         switch_page('home')
 
 except Exception as e:

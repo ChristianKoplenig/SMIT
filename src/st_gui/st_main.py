@@ -63,7 +63,7 @@ backend = load_backend()
 session_init(backend)
 
 # Connect to auth table 
-st.session_state.users_db = connect_users_db()
+connect_users_db()
 
 # Logout button
 if 'authentication_status' not in st.session_state:
