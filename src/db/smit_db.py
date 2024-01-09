@@ -1,9 +1,10 @@
-from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
-from sqlalchemy.orm import sessionmaker
+from sqlmodel import Session, SQLModel, create_engine
 
 from db import smitdb_secrets as secrets
-from db.auth_schema import auth_table_setup, Auth
+
+# Import database schemas
+from db.users_schema import SmitUser
 
 db_user = secrets.username
 db_pwd = secrets.password
@@ -18,64 +19,69 @@ url = URL.create(
     database= db_database,
     password= db_pwd,
 )
-engine = create_engine(url)
-connection = engine.connect()
 
-# Create authentication table
-Base= auth_table_setup()
-Base.metadata.create_all(engine)
+engine = create_engine(url, echo=True)
 
-# Open session
-smit_db = sessionmaker(engine)
-session = smit_db()
-
-# Create dummy user
-# password = 'dummy_pwd'; generated with streamlit_authenticator.Hasher
-dummy = Auth(
+def create_tables() -> None:
+    """
+    Create database tables or imported schemas.
+    """
+    SQLModel.metadata.create_all(engine)
+    
+# Define users
+def create_dummy_user() -> None:
+    """Creates dummy user.
+    """
+    dummy = SmitUser(
     username= 'dummy_user',
     password= '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
     email= 'dummy@dummymail.com',
     sng_username= 'dummy_sng_login',
     sng_password= 'dummy_sng_password',
     daymeter= '199996',
-    nightmeter= '199997',
-)
-session.add(dummy)
-session.commit()
+    nightmeter= '199997')
+    
+    with Session(engine) as session:
+        session.add(dummy)
+        session.commit()
+    
+def write_user_to_db(username: str, 
+                     password: str, 
+                     email: str = None, 
+                     sng_username: str = None, 
+                     sng_password: str = None, 
+                     daymeter: str = None, 
+                     nightmeter: str = None) -> None:
+    """
+    Writes a user to the database.
 
-########################################################
+    Args:
+        username (str): Smit Application username.
+        password (str): Smit Application password.
+        email (str, optional): The email address of the user.
+        sng_username (str, optional): The username for energy provider login.
+        sng_password (str, optional): The password for energy provider login.
+        daymeter (str, optional): The day meter value.
+        nightmeter (str, optional): The night meter value.
 
-# ############Session##########
-# pg_session = sessionmaker(engine)
-# this_session = pg_session()
-
-# #########Inser###############
-
-# a = SomeUser(username='c')
-# b = SomeUser(username='d')
-
-# this_session.add_all([a,b])
-# this_session.commit()
-
-
-# ## Create tables in database
-# schema.Base.metadata.create_all(engine)
-
-# ## Interact with db
-# Session = sessionmaker(bind=engine)
-# session = Session()
-
-# # Create data
-# usr = schema.SomeUser(username='test_usr1')
-
-# session.add(usr)
-# session.commit()
-
-# ## Query
-# usr_query = session.query(schema.SomeUser)
-# q1 = usr_query.first()
-
-# print(q1.username)
-
-# for user in usr_query:
-#     print(user.username)
+    Returns:
+        None
+    """
+    user = SmitUser(
+        username= username,
+        password= password,
+        email= email,
+        sng_username= sng_username,
+        sng_password= sng_password,
+        daymeter= daymeter,
+        nightmeter= nightmeter)
+    
+    with Session(engine) as session:
+        session.add(user)
+        session.commit()
+        
+def init_auth_table() -> None:
+    """Initialize authentication table.
+    """
+    create_tables()
+    create_dummy_user()
