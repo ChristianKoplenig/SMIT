@@ -1,0 +1,10 @@
+[[pages]]
+path = 'src/st_gui/st_main.py'
+name = 'Home'
+
+[[pages]]
+path = 'src/st_gui/pages/register.py'
+name = 'Authentication'
+
+[[pages]]
+path = 'src/st_gui/pages/debug.py'

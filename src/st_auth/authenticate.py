@@ -224,7 +224,6 @@ class Authenticate:
                 st.session_state['name'] = None
                 st.session_state['username'] = None
                 st.session_state['authentication_status'] = None
-
     def _update_password(self, username: str, password: str):
         """
         Updates credentials dictionary with user's reset hashed password.
@@ -311,10 +310,18 @@ class Authenticate:
 
         self.credentials['usernames'][username] = {'name': name, 
             'password': Hasher([password]).generate()[0], 'email': email}
+        
+        # Add credentials to session state
+        st.session_state['username'] = username
+        st.session_state['name'] = name 
+        st.session_state['password'] = Hasher([password]).generate()[0]
+        st.session_state['email'] = email
+        st.session_state['authentication_status'] = True
+        
         if preauthorization:
             self.preauthorized['emails'].remove(email)
 
-    def register_user(self, form_name: str, location: str='main', preauthorization=True) -> bool:
+    def register_user(self, form_name: str, location: str='main', preauthorization=False) -> bool:
         """
         Creates a register new user widget.
 
@@ -528,11 +535,11 @@ class Authenticate:
                 if new_value != self.credentials['usernames'][self.username][field]:
                     self._update_entry(self.username, field, new_value)
                     if field == 'name':
-                            st.session_state['name'] = new_value
-                            self.exp_date = self._set_exp_date()
-                            self.token = self._token_encode()
-                            self.cookie_manager.set(self.cookie_name, self.token,
-                            expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
+                        st.session_state['name'] = new_value
+                        self.exp_date = self._set_exp_date()
+                        self.token = self._token_encode()
+                        self.cookie_manager.set(self.cookie_name, self.token,
+                        expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
                     return True
                 else:
                     raise UpdateError('New and current values are the same')
