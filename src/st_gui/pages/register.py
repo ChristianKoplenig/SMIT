@@ -1,14 +1,15 @@
 import streamlit as st
 from streamlit_extras.switch_page_button import switch_page
+import extra_streamlit_components as stx
 
 # Custom modules
 import st_auth.authenticate as stauth
 from db.smitdb import SmitDb
 from db.auth_schema import SmitAuth
 
-st.set_page_config(
-    page_title='User Management'
-)
+# st.set_page_config(
+#     page_title='User Management'
+# )
 
 def create_credentials_dict(db_table: st.dataframe) -> dict:
     """Create credentials dictionary from database.
@@ -99,12 +100,21 @@ if st.session_state['authentication_status']:
         del_user.subheader('Delete user')
         
         if st.session_state['username'] == del_user.text_input('Username'):
-            # uid = st.session_state['username']
+            uid = st.session_state['username']
             st.write('Logout and delete user from database')
-            #authenticator.logout('Confirm', 'main', key='btn_confirm_delete_user')
             
-            # select user from auth table
-            # delete user from auth table 
+            # Delete user from database
+            SmitDb(SmitAuth).delete_where(SmitAuth.username, uid)
+
+            # Delete user from session state
+            #stx.CookieManager().delete('streamlit-smit-app', 'cookey', key='del_user_cookie')
+            st.session_state['logout'] = True
+            st.session_state['name'] = None
+            st.session_state['username'] = None
+            st.session_state['authentication_status'] = None
+            del st.session_state['init']
+            #del st.session_state['password']
+            #del st.session_state['email']
             
             switch_page('home') 
         else:

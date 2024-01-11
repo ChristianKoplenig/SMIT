@@ -194,6 +194,7 @@ class Authenticate:
 
                 if login_form.form_submit_button('Login'):
                     self._check_credentials()
+                    st.session_state['authentication_status'] = True
 
         return st.session_state['name'], st.session_state['authentication_status'], st.session_state['username']
 
