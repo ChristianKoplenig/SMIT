@@ -4,11 +4,7 @@ name = 'Home'
 
 [[pages]]
 path = 'src/st_gui/pages/register.py'
-name = 'Authentication'
-
-[[pages]]
-path = 'src/st_gui/pages/pydantic_auth.py'
-name = 'Pydantic'
+name = 'User Management'
 
 [[pages]]
 path = 'src/st_gui/pages/debug.py'

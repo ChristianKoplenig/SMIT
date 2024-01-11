@@ -208,25 +208,30 @@ class Authenticate:
         location: str
             The location of the logout button i.e. main or sidebar.
         """
+        def clear_session_state(self):
+            """
+            Clears session state on logout.
+            """
+            self.cookie_manager.delete(self.cookie_name)
+            st.session_state['logout'] = True
+            st.session_state['name'] = None
+            st.session_state['username'] = None
+            st.session_state['authentication_status'] = None
+            del st.session_state['init']
+            #del st.session_state['password']
+            #del st.session_state['email']
+        
+        
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
         if location == 'main':
             if st.button(button_name, key):
-                self.cookie_manager.delete(self.cookie_name)
-                st.session_state['logout'] = True
-                st.session_state['name'] = None
-                st.session_state['username'] = None
-                st.session_state['authentication_status'] = None
-                
+                clear_session_state(self)
+
         elif location == 'sidebar':
             if st.sidebar.button(button_name, key):
-                self.cookie_manager.delete(self.cookie_name)
-                st.session_state['logout'] = True
-                st.session_state['name'] = None
-                st.session_state['username'] = None
-                st.session_state['authentication_status'] = None
-               
-    
+                clear_session_state(self)
+ 
     def _update_password(self, username: str, password: str):
         """
         Updates credentials dictionary with user's reset hashed password.

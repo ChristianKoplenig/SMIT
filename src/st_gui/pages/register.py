@@ -3,7 +3,12 @@ from streamlit_extras.switch_page_button import switch_page
 
 # Custom modules
 import st_auth.authenticate as stauth
-from db.smit_db import write_user_to_db
+from db.smitdb import SmitDb
+from db.auth_schema import SmitAuth
+
+st.set_page_config(
+    page_title='User Management'
+)
 
 def create_credentials_dict(db_table: st.dataframe) -> dict:
     """Create credentials dictionary from database.
@@ -29,15 +34,80 @@ def create_credentials_dict(db_table: st.dataframe) -> dict:
 # Initialize Authenticator
 authenticator = stauth.Authenticate(
         create_credentials_dict(st.session_state.auth_tbl),
-        'st_dummy_cookie',
+        'streamlit-smit-app',
         'cookey',
     )
 
-# Register user form
-try:
-    if authenticator.register_user('Register new user', preauthorization=False):
-        write_user_to_db(st.session_state.username, st.session_state.password)
-        switch_page('home')
+# Login form
+if st.session_state['login_btn_clicked'] and not st.session_state['register_btn_clicked']:
+    if not st.session_state['authentication_status']:
+        authenticator.login('Login', 'main')
 
-except Exception as e:
-    st.error(e)
+# Register user form
+if st.session_state['register_btn_clicked'] and not st.session_state['login_btn_clicked']:
+    try:
+        if authenticator.register_user('Register new user', preauthorization=False):
+            SmitDb(SmitAuth).create_user(st.session_state.username,
+                                         st.session_state.password)
+            switch_page('home')
+
+    except Exception as e:
+        st.error(e)
+        
+if st.session_state['authentication_status'] is None:
+    st.write(f"# Please login or register")
+    
+    if st.button('Login', key='btn_login_register'):
+        st.session_state['login_btn_clicked'] = True
+        st.session_state['register_btn_clicked'] = False
+        st.rerun()
+        
+    if st.button('Register', key='btn_register_register'):
+        st.session_state['register_btn_clicked'] = True
+        st.session_state['login_btn_clicked'] = False
+        st.rerun()
+
+## Logged in functionality
+if st.session_state['authentication_status']:
+    # Logout button
+    authenticator.logout('Logout', 'main', key='btn_logout_register')
+    
+    # Reset password
+    with st.expander('Reset Password'):
+        try:
+            if authenticator.reset_password(st.session_state["username"], 'Reset password'):
+                st.success('Password modified successfully')
+                st.write('Database update not implemented yet')
+        except Exception as e:
+            st.error(e)
+    
+    # Update user details
+    with st.expander('Update user details'):
+        try:
+            if authenticator.update_user_details(st.session_state["username"], 'Update user details'):
+                st.success('User details modified successfully')
+                st.write('Database update not implemented yet')
+        except Exception as e:
+            st.error(e)
+    
+    # Delete user
+    with st.expander('Delete user'):
+        st.write('Implementation needed')
+        
+        # Create form
+        del_user = st.form('DeleteUser')
+        del_user.subheader('Delete user')
+        
+        if st.session_state['username'] == del_user.text_input('Username'):
+            # uid = st.session_state['username']
+            st.write('Logout and delete user from database')
+            #authenticator.logout('Confirm', 'main', key='btn_confirm_delete_user')
+            
+            # select user from auth table
+            # delete user from auth table 
+            
+            switch_page('home') 
+        else:
+            st.error('Username does not match')
+        
+        del_user.form_submit_button('Delete user')
