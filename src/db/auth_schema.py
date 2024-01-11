@@ -17,17 +17,17 @@ class SmitAuth(SQLModel, table=True):
         daymeter (str, optional): The day meter value.
         nightmeter (str, optional): The night meter value.
     """
-    __tablename__ = 'auth'
+    __tablename__ = 'auth_dev'
 
     id: Optional[int] = Field(default=None, primary_key=True)
         
-    username: str = Field(description="Smit Application username")
+    username: str = Field(description="Smit Application username", index=True)
     password: str = Field(description="Smit Application password")
-    email: Optional[str] = Field(None, description="Mail address for pwd recovery")
-    sng_username: Optional[str] = Field(None, description="Elictricity provider username")
-    sng_password: Optional[str] = Field(None, description="Elictricity provider password")
-    daymeter: Optional[str] = Field(None, description="Day meter endpoint number")
-    nightmeter: Optional[str] = Field(None, description="Night meter endpoint number")
+    email: Optional[str] = Field(default=None, description="Mail address for pwd recovery")
+    sng_username: Optional[str] = Field(default=None, description="Elictricity provider username")
+    sng_password: Optional[str] = Field(default=None, description="Elictricity provider password")
+    daymeter: Optional[int] = Field(default=None, description="Day meter endpoint number")
+    nightmeter: Optional[int] = Field(default=None, description="Night meter endpoint number")
     
     created_on: Optional[datetime] = Field(default_factory=datetime.now, description="User creation date")
     
