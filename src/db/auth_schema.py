@@ -2,6 +2,9 @@ from typing import Optional
 from datetime import datetime
 
 from sqlmodel import Field, SQLModel
+from typing_extensions import Annotated, Doc
+
+from pydantic import StringConstraints
 
 class SmitAuth(SQLModel, table=True):
     """
@@ -17,14 +20,26 @@ class SmitAuth(SQLModel, table=True):
         daymeter (str, optional): The day meter value.
         nightmeter (str, optional): The night meter value.
     """
-    __tablename__ = 'auth_dev'
+    __tablename__ = 'auth_dev2'
 
     id: Optional[int] = Field(default=None, primary_key=True)
-        
-    username: str = Field(description="Smit Application username", index=True)
-    password: str = Field(description="Smit Application password")
+    
+    username: Annotated[str, 
+                        StringConstraints(strip_whitespace=True, 
+                            to_upper=True, 
+                            pattern=r'^[A-Za-z0-9_]+$'),
+                        Doc("Smit application username."),
+                        ] = Field(index=True,
+                                  description="Smit application username.")    
+    
+    password: str = Field(description=" Hash of Smit application password")
     email: Optional[str] = Field(default=None, description="Mail address for pwd recovery")
-    sng_username: Optional[str] = Field(default=None, description="Elictricity provider username")
+    sng_username: Annotated[str, 
+                            StringConstraints(strip_whitespace=True, 
+                                               to_upper=True, 
+                                               pattern=r'^[A-Za-z0-9_]+$')
+                            ] = Field(index=True, 
+                                      description="Electricity provider username.") 
     sng_password: Optional[str] = Field(default=None, description="Elictricity provider password")
     daymeter: Optional[int] = Field(default=None, description="Day meter endpoint number")
     nightmeter: Optional[int] = Field(default=None, description="Night meter endpoint number")

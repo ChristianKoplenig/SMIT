@@ -23,6 +23,11 @@ seaborn = "0.13.0"
 selenium = "4.15.2"
 tomlkit = "^0.12.3"
 
+[tool.poetry.group.poetry]
+pydantic = {extras = ["email"], version = "^2.5.3"}
+pydantic-settings = "^2.1.0"
+streamlit-pydantic = "^0.6.0"
+
 [tool.poetry.group.streamlit.dependencies]
 streamlit = "^1.29.0"
 psycopg2-binary = "^2.9.9"
@@ -31,8 +36,6 @@ pyjwt = "^2.8.0"
 streamlit-extras = "^0.3.6"
 st-pages = "^0.4.5"
 bcrypt = "^4.1.2"
-streamlit-pydantic = "^0.6.0"
-pydantic-settings = "^2.1.0"
 
 [tool.poetry.group.database.dependencies]
 sqlalchemy = "^2.0.24"
