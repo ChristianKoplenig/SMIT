@@ -1,4 +1,4 @@
-from streamlit_authenticator import Hasher as sta_hasher
-dpwd = sta_hasher(['dummy_pwd']).generate()
+from st_auth.hasher import Hasher as sta_hasher
+dpwd = sta_hasher(['a']).generate()
 
 print(dpwd[0])

@@ -1,8 +1,8 @@
 from sqlalchemy.engine import URL
 from sqlmodel import Session, SQLModel, create_engine, select, col
-from typing import Type
 
 from db import smitdb_secrets as secrets
+
 from db.auth_schema import SmitAuth
 
 class SmitDb:
@@ -98,6 +98,17 @@ class SmitDb:
             
             if row is None:
                 print(f'Row {column} = {value} deleted.')
+                
+    def read_db(self) -> list[SmitAuth]:
+        """
+        Reads the SMIT database and returns all SMIT users.
+
+        Returns:
+            list: A list of SMITAuth objects representing the SMIT users.
+        """
+        with Session(self.engine) as session:
+            smit_users = session.exec(select(SmitAuth)).all()
+            return smit_users
             
 
                 
@@ -166,6 +177,20 @@ class SmitDb:
             session.add(user)
             session.commit()
             
-# Debug
+# # # Debug
 # db = SmitDb(SmitAuth)
 # db.init_auth()
+
+
+
+
+# ## Create second user
+# db.create_user(
+#     username= 'aaa',
+#     password= '$2b$12$/uoJEE74Z9c96DT5v4B3peIltLY7GajlzHW6xf4U/PJv5up81s1Mu',
+#     email= 'a_dummy@dummymail.com',
+#     sng_username= 'a_dummy_sng_login',
+#     sng_password= 'a_dummy_sng_password',
+#     daymeter= '119996',
+#     nightmeter= '119997'
+# )

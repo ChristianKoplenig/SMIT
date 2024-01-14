@@ -3,6 +3,8 @@ from pydantic import BaseModel, field_validator
 
 # Schema for data validation
 from db.auth_schema import SmitAuth as AuthTableSchema
+# Database connection
+from db.smitdb import SmitDb
 
 class AuthCredentials(BaseModel):
     """
@@ -80,6 +82,66 @@ class AuthCredentials(BaseModel):
         return v
 
 ######### Debug
+
+######## work with all users ######## 
+# Connect to database
+db_connection = SmitDb(AuthTableSchema)
+# Create list with all users
+all_users_list = db_connection.read_db()
+
+def create_user_dict(db_all)-> dict:
+    """
+    Create a dictionary of users with their attributes.
+
+    Args:
+        db_all (list): A list of user objects from the database.
+
+    Returns:
+        dict: A dictionary where the keys are user IDs and the values are dictionaries of user attributes.
+    """
+
+    # Generate dictionary with uid as primary key
+    users = {}
+
+    for user in db_all:
+
+        dump = AuthTableSchema.model_dump(user)
+    
+        uid = dump['id']
+        user_attributes = {}
+
+        # Assign all user attributes to uid key
+        for key in dump.keys():
+            user_attributes[key] = dump[key]
+
+        users.setdefault('uid', {}).setdefault(uid, user_attributes)
+    return users
+
+# Validate each user in database and create dict which contains all user models
+def create_user_models(users: dict) -> dict:
+    """
+    Return dictionary with validated user models from AuthTableSchema.
+
+    Args:
+        users (dict): A dictionary containing user data grouped by user id from auth table.
+
+    Returns:
+        dict: A dictionary containing user models, where the keys are user IDs and the values are the corresponding models.
+    """
+    models = {}
+    for uid in users['uid'].values():
+        models[uid['id']] = AuthTableSchema.model_validate(uid)
+    return models
+
+users_dict = create_user_dict(all_users_list)
+uid = create_user_models(users_dict)
+
+dummy = AuthTableSchema.model_validate(users_dict['uid'][1])
+print(dummy.sng_username)
+
+
+#######
+
 # create_user = AuthTableSchema
 
 # # Smit instance
