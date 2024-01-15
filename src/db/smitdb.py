@@ -73,16 +73,28 @@ class SmitDb:
             print(f'-----All data from table {self.db_schema}-----')
             print(select_all)
             
-    def select_where(self, column, value):
+    def select_username(self, value):
         """
-        Select row from the database and print it.
+        Select row from the database and return it as a dictionary.
         """
         with Session(self.engine) as session:
-            statement = select(self.db_schema).where(col(column) == value)
-            select_rows = session.exec(statement)
+            statement = select(self.db_schema).where(self.db_schema.username == value)
+            select_row = session.exec(statement).one()
             
-            for row in select_rows:
-                print(row)
+            if select_row is not None:
+                return select_row
+            
+            return None
+        
+    def select_all_usernames(self) -> list:
+        """
+        Select all usernames from the database and return them as a list.
+        """
+        with Session(self.engine) as session:
+            statement = select(self.db_schema.username)
+            all_usernames = session.exec(statement).all()
+            
+            return all_usernames
             
     def delete_where(self, column, value):
         """
@@ -177,9 +189,9 @@ class SmitDb:
             session.add(user)
             session.commit()
             
-# # # Debug
-# db = SmitDb(SmitAuth)
-# db.init_auth()
+# # Debug
+#db = SmitDb(SmitAuth)
+#db.select_where('aaa')
 
 
 
