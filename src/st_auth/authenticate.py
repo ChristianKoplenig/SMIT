@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta
+import bcrypt
 import jwt
 import bcrypt
 import streamlit as st
-from datetime import datetime, timedelta
 import extra_streamlit_components as stx
 
 from .hasher import Hasher
@@ -9,6 +10,16 @@ from .validator import Validator
 from .utils import generate_random_pw
 
 from .exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
+
+#### Pydantic
+from db.auth_schema import SmitAuth as AuthTableSchema
+from st_auth import pdtc_validation
+
+#### Database
+from db.smitdb import SmitDb
+
+
+
 
 class Authenticate:
     """
@@ -23,7 +34,7 @@ class Authenticate:
         Parameters
         ----------
         credentials: dict
-            The dictionary of usernames, names, passwords, and emails.
+            The dictionary of all attributes defined in the authentication schema, grouped by user id.
         cookie_name: str
             The name of the JWT cookie stored on the client's browser for passwordless reauthentication.
         key: str
@@ -35,8 +46,8 @@ class Authenticate:
         validator: Validator
             A Validator object that checks the validity of the username, name, and email fields.
         """
-        self.credentials = credentials
-        self.credentials['usernames'] = {key.lower(): value for key, value in credentials['usernames'].items()}
+        #self.credentials = credentials
+        #self.credentials['usernames'] = {key.lower(): value for key, value in credentials['usernames'].items()}
         self.cookie_name = cookie_name
         self.key = key
         self.cookie_expiry_days = cookie_expiry_days
@@ -44,14 +55,23 @@ class Authenticate:
         self.cookie_manager = stx.CookieManager()
         self.validator = validator if validator is not None else Validator()
 
-        if 'name' not in st.session_state:
-            st.session_state['name'] = None
+        # DB connection
+        self.db_connection = SmitDb(AuthTableSchema)
+        self.db_all_users = self._db_get_usernames()
+        
         if 'authentication_status' not in st.session_state:
             st.session_state['authentication_status'] = None
-        if 'username' not in st.session_state:
-            st.session_state['username'] = None
-        if 'logout' not in st.session_state:
-            st.session_state['logout'] = None
+        
+        # Use Schema from user database to generate session state variabels    
+        for variable in AuthTableSchema.model_fields.keys():
+            if variable not in st.session_state:
+                st.session_state[variable] = None
+                
+    def _db_get_usernames(self) -> list:
+        """ Get dict containing all usernames from authentications table.
+        """
+        all_users = self.db_connection.select_all_usernames()
+        return all_users
 
     def _token_encode(self) -> str:
         """
@@ -62,7 +82,7 @@ class Authenticate:
         str
             The JWT cookie for passwordless reauthentication.
         """
-        return jwt.encode({'name':st.session_state['name'],
+        return jwt.encode({'name':st.session_state['id'],
             'username':st.session_state['username'],
             'exp_date':self.exp_date}, self.key, algorithm='HS256')
 
@@ -92,16 +112,27 @@ class Authenticate:
         return (datetime.utcnow() + timedelta(days=self.cookie_expiry_days)).timestamp()
 
     def _check_pw(self) -> bool:
-        """
-        Checks the validity of the entered password.
+        """Validate login form password.
+        
+        Check entered password against password from authentication table.
 
         Returns
         -------
         bool
-            The validity of the entered password by comparing it to the hashed password on disk.
+            Password check state.
         """
-        return bcrypt.checkpw(self.password.encode(), 
-            self.credentials['usernames'][self.username]['password'].encode())
+        print('-----Check password-----')
+        self.user_row = self.db_connection.select_username(self.username)
+        self_bytes = self.password.encode()
+        db_bytes = self.user_row.password.encode()
+        
+        try:
+            if not bcrypt.hashpw(self_bytes, db_bytes) == db_bytes:
+                print('Password does not match')
+                return False
+            return True
+        except:
+            raise Exception("Password does not match")
 
     def _check_cookie(self):
         """
@@ -132,11 +163,20 @@ class Authenticate:
         bool
             Validity of entered credentials.
         """
-        if self.username in self.credentials['usernames']:
+        if self.username in self.db_all_users:
             try:
                 if self._check_pw():
                     if inplace:
-                        st.session_state['name'] = self.credentials['usernames'][self.username]['name']
+                        
+                        # Add authentication schema attributes to session state
+                        #user_row = self.db_connection.select_username(self.username)
+                        user_model = pdtc_validation.single_user_model(self.user_row)
+                        
+                        for key, value in user_model.items():
+                            st.session_state[key] = value
+                        
+                        
+                        
                         self.exp_date = self._set_exp_date()
                         self.token = self._token_encode()
                         self.cookie_manager.set(self.cookie_name, self.token,
@@ -149,8 +189,8 @@ class Authenticate:
                         st.session_state['authentication_status'] = False
                     else:
                         return False
-            except Exception as e:
-                print(e)
+            except:
+                raise Exception('Password does not match')
         else:
             if inplace:
                 st.session_state['authentication_status'] = False
@@ -180,7 +220,7 @@ class Authenticate:
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
         if not st.session_state['authentication_status']:
-            self._check_cookie()
+            #self._check_cookie()
             if not st.session_state['authentication_status']:
                 if location == 'main':
                     login_form = st.form('Login')
@@ -189,14 +229,14 @@ class Authenticate:
 
                 login_form.subheader(form_name)
                 self.username = login_form.text_input('Username').lower()
-                st.session_state['username'] = self.username
+                #st.session_state['username'] = self.username
                 self.password = login_form.text_input('Password', type='password')
 
                 if login_form.form_submit_button('Login'):
                     self._check_credentials()
-                    st.session_state['authentication_status'] = True
+                    #st.session_state['authentication_status'] = True
 
-        return st.session_state['name'], st.session_state['authentication_status'], st.session_state['username']
+        #return st.session_state['name'], st.session_state['authentication_status'], st.session_state['username']
 
     def logout(self, button_name: str, location: str='main', key: str=None):
         """
@@ -214,13 +254,18 @@ class Authenticate:
             Clears session state on logout.
             """
             self.cookie_manager.delete(self.cookie_name)
+            
+            # Use Schema from user database to clear session state variabels    
+            for variable in AuthTableSchema.model_fields.keys():
+                st.session_state[variable] = None
+                
             st.session_state['logout'] = True
-            st.session_state['name'] = None
-            st.session_state['username'] = None
+            # st.session_state['name'] = None
+            # st.session_state['username'] = None
             st.session_state['authentication_status'] = None
-            del st.session_state['init']
-            #del st.session_state['password']
-            #del st.session_state['email']
+            # del st.session_state['init']
+            # #del st.session_state['password']
+            # #del st.session_state['email']
         
         
         if location not in ['main', 'sidebar']:

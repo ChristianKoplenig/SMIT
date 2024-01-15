@@ -6,6 +6,9 @@ from db.auth_schema import SmitAuth as AuthTableSchema
 # Database connection
 from db.smitdb import SmitDb
 
+
+
+
 class AuthCredentials(BaseModel):
     """
     Schema for user management.
@@ -81,15 +84,9 @@ class AuthCredentials(BaseModel):
                 raise ValueError("Invalid email address in preauthorized list") 
         return v
 
-######### Debug
+######### Provide data from db #########
 
-######## work with all users ######## 
-# Connect to database
-db_connection = SmitDb(AuthTableSchema)
-# Create list with all users
-all_users_list = db_connection.read_db()
-
-def create_user_dict(db_all)-> dict:
+def create_users_dict(db_all)-> dict:
     """
     Create a dictionary of users with their attributes.
 
@@ -133,14 +130,60 @@ def create_user_models(users: dict) -> dict:
         models[uid['id']] = AuthTableSchema.model_validate(uid)
     return models
 
-users_dict = create_user_dict(all_users_list)
-uid = create_user_models(users_dict)
+# Validate single user row and return dict with user model
+def single_user_model(user: list) -> dict:
+    """
+    Return dictionary with validated single user data from AuthTableSchema.
 
-dummy = AuthTableSchema.model_validate(users_dict['uid'][1])
-print(dummy.sng_username)
+    Args:
+        user (list): Query result for single user from auth table.
 
+    Returns:
+        dict: A dictionary containing the user model.
+    """
+    model = {}
+    model = AuthTableSchema.model_dump(user)
+    return model
+
+
+######## work with all users ######## 
+
+# # Connect to database
+# db_connection = SmitDb(AuthTableSchema)
+# # Create list with all users
+# all_users_list = db_connection.select_all_usernames()
+
+# print('-----All users list-----')
+# print(all_users_list)
+
+# if 'aaa' in all_users_list:
+#     print(type(all_users_list))
 
 #######
+####### single row ########
+# db_connection = SmitDb(AuthTableSchema)
+# user_row = db_connection.select_username('dummy_user')
+# user_model = single_user_model(user_row)
+
+# # print('-----User row-----')
+# print(user_row.password)
+
+# for key, value in user_model.items():
+#     #pass
+#     # if not key.startswith('_'):
+#         print(f'key: {key}, value: {value}')
+
+# print('-----User dict-----')
+# print(user_row.id)
+# print('-----User model-----')
+# print(user_model)
+#print(user_model.id)
+
+
+############
+
+
+########## old ##########
 
 # create_user = AuthTableSchema
 

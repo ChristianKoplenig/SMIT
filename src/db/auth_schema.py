@@ -26,7 +26,7 @@ class SmitAuth(SQLModel, table=True):
     
     username: Annotated[str, 
                         StringConstraints(strip_whitespace=True, 
-                            to_upper=True, 
+                            to_lower=True, 
                             pattern=r'^[A-Za-z0-9_]+$'),
                         Doc("Smit application username."),
                         ] = Field(index=True,
@@ -36,7 +36,7 @@ class SmitAuth(SQLModel, table=True):
     email: Optional[str] = Field(default=None, description="Mail address for pwd recovery")
     sng_username: Annotated[str, 
                             StringConstraints(strip_whitespace=True, 
-                                               to_upper=True, 
+                                               to_lower=True, 
                                                pattern=r'^[A-Za-z0-9_]+$')
                             ] = Field(index=True, 
                                       description="Electricity provider username.") 
