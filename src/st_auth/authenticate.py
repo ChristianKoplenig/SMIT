@@ -12,22 +12,24 @@ from .utils import generate_random_pw
 from .exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
 
 #### Pydantic
-from db.auth_schema import SmitAuth as AuthTableSchema
-from st_auth import pdtc_validation
+from db.auth_schema import AuthDbSchema
+from st_auth import auth_api
 
 #### Database
 from db.smitdb import SmitDb
-
-
-
 
 class Authenticate:
     """
     This class will create login, logout, register user, reset password, forgot password, 
     forgot username, and modify user details widgets.
     """
-    def __init__(self, credentials: dict, cookie_name: str, key: str, cookie_expiry_days: float=30.0, 
-        preauthorized: list=None, validator: Validator=None):
+    def __init__(self,
+                 #credentials: dict,
+                 cookie_name: str,
+                 key: str,
+                 cookie_expiry_days: float=30.0,
+                 preauthorized: list=None,
+                 validator: Validator=None):
         """
         Create a new instance of "Authenticate".
 
@@ -56,14 +58,14 @@ class Authenticate:
         self.validator = validator if validator is not None else Validator()
 
         # DB connection
-        self.db_connection = SmitDb(AuthTableSchema)
+        self.db_connection = SmitDb(AuthDbSchema)
         self.db_all_users = self._db_get_usernames()
         
         if 'authentication_status' not in st.session_state:
             st.session_state['authentication_status'] = None
         
         # Use Schema from user database to generate session state variabels    
-        for variable in AuthTableSchema.model_fields.keys():
+        for variable in AuthDbSchema.model_fields.keys():
             if variable not in st.session_state:
                 st.session_state[variable] = None
                 
@@ -169,8 +171,7 @@ class Authenticate:
                     if inplace:
                         
                         # Add authentication schema attributes to session state
-                        #user_row = self.db_connection.select_username(self.username)
-                        user_model = pdtc_validation.single_user_model(self.user_row)
+                        user_model = auth_api.single_user_model(self.user_row)
                         
                         for key, value in user_model.items():
                             st.session_state[key] = value
@@ -249,14 +250,14 @@ class Authenticate:
         location: str
             The location of the logout button i.e. main or sidebar.
         """
-        def clear_session_state(self):
+        def _clear_session_state(self):
             """
             Clears session state on logout.
             """
             self.cookie_manager.delete(self.cookie_name)
             
             # Use Schema from user database to clear session state variabels    
-            for variable in AuthTableSchema.model_fields.keys():
+            for variable in AuthDbSchema.model_fields.keys():
                 st.session_state[variable] = None
                 
             st.session_state['logout'] = True
@@ -272,11 +273,11 @@ class Authenticate:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
         if location == 'main':
             if st.button(button_name, key):
-                clear_session_state(self)
+                _clear_session_state(self)
 
         elif location == 'sidebar':
             if st.sidebar.button(button_name, key):
-                clear_session_state(self)
+                _clear_session_state(self)
  
     def _update_password(self, username: str, password: str):
         """
@@ -402,33 +403,58 @@ class Authenticate:
             register_user_form = st.form('Register user')
         elif location == 'sidebar':
             register_user_form = st.sidebar.form('Register user')
-
+            
+        # Create new variables placeholder dict
+        new_values: dict = {}
         register_user_form.subheader(form_name)
-        new_email = register_user_form.text_input('Email')
-        new_username = register_user_form.text_input('Username').lower()
-        new_name = register_user_form.text_input('Name')
-        new_password = register_user_form.text_input('Password', type='password')
-        new_password_repeat = register_user_form.text_input('Repeat password', type='password')
+        new_values['username'] = register_user_form.text_input('Username').lower()
+        new_values['password'] = register_user_form.text_input('Password', type='password')
+        new_values['password_repeat'] = register_user_form.text_input('Repeat password', type='password')
+
+        self._get_extra_fields(new_values, register_user_form)
 
         if register_user_form.form_submit_button('Register'):
-            if len(new_email) and len(new_username) and len(new_name) and len(new_password) > 0:
-                if new_username not in self.credentials['usernames']:
-                    if new_password == new_password_repeat:
-                        if preauthorization:
-                            if new_email in self.preauthorized['emails']:
-                                self._register_credentials(new_username, new_name, new_password, new_email, preauthorization)
-                                return True
-                            else:
-                                raise RegisterError('User not preauthorized to register')
-                        else:
-                            self._register_credentials(new_username, new_name, new_password, new_email, preauthorization)
-                            return True
-                    else:
-                        raise RegisterError('Passwords do not match')
+            st.write(new_values)
+            
+            from st_auth.auth_api import AuthModel
+            
+            # Validate new user fields
+            AuthModel
+            
+            
+            
+            
+            # if len(new_email) and len(new_username) and len(new_name) and len(new_password) > 0:
+            #     if new_username not in self.credentials['usernames']:
+            #         if new_password == new_password_repeat:
+            #             if preauthorization:
+            #                 if new_email in self.preauthorized['emails']:
+            #                     self._register_credentials(new_username, new_name, new_password, new_email, preauthorization)
+            #                     return True
+            #                 else:
+            #                     raise RegisterError('User not preauthorized to register')
+            #             else:
+            #                 self._register_credentials(new_username, new_name, new_password, new_email, preauthorization)
+            #                 return True
+            #         else:
+            #             raise RegisterError('Passwords do not match')
+            #     else:
+            #         raise RegisterError('Username already taken')
+            # else:
+            #     raise RegisterError('Please enter an email, username, name, and password')
+
+    def _get_extra_fields(self, new_values: dict, form):
+        for each in AuthDbSchema.model_fields:
+            # Filter fields that are needed for authentication verfication and for database
+            if (not each == 'username') and \
+                (not each == 'password') and \
+                (not each == 'id') and \
+                (not each == 'created_on'):
+
+                if 'password' in each:
+                    new_values[each] = form.text_input(each, type='password')
                 else:
-                    raise RegisterError('Username already taken')
-            else:
-                raise RegisterError('Please enter an email, username, name, and password')
+                    new_values[each] = form.text_input(each)  
 
     def _set_random_password(self, username: str) -> str:
         """

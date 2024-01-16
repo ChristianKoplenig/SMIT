@@ -1,15 +1,16 @@
 import re
+from matplotlib.pyplot import cla
 from pydantic import BaseModel, field_validator
 
 # Schema for data validation
-from db.auth_schema import SmitAuth as AuthTableSchema
+from db.auth_schema import AuthDbSchema
 # Database connection
 from db.smitdb import SmitDb
 
 
 
 
-class AuthCredentials(BaseModel):
+class AuthApiSchema(BaseModel):
     """
     Schema for user management.
 
@@ -26,7 +27,7 @@ class AuthCredentials(BaseModel):
         validator: Validator
             A Validator object that checks the validity of the username, name, and email fields.
     """
-    db_schema: AuthTableSchema
+    db_schema: AuthDbSchema
     cookie_name: str = 'streamlit-smit-app'
     key: str = 'cookey'
     cookie_expiry_days: float = 30
@@ -85,71 +86,74 @@ class AuthCredentials(BaseModel):
         return v
 
 ######### Provide data from db #########
-
-def create_users_dict(db_all)-> dict:
+class AuthModel:
     """
-    Create a dictionary of users with their attributes.
-
-    Args:
-        db_all (list): A list of user objects from the database.
-
-    Returns:
-        dict: A dictionary where the keys are user IDs and the values are dictionaries of user attributes.
+    This class provides methods for creating user dictionaries and models.
     """
 
-    # Generate dictionary with uid as primary key
-    users = {}
+    def create_users_dict(self, db_all) -> dict:
+        """
+        Create a dictionary of users with their attributes.
 
-    for user in db_all:
+        Args:
+            db_all (list): A list of user objects from the database.
 
-        dump = AuthTableSchema.model_dump(user)
-    
-        uid = dump['id']
-        user_attributes = {}
+        Returns:
+            dict: A dictionary where the keys are user IDs and the values are dictionaries of user attributes.
+        """
 
-        # Assign all user attributes to uid key
-        for key in dump.keys():
-            user_attributes[key] = dump[key]
+        # Generate dictionary with uid as primary key
+        users = {}
 
-        users.setdefault('uid', {}).setdefault(uid, user_attributes)
-    return users
+        for user in db_all:
 
-# Validate each user in database and create dict which contains all user models
-def create_user_models(users: dict) -> dict:
-    """
-    Return dictionary with validated user models from AuthTableSchema.
+            dump = AuthDbSchema.model_dump(user)
 
-    Args:
-        users (dict): A dictionary containing user data grouped by user id from auth table.
+            uid = dump['id']
+            user_attributes = {}
 
-    Returns:
-        dict: A dictionary containing user models, where the keys are user IDs and the values are the corresponding models.
-    """
-    models = {}
-    for uid in users['uid'].values():
-        models[uid['id']] = AuthTableSchema.model_validate(uid)
-    return models
+            # Assign all user attributes to uid key
+            for key in dump.keys():
+                user_attributes[key] = dump[key]
 
-# Validate single user row and return dict with user model
-def single_user_model(user: list) -> dict:
-    """
-    Return dictionary with validated single user data from AuthTableSchema.
+            users.setdefault('uid', {}).setdefault(uid, user_attributes)
+        return users
 
-    Args:
-        user (list): Query result for single user from auth table.
+    def create_user_models(self, users: dict) -> dict:
+        """
+        Return dictionary with validated user models from AuthDbSchema.
 
-    Returns:
-        dict: A dictionary containing the user model.
-    """
-    model = {}
-    model = AuthTableSchema.model_dump(user)
-    return model
+        Args:
+            users (dict): A dictionary containing user data grouped by user id from auth table.
+
+        Returns:
+            dict: A dictionary containing user models, where the keys are user IDs and the values are the corresponding models.
+        """
+        models: dict = {}
+        if 'uid' in users:
+            for uid in users['uid'].values():
+                models[uid['id']] = AuthDbSchema.model_validate(uid)
+        return models
+
+    def single_user_model(self, user: list) -> dict:
+        """
+        Return dictionary with validated single user data from AuthDbSchema.
+
+        Args:
+            user (list): Query result for single user from auth table.
+
+        Returns:
+            dict: A dictionary containing the user model.
+        """
+        model: dict = {}
+        model = AuthDbSchema.model_dump(user)
+        return model
 
 
 ######## work with all users ######## 
 
 # # Connect to database
-# db_connection = SmitDb(AuthTableSchema)
+# db_connection = SmitDb(AuthDbSchema)
 # # Create list with all users
 # all_users_list = db_connection.select_all_usernames()
 
@@ -161,7 +165,7 @@ def single_user_model(user: list) -> dict:
 
 #######
 ####### single row ########
-# db_connection = SmitDb(AuthTableSchema)
+# db_connection = SmitDb(AuthDbSchema)
 # user_row = db_connection.select_username('dummy_user')
 # user_model = single_user_model(user_row)
 
@@ -185,7 +189,7 @@ def single_user_model(user: list) -> dict:
 
 ########## old ##########
 
-# create_user = AuthTableSchema
+# create_user = AuthDbSchema
 
 # # Smit instance
 # smit_db = create_user(

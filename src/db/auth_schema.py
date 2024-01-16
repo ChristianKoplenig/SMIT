@@ -6,7 +6,7 @@ from typing_extensions import Annotated, Doc
 
 from pydantic import StringConstraints
 
-class SmitAuth(SQLModel, table=True):
+class AuthDbSchema(SQLModel, table=True):
     """
     Table for user management.
 
@@ -22,27 +22,29 @@ class SmitAuth(SQLModel, table=True):
     """
     __tablename__ = 'auth_dev'
 
+    # Generated on commit
     id: Optional[int] = Field(default=None, primary_key=True)
+    created_on: Optional[datetime] = Field(default_factory=datetime.now, description="User creation date")
     
+    # Authentication fields
     username: Annotated[str, 
                         StringConstraints(strip_whitespace=True, 
                             to_lower=True, 
                             pattern=r'^[A-Za-z0-9_]+$'),
                         Doc("Smit application username."),
                         ] = Field(index=True,
-                                  description="Smit application username.")    
+                                  description="Smit application username.",
+                                  unique=True,
+                                  min_length=3)    
     
-    password: str = Field(description=" Hash of Smit application password")
+    password: str = Field(..., description=" Hash of Smit application password")
+    
+    # Additional fields
     email: Optional[str] = Field(default=None, description="Mail address for pwd recovery")
-    sng_username: Annotated[str, 
-                            StringConstraints(strip_whitespace=True, 
-                                               to_lower=True, 
-                                               pattern=r'^[A-Za-z0-9_]+$')
-                            ] = Field(index=True, 
+    sng_username: Optional[str] = Field(index=True, 
                                       description="Electricity provider username.") 
     sng_password: Optional[str] = Field(default=None, description="Elictricity provider password")
     daymeter: Optional[int] = Field(default=None, description="Day meter endpoint number")
     nightmeter: Optional[int] = Field(default=None, description="Night meter endpoint number")
     
-    created_on: Optional[datetime] = Field(default_factory=datetime.now, description="User creation date")
     

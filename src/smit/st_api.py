@@ -4,7 +4,7 @@ import os
 import logging
 
 class SmitBackend:
-    """SMIT Backend
+    """SMIT Backend functionality.
     """
     def __init__(self) -> None:
 

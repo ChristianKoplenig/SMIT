@@ -2,12 +2,12 @@ from pydantic import (BaseModel,
                       field_validator)
 import re
 
-from db.auth_schema import SmitAuth as TableSchema
+from db.auth_schema import AuthDbSchema
 
 
 class  User(BaseModel):
 
-    auth_table: TableSchema
+    auth_table: AuthDbSchema
         
     @field_validator('auth_table')
     @classmethod
@@ -39,7 +39,7 @@ class  User(BaseModel):
         
         return v
     
-create_table = TableSchema
+create_table = AuthDbSchema
 
 smit_db = create_table(
     username= 'dummy_user',
