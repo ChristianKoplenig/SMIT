@@ -1,9 +1,10 @@
+from pydantic import ValidationError
 from sqlalchemy.engine import URL
 from sqlmodel import Session, SQLModel, create_engine, select, col
 
 from db import smitdb_secrets as secrets
 
-from db.auth_schema import SmitAuth
+from db.auth_schema import AuthDbSchema
 
 class SmitDb:
     """
@@ -30,18 +31,27 @@ class SmitDb:
         Initializes the Smit auth table by creating the table and adding a dummy user.
     select_all():
         Select the whole table from the database and print it.
+    select_username(value):
+        Select row from the database and return it as a dictionary.
+    select_all_usernames():
+        Select all usernames from the database and return them as a list.
+    delete_where(column, value):
+        Select row from the database and delete.
+    read_db():
+        Reads the SMIT database and returns all SMIT users.
     """
 
-    def __init__(self, schema: SQLModel):
+    def __init__(self, schema: SQLModel) -> None:
         """
-        Constructs a SmitDb object.
+        Create engine object for database.
+        DB credentials are stored in secrets.py.
 
         Parameters
         ----------
         schema : Type[SQLModel]
             SQLModel class schema representing the table to modify.
         """
-        self.db_schema = schema
+        self.db_schema: SQLModel = schema
 
         db_user = secrets.username
         db_pwd = secrets.password
@@ -60,11 +70,11 @@ class SmitDb:
 
     def create_tables(self) -> None:
         """
-        Creates the tables in the Smit database.
+        Create (if not exist) all tables from SQLModel classes.
         """
         SQLModel.metadata.create_all(self.engine)
 
-    def select_all(self):
+    def select_all(self) -> None:
         """
         Select the whole table from the database and print it.
         """
@@ -73,18 +83,24 @@ class SmitDb:
             print(f'-----All data from table {self.db_schema}-----')
             print(select_all)
             
-    def select_username(self, value):
-        """
-        Select row from the database and return it as a dictionary.
-        """
-        with Session(self.engine) as session:
-            statement = select(self.db_schema).where(self.db_schema.username == value)
-            select_row = session.exec(statement).one()
-            
-            if select_row is not None:
-                return select_row
-            
-            return None
+    def select_username(self, value: str) -> tuple:
+            """
+            Select row from the database and return it as a dictionary.
+
+            Parameters:
+            - value (str): The value to search for in the 'username' column.
+
+            Returns:
+            - dict: The selected row as a dictionary, or None if no row is found.
+            """
+            with Session(self.engine) as session:
+                statement = select(self.db_schema).where(self.db_schema.username == value)
+                select_row = session.exec(statement).one()
+                
+                if select_row is not None:
+                    return select_row
+                
+                return None
         
     def select_all_usernames(self) -> list:
         """
@@ -95,31 +111,38 @@ class SmitDb:
             all_usernames = session.exec(statement).all()
             
             return all_usernames
-            
-    def delete_where(self, column, value):
-        """
-        Select row from the database and delete.
-        """
-        with Session(self.engine) as session:
-            statement = select(self.db_schema).where(col(column) == value)
-            results = session.exec(statement)
-            row = results.one()
-            
-            session.delete(row)
-            session.commit()
-            
-            if row is None:
-                print(f'Row {column} = {value} deleted.')
+        
+    def delete_where(self, column: str, value: str) -> None:
+            """
+            Delete selected row from database.
+
+            Args:
+                column (str): The column name to filter the row.
+                value (str): The value to match in the specified column.
+
+            Returns:
+                None
+            """
+            with Session(self.engine) as session:
+                statement = select(self.db_schema).where(col(column) == value)
+                results = session.exec(statement)
+                row = results.one()
                 
-    def read_db(self) -> list[SmitAuth]:
+                session.delete(row)
+                session.commit()
+                
+                if row is None:
+                    print(f'Row {column} = {value} deleted.')
+                
+    def read_db(self) -> list[AuthDbSchema]:
         """
         Reads the SMIT database and returns all SMIT users.
 
         Returns:
-            list: A list of SMITAuth objects representing the SMIT users.
+            list [row:column]: A list of SMITAuth objects representing the SMIT users.
         """
         with Session(self.engine) as session:
-            smit_users = session.exec(select(SmitAuth)).all()
+            smit_users = session.exec(select(AuthDbSchema)).all()
             return smit_users
             
 
@@ -128,6 +151,9 @@ class SmitDb:
     def init_auth(self) -> None:
         """
         Initializes the Smit auth table by creating the table and adding a dummy user.
+
+        This method creates the necessary tables in the database for authentication purposes
+        and adds a dummy user for testing purposes.
         """
         self.create_tables()
         self.create_dummy_user()
@@ -154,10 +180,11 @@ class SmitDb:
                     email: str = None,
                     sng_username: str = None,
                     sng_password: str = None,
-                    daymeter: str = None,
-                    nightmeter: str = None) -> None:
+                    daymeter: int = None,
+                    nightmeter: int = None) -> None:
         """
         Write a user to the Smit auth table.
+        The input will be validated against the database authentication table schema.
 
         Parameters
         ----------
@@ -171,9 +198,9 @@ class SmitDb:
             The energy provider username of the user (default is None).
         sng_password : str, optional
             The energy provider password of the user (default is None).
-        daymeter : str, optional
+        daymeter : int, optional
             The day meter value of the user (default is None).
-        nightmeter : str, optional
+        nightmeter : int, optional
             The night meter value of the user (default is None).
         """
         user = self.db_schema(
@@ -184,24 +211,31 @@ class SmitDb:
             sng_password= sng_password,
             daymeter= daymeter,
             nightmeter= nightmeter)
-
-        with Session(self.engine) as session:
-            session.add(user)
-            session.commit()
+        
+        try:
+            self.db_schema.model_validate(user)
+        except ValidationError as e:
+            for error in e.errors():
+                print('------------------')
+                for key, value in error.items():
+                    print(f'{key}: {value}')
+        else:
+            with Session(self.engine) as session:
+                session.add(user)
+                session.commit()
             
 # # Debug
-#db = SmitDb(SmitAuth)
-#db.select_where('aaa')
+# db = SmitDb(AuthDbSchema)
+# #db.select_where('aaa')
 
 
 
-
-# ## Create second user
+# # ## Create second user
 # db.create_user(
-#     username= 'aaa',
-#     password= '$2b$12$/uoJEE74Z9c96DT5v4B3peIltLY7GajlzHW6xf4U/PJv5up81s1Mu',
+#     username= 'fsa',
+#     password= '',
 #     email= 'a_dummy@dummymail.com',
-#     sng_username= 'a_dummy_sng_login',
+#     sng_username= 'a-dummy_sng_login',
 #     sng_password= 'a_dummy_sng_password',
 #     daymeter= '119996',
 #     nightmeter= '119997'
