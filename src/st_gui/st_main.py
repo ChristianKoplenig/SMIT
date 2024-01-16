@@ -59,24 +59,24 @@ def session_init(smit_core) -> None:
 
 # Connect to fly.io smit database
 # Add table with user data to session state
-@st.cache_resource
-def connect_users_db() -> None:
-    """Fetch userdata from database.
-    """
-    # Database connection
-    users_db = st.connection('flyio', type='sql')
-    st.session_state.logger.debug('Connected to fly.io database')
+# @st.cache_resource
+# def connect_users_db() -> None:
+#     """Fetch userdata from database.
+#     """
+#     # Database connection
+#     users_db = st.connection('flyio', type='sql')
+#     st.session_state.logger.debug('Connected to fly.io database')
     
-    # Query database for authentication table
-    st.session_state.auth_tbl = users_db.query('SELECT * FROM auth_dev;')
-    st.session_state.logger.debug('Auth table queried')
+#     # Query database for authentication table
+#     st.session_state.auth_tbl = users_db.query('SELECT * FROM auth_dev;')
+#     st.session_state.logger.debug('Auth table queried')
 
 # Load backend
-backend = load_backend()
+backend: SmitBackend = load_backend()
 session_init(backend)
 
-# Connect to auth table 
-connect_users_db()
+# # Connect to auth table 
+# connect_users_db()
 
 # Entry buttons    
 if not st.session_state['authentication_status']:
