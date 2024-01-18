@@ -35,8 +35,7 @@ class AuthDbSchema(SQLModel, table=True):
                         Doc("Authentication username."),
                         ] = Field(index=True,
                                   description="Authentication username.",
-                                  unique=True,
-                                  min_length=3)    
+                                  unique=True)    
     
     password: str = Field(description="Hash of Authentication password")
     
@@ -52,22 +51,31 @@ class AuthDbSchema(SQLModel, table=True):
     @field_validator('username', 'sng_username')
     @classmethod
     def validate_usernames(cls, v: str, info: ValidationInfo) -> str:
-        if len(v) < 4:
+        if len(v) < 5:
             raise ValueError(f"{info.field_name} must be at least 5 characters long")
         return v
 
+    @field_validator('password', 'sng_password')
+    @classmethod
+    def validate_passwords(cls, v: str, info: ValidationInfo) -> str:
+        if len(v) < 5:
+            raise ValueError(f"{info.field_name} must be at least 5 characters long")
+        return v
+    
     @field_validator('email')
     @classmethod
-    def validate_email(cls, v: str) -> str:
+    def validate_email(cls, v: str, info: ValidationInfo) -> str:
         pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
         if not re.match(pattern, v):
-            raise ValueError("Invalid email address")   
+            raise ValueError(f"{info.field_name} must be a valid email address")
+        return v
 
     @field_validator('daymeter', 'nightmeter')
     @classmethod
-    def validate_meter(cls, v: str) -> str:
+    def validate_meter(cls, v: str, info: ValidationInfo) -> str:
         if len(str(v)) != 6:
-            raise ValueError("Meter number must be 6 characters long")
+            raise ValueError(f"{info.field_name} number must be 6 characters long")
+        return v
     
     
     

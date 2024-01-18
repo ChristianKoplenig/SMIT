@@ -84,23 +84,23 @@ class SmitDb:
             print(select_all)
             
     def select_username(self, value: str) -> tuple:
-            """
-            Select row from the database and return it as a dictionary.
+        """
+        Select row from the database and return it as a dictionary.
 
-            Parameters:
-            - value (str): The value to search for in the 'username' column.
+        Parameters:
+        - value (str): The value to search for in the 'username' column.
 
-            Returns:
-            - dict: The selected row as a dictionary, or None if no row is found.
-            """
-            with Session(self.engine) as session:
-                statement = select(self.db_schema).where(self.db_schema.username == value)
-                select_row = session.exec(statement).one()
-                
-                if select_row is not None:
-                    return select_row
-                
-                return None
+        Returns:
+        - dict: The selected row as a dictionary, or None if no row is found.
+        """
+        with Session(self.engine) as session:
+            statement = select(self.db_schema).where(self.db_schema.username == value)
+            select_row = session.exec(statement).one()
+            
+            if select_row is not None:
+                return select_row
+            
+            return None
         
     def select_all_usernames(self) -> list:
         """
@@ -113,26 +113,26 @@ class SmitDb:
             return all_usernames
         
     def delete_where(self, column: str, value: str) -> None:
-            """
-            Delete selected row from database.
+        """
+        Delete selected row from database.
 
-            Args:
-                column (str): The column name to filter the row.
-                value (str): The value to match in the specified column.
+        Args:
+            column (str): The column name to filter the row.
+            value (str): The value to match in the specified column.
 
-            Returns:
-                None
-            """
-            with Session(self.engine) as session:
-                statement = select(self.db_schema).where(col(column) == value)
-                results = session.exec(statement)
-                row = results.one()
-                
-                session.delete(row)
-                session.commit()
-                
-                if row is None:
-                    print(f'Row {column} = {value} deleted.')
+        Returns:
+            None
+        """
+        with Session(self.engine) as session:
+            statement = select(self.db_schema).where(col(column) == value)
+            results = session.exec(statement)
+            row = results.one()
+            
+            session.delete(row)
+            session.commit()
+            
+            if row is None:
+                print(f'Row {column} = {value} deleted.')
                 
     def read_db(self) -> list[AuthDbSchema]:
         """
@@ -144,6 +144,17 @@ class SmitDb:
         with Session(self.engine) as session:
             smit_users = session.exec(select(AuthDbSchema)).all()
             return smit_users
+        
+    def add_model(self, model: SQLModel) -> None:
+        """
+        Add a model to the database.
+
+        Args:
+            model (SQLModel): The model to add to the database.
+        """
+        with Session(self.engine) as session:
+            session.add(model)
+            session.commit()
             
 
                 

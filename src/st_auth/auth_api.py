@@ -1,3 +1,4 @@
+from pydantic import ValidationError
 # Database connection
 from db.smitdb import SmitDb
 # Database schema
@@ -9,7 +10,8 @@ class AuthModel:
     
     Methods:
         create_users_dict(db_all: list) -> dict: 
-            Create a dictionary of users with their attributes.
+            Create a dictionary of users with
+                         their attributes.
         create_user_models(users: dict) -> dict: 
             Return dictionary with validated user models from AuthDbSchema.
         single_user_model(user: list) -> dict[str, str]: 
@@ -65,7 +67,7 @@ class AuthModel:
                 models[uid['id']] = AuthDbSchema.model_validate(uid)
         return models
 
-    def single_user_model(self, user: list) -> dict[str, str]:
+    def single_user_model(self, user: tuple) -> dict[str, any]:
         """
         Return unvalidated dictionary with single user data from authentication table.
 
@@ -97,6 +99,27 @@ class AuthModel:
         validated_schema: AuthDbSchema = AuthDbSchema().model_validate(model_db)
         
         return validated_schema.model_dump()
+    
+    def validate_user_dict(self, user_dict: dict) -> dict[str, any]:
+        """
+        Validates a user dictionary.
+
+        Args:
+            user_dict (dict): Dict keys represent user data authentication table columns.
+
+        Returns:
+            dict[str, any]: A validated dictionary representing the user's data.
+        """
+        try:
+            validated_dict: AuthDbSchema = AuthDbSchema.model_validate(user_dict)
+            return validated_dict.model_dump()
+        except ValidationError as e:
+            error_messages = {'validation_errors': {}}
+            for error in e.errors():
+                field = error['loc'][0]
+                error_message = error['msg']
+                error_messages['validation_errors'][field] = error_message
+            return error_messages
 
 ######## work with all users ######## 
 
@@ -113,6 +136,17 @@ class AuthModel:
 
 #######
 ####### single row ########
+# user_dict: dict = {
+#     'username': 'dasdf',
+#     'password': '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
+#     'email': 'dummy@dummymail.com',
+#     'sng_username': 'dummy_sng_login',
+#     'sng_password': 'dummy_sng_password',
+#     'daymeter': 199996,
+#     'nightmeter': 199997
+# } 
+
+
 
 
 # db_connection = SmitDb(AuthDbSchema)
