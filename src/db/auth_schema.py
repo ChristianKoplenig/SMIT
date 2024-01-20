@@ -77,10 +77,34 @@ class AuthDbSchema(SQLModel, table=True):
             raise ValueError(f"{info.field_name} number must be 6 characters long")
         return v
     
+class AuthConfigSchema(SQLModel, table=True):
+    """
+    Represents the authentication configuration schema.
+
+    Attributes:
+        id (Optional[int]): The ID of the configuration.
+        created_on (Optional[datetime]): The creation date of the configuration.
+        preauth_mails (Optional[list]): The list of preauthorized email addresses.
+
+    Methods:
+        validate_preauth(cls, v: str, info: ValidationInfo) -> str: 
+            Validates the email addresses for .
+
+    """
+
+    __tablename__ = 'auth_config'
     
+    id: Optional[int] = Field(default=None, primary_key=True)
+    created_on: Optional[datetime] = Field(default_factory=datetime.now, description="User creation date")
     
+    preauth_mails: Optional[list] = Field(default=None, description="Preauthorized email addresses")
     
-    
-    
+    @field_validator('preauth_mails')
+    @classmethod
+    def validate_preauth(cls, v: str, info: ValidationInfo) -> str:
+        pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        if not re.match(pattern, v):
+            raise ValueError(f"{info.field_name} must be a valid email address")
+        return v
     
     

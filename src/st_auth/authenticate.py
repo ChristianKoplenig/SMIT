@@ -6,13 +6,13 @@ import pydantic
 import streamlit as st
 import extra_streamlit_components as stx
 
-from .hasher import Hasher
-from .validator import Validator
-from .utils import generate_random_pw
+from st_auth.hasher import Hasher
+#from .validator import Validator
+#from .utils import generate_random_pw
 
-from .exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
+#from .exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
 
-import json
+#import json
 
 #### Pydantic
 from db.auth_schema import AuthDbSchema
@@ -31,8 +31,9 @@ class Authenticate:
                  cookie_name: str,
                  key: str,
                  cookie_expiry_days: float=30.0,
-                 preauthorized: list=None,
-                 validator: Validator=None):
+                 preauthorized: list = None,
+                 #validator: Validator=None
+                 ) -> None:
         """
         Create a new instance of "Authenticate".
 
@@ -58,7 +59,11 @@ class Authenticate:
         self.cookie_expiry_days = cookie_expiry_days
         self.preauthorized = preauthorized
         self.cookie_manager = stx.CookieManager()
-        self.validator = validator if validator is not None else Validator()
+        #self.validator = validator if validator is not None else Validator()
+        
+        # Preauthorization
+        if preauthorized is not None:
+            self.preauthorized: list = preauthorized
 
         # DB connection
         self.db_connection = SmitDb(AuthDbSchema)
@@ -154,19 +159,8 @@ class Authenticate:
                             st.session_state['username'] = self.token['username']
                             st.session_state['authentication_status'] = True
     
-    def _check_credentials(self) -> bool:
-        """
-        Checks the validity of the entered credentials.
-
-        Parameters
-        ----------
-        inplace: bool
-            Inplace setting, True: authentication status will be stored in session state, 
-            False: authentication status will be returned as bool.
-        Returns
-        -------
-        bool
-            Validity of entered credentials.
+    def _check_credentials(self) -> None:
+        """Validate user and add attributes to session state.
         """
         if self.username in self.db_all_users:
             if self._check_pw():
@@ -191,9 +185,8 @@ class Authenticate:
             st.error('Username not in database')
             st.stop()
 
-    def login(self, form_name: str, location: str='main') -> tuple:
-        """
-        Creates a login widget.
+    def login(self, form_name: str, location: str='main') -> None:
+        """Create login widget, call user validation.
 
         Parameters
         ----------
@@ -201,15 +194,6 @@ class Authenticate:
             The rendered name of the login form.
         location: str
             The location of the login form i.e. main or sidebar.
-        Returns
-        -------
-        str
-            Name of the authenticated user.
-        bool
-            The status of authentication, None: no credentials entered, 
-            False: incorrect credentials, True: correct credentials.
-        str
-            Username of the authenticated user.
         """
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
@@ -229,8 +213,7 @@ class Authenticate:
                     self._check_credentials()
 
     def logout(self, button_name: str, location: str='main', key: str=None):
-        """
-        Creates a logout button.
+        """Create button and clear session state on logout.
 
         Parameters
         ----------
@@ -238,6 +221,8 @@ class Authenticate:
             The rendered name of the logout button.
         location: str
             The location of the logout button i.e. main or sidebar.
+        key: str
+            Unique key for the logout button widget.
         """
         def _clear_session_state(self):
             """
@@ -322,7 +307,7 @@ class Authenticate:
             else:
                 raise CredentialsError('password')
     
-    def _register_credentials(self, new_credentials: dict, preauthorization: bool = False) -> None:
+    def _register_credentials(self, new_credentials: dict) -> None:
         """
         Adds to credentials dictionary the new user's information.
 
@@ -339,10 +324,15 @@ class Authenticate:
         preauthorization: bool
             The preauthorization requirement, True: user must be preauthorized to register, 
             False: any user can register.
-        """        
+        """
+        # Hash passwords
+        for each in new_credentials:
+            if 'password' in each:
+                new_credentials[each] = self._hash_pwd(new_credentials[each])
+        
         # Add credentials to session state
         st.session_state['username'] = new_credentials['username']
-        st.session_state['password'] = self._hash_pwd(new_credentials['password'])
+        st.session_state['password'] = new_credentials['password']
         st.session_state['authentication_status'] = True
         
         for key, value in new_credentials.items():
@@ -352,20 +342,22 @@ class Authenticate:
                 (not key == 'id') and \
                 (not key == 'created_on'):
 
-                if 'password' in key:
-                    st.session_state[key] = self._hash_pwd(value)
-                else:
-                    st.session_state[key] = value
+                # if 'password' in key:
+                #     st.session_state[key] = self._hash_pwd(value)
+                # else:
+                st.session_state[key] = value
         
         # Add new user to authentication table
         new_user_model = AuthDbSchema.model_validate(new_credentials)
         self.db_connection.add_model(new_user_model)
+        
+        st.info(f'User {new_credentials["username"]} successfully registered')
 
 # Implement preauthorization        
         # if preauthorization:
         #     self.preauthorized['emails'].remove(email)
 
-    def register_user(self, form_name: str, location: str='main', preauthorization=False) -> bool:
+    def register_user(self, form_name: str, location: str='main') -> None:
         """
         Creates a register new user widget.
 
@@ -383,9 +375,9 @@ class Authenticate:
         bool
             The status of registering the new user, True: user registered successfully.
         """
-        if preauthorization:
-            if not self.preauthorized:
-                raise ValueError("preauthorization argument must not be None")
+        # if preauthorization:
+        #     if not self.preauthorized:
+        #         raise ValueError("preauthorization argument must not be None")
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
         if location == 'main':
@@ -404,7 +396,7 @@ class Authenticate:
 
         if register_user_form.form_submit_button('Register'):
             
-            st.write(f'new values: {new_values}')
+            st.write(f'preauth first: {self.preauthorized}')
             
             if new_values['password'] == new_values['password_repeat']:
                 # Delete password verification field
@@ -414,17 +406,19 @@ class Authenticate:
                 validated_credentials: dict[str, any] = AuthModel().validate_user_dict(new_values)
                 if not 'validation_errors' in validated_credentials:                    
                     # When no preauthorized list is passed, all users can register
-                    if not self.preauthorized:
-                        # Hash passwords for fields with 'password' in key name
-                        for each in validated_credentials:
-                            if 'password' in each:
-                                validated_credentials[each] = self._hash_pwd(validated_credentials[each])
-                        
+                    if not self.preauthorized:                        
                         self._register_credentials(validated_credentials)
                         st.session_state['register_btn_clicked'] = False
                     else:
-                        # validate list
-                        pass
+                        if validated_credentials['email'] in self.preauthorized:
+                            self._register_credentials(validated_credentials)
+                            st.session_state['register_btn_clicked'] = False
+                            self.preauthorized.remove(validated_credentials['email'])
+                            st.write(f'preauth second: {self.preauthorized}')
+                        else:
+                            st.error('Email not in preauthorized list')
+                            st.stop()
+                        #pass
                 else:
                     for key, value in validated_credentials['validation_errors'].items():
                         st.error(f'Field: {key} generated Error: {value}')

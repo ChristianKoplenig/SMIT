@@ -2,7 +2,7 @@ from pydantic import ValidationError
 # Database connection
 from db.smitdb import SmitDb
 # Database schema
-from db.auth_schema import AuthDbSchema
+from db.auth_schema import AuthDbSchema, AuthConfigSchema
 
 class AuthModel:
     """
@@ -21,6 +21,7 @@ class AuthModel:
     """
     def __init__(self):
         self.db_connection = SmitDb(AuthDbSchema)
+        self.config_connection = SmitDb(AuthConfigSchema)
         
         
     def create_users_dict(self, db_all: list) -> dict:

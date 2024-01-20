@@ -41,10 +41,12 @@ from db.auth_schema import AuthDbSchema
 #         'streamlit-smit-app',
 #         'cookey')
 #     return authenticator
+email_addresses = ['a@b.com', 'b@a.com']
 
 authenticator = stauth.Authenticate(
-        'streamlit-smit-app',
-        'cookey')
+    cookie_name='streamlit-smit-app',
+    key='cookey',
+    preauthorized=email_addresses)
 
 # Login form
 if st.session_state['login_btn_clicked'] and not st.session_state['register_btn_clicked']:
@@ -54,9 +56,9 @@ if st.session_state['login_btn_clicked'] and not st.session_state['register_btn_
 # Register user form
 if st.session_state['register_btn_clicked'] and not st.session_state['login_btn_clicked']:
     try:
-        if authenticator.register_user('Register new user', preauthorization=False):
-            SmitDb(AuthDbSchema).create_user(st.session_state.username,
-                                         st.session_state.password)
+        if authenticator.register_user('Register new user'):
+            # SmitDb(AuthDbSchema).create_user(st.session_state.username,
+            #                              st.session_state.password)
             switch_page('home')
 
     except Exception as e:
