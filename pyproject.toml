@@ -47,6 +47,14 @@ pytest = "^7.4.2"
 tox = "^4.11.3"
 tox-poetry-installer = "^1.0.0b1"
 
+[tool.pyright]
+exclude = ["tests",
+    "**/__pycache__",
+    ".pytest_cache",
+    ".tox",
+    ".venv",
+    ".vscode"]
+
 [tool.pytest.ini_options]
 markers = [ 
     "smoke: Validate all core methods",
