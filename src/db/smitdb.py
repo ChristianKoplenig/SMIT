@@ -1,10 +1,12 @@
 from pydantic import ValidationError
 from sqlalchemy.engine import URL
-from sqlmodel import Session, SQLModel, create_engine, select, col
+from sqlmodel import Session, SQLModel, create_engine, select
 
 from db import smitdb_secrets as secrets
 
-from db.auth_schema import AuthDbSchema
+from smit.st_api import SmitBackend
+
+#from db.auth_schema import AuthDbSchema
 
 class SmitDb:
     """
@@ -67,54 +69,59 @@ class SmitDb:
         )
 
         self.engine = create_engine(url, echo=True)
-
-    def create_tables(self) -> None:
+        
+        # Use logger from SmitBackend
+        self.backend = SmitBackend()
+        
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        
+        self.backend.logger.info(msg)
+   
+    def create_table(self) -> None:
         """
         Create (if not exist) all tables from SQLModel classes.
         """
         SQLModel.metadata.create_all(self.engine)
-
-    def select_all(self) -> None:
+        
+        self.backend.logger.debug('Created table %s', self.db_schema.__name__)
+        
+    def create_instance(self, schema: SQLModel) -> None:
         """
-        Select the whole table from the database and print it.
+        Use SQLModel schema to add a new entry to the database.
+
+        Example:
+            new_entry = SQLModelSchema.model_validate(entry)
+            db_connection.add_schema(new_entry)
+            
+        Args:
+            schema (SQLModel): The model instance representing the new entry.
         """
         with Session(self.engine) as session:
-            select_all = session.exec(select(self.db_schema)).all()
-            print(f'-----All data from table {self.db_schema}-----')
-            print(select_all)
+            session.add(schema)
+            session.commit()
             
-    def select_username(self, value: str) -> tuple:
-        """
-        Select row from the database and return it as a dictionary.
+        self.backend.logger.info(f'Added instance of %s to database', schema.__class__.__name__)
 
-        Parameters:
-        - value (str): The value to search for in the 'username' column.
+    def read_all(self) -> tuple:
+        """
+        Read all data in given schema.
+        
+        Example:
+            for row in read_all:
+                print(f'ID: {row.id}, Name: {row.username}')
 
         Returns:
-        - dict: The selected row as a dictionary, or None if no row is found.
+            tuple: Each row as tuple with columns as attributes.
         """
         with Session(self.engine) as session:
-            statement = select(self.db_schema).where(self.db_schema.username == value)
-            select_row = session.exec(statement).one()
-            
-            if select_row is not None:
-                return select_row
-            
-            return None
-        
-    def select_all_usernames(self) -> list:
-        """
-        Select all usernames from the database and return them as a list.
-        """
-        with Session(self.engine) as session:
-            statement = select(self.db_schema.username)
-            all_usernames = session.exec(statement).all()
-            
-            return all_usernames
-        
+            read_all: tuple = session.exec(select(self.db_schema)).all()
+            return read_all
+    
     def delete_where(self, column: str, value: str) -> None:
         """
-        Delete selected row from database.
+        Delete row for value found in column.
 
         Args:
             column (str): The column name to filter the row.
@@ -124,40 +131,16 @@ class SmitDb:
             None
         """
         with Session(self.engine) as session:
-            statement = select(self.db_schema).where(col(column) == value)
+            statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
             results = session.exec(statement)
             row = results.one()
             
             session.delete(row)
             session.commit()
             
-            if row is None:
-                print(f'Row {column} = {value} deleted.')
-                
-    def read_db(self) -> list[AuthDbSchema]:
-        """
-        Reads the SMIT database and returns all SMIT users.
+        self.backend.logger.info(f'Deleted row where %s matches %s', column, value)
 
-        Returns:
-            list [row:column]: A list of SMITAuth objects representing the SMIT users.
-        """
-        with Session(self.engine) as session:
-            smit_users = session.exec(select(AuthDbSchema)).all()
-            return smit_users
-        
-    def add_model(self, model: SQLModel) -> None:
-        """
-        Add a model to the database.
-
-        Args:
-            model (SQLModel): The model to add to the database.
-        """
-        with Session(self.engine) as session:
-            session.add(model)
-            session.commit()
-            
-
-                
+                        
     # Auth table specific methods
     def init_auth(self) -> None:
         """
@@ -166,7 +149,7 @@ class SmitDb:
         This method creates the necessary tables in the database for authentication purposes
         and adds a dummy user for testing purposes.
         """
-        self.create_tables()
+        self.create_table()
         self.create_dummy_user()
         
     def create_dummy_user(self) -> None:
@@ -185,7 +168,10 @@ class SmitDb:
         with Session(self.engine) as session:
             session.add(dummy)
             session.commit()
+            
+        self.backend.logger.debug('Created dummy user in auth table')
 
+    # Check if this works, try in combination with except
     def create_user(self, username: str,
                     password: str,
                     email: str = None,
@@ -234,11 +220,42 @@ class SmitDb:
             with Session(self.engine) as session:
                 session.add(user)
                 session.commit()
-            
-# # Debug
-# db = SmitDb(AuthDbSchema)
-# #db.select_where('aaa')
+                
+            self.backend.logger.info('Created user %s in auth table', user.username)
+                
+    def select_username(self, value: str) -> tuple:
+        """
+        From authentication table select one row by username.
 
+        Parameters:
+        - value (str): The value to search for in the 'username' column.
+
+        Returns:
+        - dict: None or the selected row as tuple with columns as elements.
+        """
+        with Session(self.engine) as session:
+            statement = select(self.db_schema).where(self.db_schema.username == value)
+            select_row = session.exec(statement).one()
+            
+            if select_row is not None:
+                return select_row
+            
+            return None
+            
+    def select_all_usernames(self) -> list:
+            """
+            From authentication table select all usernames.
+
+            Returns:
+                list: All usernames from the authentication table.
+            """
+            with Session(self.engine) as session:
+                statement   = select(self.db_schema.username)
+                all_usernames: list = session.exec(statement).all()
+                return all_usernames
+# Debug
+# db = SmitDb(AuthDbSchema)
+# db.delete_where('username', 'peter')
 
 
 # # ## Create second user
