@@ -41,12 +41,11 @@ from db.auth_schema import AuthDbSchema
 #         'streamlit-smit-app',
 #         'cookey')
 #     return authenticator
-email_addresses = ['a@b.com', 'b@a.com']
 
 authenticator = stauth.Authenticate(
+    preauthorization=True,
     cookie_name='streamlit-smit-app',
-    key='cookey',
-    preauthorized=email_addresses)
+    key='cookey')
 
 # Login form
 if st.session_state['login_btn_clicked'] and not st.session_state['register_btn_clicked']:
@@ -113,7 +112,7 @@ if st.session_state['authentication_status']:
             st.write('Logout and delete user from database')
             
             # Delete user from database
-            SmitDb(AuthDbSchema).delete_where(AuthDbSchema.username, uid)
+            #SmitDb(AuthDbSchema).delete_where(AuthDbSchema.username, uid)
 
             # Delete user from session state
             #stx.CookieManager().delete('streamlit-smit-app', 'cookey', key='del_user_cookie')

@@ -31,7 +31,7 @@ class Authenticate:
                  cookie_name: str,
                  key: str,
                  cookie_expiry_days: float=30.0,
-                 preauthorized: list = None,
+                 preauthorization: bool = False,
                  #validator: Validator=None
                  ) -> None:
         """
@@ -57,13 +57,13 @@ class Authenticate:
         self.cookie_name = cookie_name
         self.key = key
         self.cookie_expiry_days = cookie_expiry_days
-        self.preauthorized = preauthorized
+        #self.preauthorized = preauthorized
         self.cookie_manager = stx.CookieManager()
         #self.validator = validator if validator is not None else Validator()
         
-        # Preauthorization
-        if preauthorized is not None:
-            self.preauthorized: list = preauthorized
+        # Get list with preauthorized mail adresses
+        if preauthorization:
+            self.preauthorized: list = AuthModel().get_preauth_mails()
 
         # DB connection
         self.db_connection = SmitDb(AuthDbSchema)
@@ -309,21 +309,18 @@ class Authenticate:
     
     def _register_credentials(self, new_credentials: dict) -> None:
         """
-        Adds to credentials dictionary the new user's information.
+        Assign new credentials to session state and to authentication table.
+        
+        Hash values for fields containing `password`.
+        Add credentials to session state.
+        Add new user to authentication table.
+        
 
         Parameters
         ----------
-        username: str
-            The username of the new user.
-        name: str
-            The name of the new user.
-        password: str
-            The password of the new user.
-        email: str
-            The email of the new user.
-        preauthorization: bool
-            The preauthorization requirement, True: user must be preauthorized to register, 
-            False: any user can register.
+            new_credentials: dict
+                Input from register user form.
+
         """
         # Hash passwords
         for each in new_credentials:
@@ -342,42 +339,32 @@ class Authenticate:
                 (not key == 'id') and \
                 (not key == 'created_on'):
 
-                # if 'password' in key:
-                #     st.session_state[key] = self._hash_pwd(value)
-                # else:
                 st.session_state[key] = value
         
         # Add new user to authentication table
         new_user_model = AuthDbSchema.model_validate(new_credentials)
-        self.db_connection.add_model(new_user_model)
+        self.db_connection.create_instance(new_user_model)
         
         st.info(f'User {new_credentials["username"]} successfully registered')
 
-# Implement preauthorization        
-        # if preauthorization:
-        #     self.preauthorized['emails'].remove(email)
-
     def register_user(self, form_name: str, location: str='main') -> None:
         """
-        Creates a register new user widget.
-
+        Create new user widget.
+        
+        Manage preauthorization and trigger credentials registration 
+        in authentication table.
+        
         Parameters
         ----------
         form_name: str
             The rendered name of the register new user form.
-        location: str
-            The location of the register new user form i.e. main or sidebar.
-        preauthorization: bool
-            The preauthorization requirement, True: user must be preauthorized to register, 
-            False: any user can register.
+        location: str, optional
+            The location of the register new user form i.e. main or sidebar. Default is 'main'.
+        
         Returns
         -------
-        bool
-            The status of registering the new user, True: user registered successfully.
+        None
         """
-        # if preauthorization:
-        #     if not self.preauthorized:
-        #         raise ValueError("preauthorization argument must not be None")
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
         if location == 'main':
@@ -391,12 +378,8 @@ class Authenticate:
         new_values['username'] = register_user_form.text_input('Username').lower()
         new_values['password'] = register_user_form.text_input('Password', type='password')
         new_values['password_repeat'] = register_user_form.text_input('Repeat password', type='password')
-
         self._get_extra_fields(new_values, register_user_form)
-
         if register_user_form.form_submit_button('Register'):
-            
-            st.write(f'preauth first: {self.preauthorized}')
             
             if new_values['password'] == new_values['password_repeat']:
                 # Delete password verification field
@@ -405,20 +388,20 @@ class Authenticate:
                 # Validate entered user credentials
                 validated_credentials: dict[str, any] = AuthModel().validate_user_dict(new_values)
                 if not 'validation_errors' in validated_credentials:                    
-                    # When no preauthorized list is passed, all users can register
+                    # If preauthorization is false, register user
                     if not self.preauthorized:                        
                         self._register_credentials(validated_credentials)
                         st.session_state['register_btn_clicked'] = False
+                    # Validate entered email against self.preauthorized
                     else:
                         if validated_credentials['email'] in self.preauthorized:
                             self._register_credentials(validated_credentials)
                             st.session_state['register_btn_clicked'] = False
                             self.preauthorized.remove(validated_credentials['email'])
-                            st.write(f'preauth second: {self.preauthorized}')
+                            AuthModel().delete_preauth_mail(validated_credentials['email'])
                         else:
                             st.error('Email not in preauthorized list')
                             st.stop()
-                        #pass
                 else:
                     for key, value in validated_credentials['validation_errors'].items():
                         st.error(f'Field: {key} generated Error: {value}')

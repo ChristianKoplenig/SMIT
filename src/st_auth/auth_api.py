@@ -24,33 +24,33 @@ class AuthModel:
         self.config_connection = SmitDb(AuthConfigSchema)
         
         
-    def create_users_dict(self, db_all: list) -> dict:
-        """
-        Create a dictionary of users with their attributes.
+    # def create_users_dict(self, db_all: list) -> dict:
+    #     """
+    #     Create a dictionary of users with their attributes.
 
-        Args:
-            db_all (list): A list of user objects from the database.
+    #     Args:
+    #         db_all (list): A list of user objects from the database.
 
-        Returns:
-            dict: A dictionary where the keys are user IDs and the values are dictionaries of user attributes.
-        """
+    #     Returns:
+    #         dict: A dictionary where the keys are user IDs and the values are dictionaries of user attributes.
+    #     """
 
-        # Generate dictionary with uid as primary key
-        users = {}
+    #     # Generate dictionary with uid as primary key
+    #     users = {}
 
-        for user in db_all:
+    #     for user in db_all:
 
-            dump = AuthDbSchema.model_dump(user)
+    #         dump = AuthDbSchema.model_dump(user)
 
-            uid = dump['id']
-            user_attributes = {}
+    #         uid = dump['id']
+    #         user_attributes = {}
 
-            # Assign all user attributes to uid key
-            for key in dump.keys():
-                user_attributes[key] = dump[key]
+    #         # Assign all user attributes to uid key
+    #         for key in dump.keys():
+    #             user_attributes[key] = dump[key]
 
-            users.setdefault('uid', {}).setdefault(uid, user_attributes)
-        return users
+    #         users.setdefault('uid', {}).setdefault(uid, user_attributes)
+    #     return users
 
     def create_user_models(self, users: dict) -> dict:
         """
@@ -122,80 +122,20 @@ class AuthModel:
                 error_messages['validation_errors'][field] = error_message
             return error_messages
 
-######## work with all users ######## 
+    def get_preauth_mails(self) -> list:
+        """
+        Retrieves the preauthorized email addresses from the database.
 
-# # Connect to database
-# db_connection = SmitDb(AuthDbSchema)
-# # Create list with all users
-# all_users_list = db_connection.select_all_usernames()
+        Returns:
+            list: A list of preauthorized email addresses.
+        """
+        return self.config_connection.read_column('preauth_mails')
+    
+    def delete_preauth_mail(self, email: str) -> None:
+        """
+        Delete email from preauthorization addresses.
 
-# print('-----All users list-----')
-# print(all_users_list)
-
-# if 'aaa' in all_users_list:
-#     print(type(all_users_list))
-
-#######
-####### single row ########
-# user_dict: dict = {
-#     'username': 'dasdf',
-#     'password': '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
-#     'email': 'dummy@dummymail.com',
-#     'sng_username': 'dummy_sng_login',
-#     'sng_password': 'dummy_sng_password',
-#     'daymeter': 199996,
-#     'nightmeter': 199997
-# } 
-
-
-
-
-# db_connection = SmitDb(AuthDbSchema)
-# user_row = db_connection.select_username('dummy_user')
-
-# model_val = AuthModel().get_user('aaa00')
-
-# print('---- model outside ----')
-# print(model_val['username'])
-
-
-# user_model = single_user_model(user_row)
-
-# # print('-----User row-----')
-# print(user_row.password)
-
-# for key, value in user_model.items():
-#     #pass
-#     # if not key.startswith('_'):
-#         print(f'key: {key}, value: {value}')
-
-# print('-----User dict-----')
-# print(user_row.id)
-# print('-----User model-----')
-# print(user_model)
-#print(user_model.id)
-
-
-############
-
-
-########## old ##########
-
-# create_user = AuthDbSchema
-
-# # Smit instance
-# smit_db = create_user(
-#     username= 'dummy_user',
-#     password= '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
-#     email= 'dummy@dummymail.com',
-#     sng_username= 'dummy_sng_login',
-#     sng_password= 'dummy_sng_password',
-#     daymeter= 199996,
-#     nightmeter= 199997)
-
-# a = AuthCredentials(db_schema=smit_db)
-
-# print(a.model_dump())
-
-# for name, value in a.db_schema:
-#     print(f"{name}: {value}")
+        Args:
+            email (str): The email address to delete.
+        """
+        self.config_connection.delete_where('preauth_mails', email)

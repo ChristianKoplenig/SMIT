@@ -6,7 +6,7 @@ from db import smitdb_secrets as secrets
 
 from smit.st_api import SmitBackend
 
-#from db.auth_schema import AuthDbSchema
+from db.auth_schema import AuthDbSchema, AuthConfigSchema
 
 class SmitDb:
     """
@@ -68,15 +68,13 @@ class SmitDb:
             password= db_pwd,
         )
 
-        self.engine = create_engine(url, echo=True)
+        self.engine = create_engine(url) #, echo=True)
         
         # Use logger from SmitBackend
         self.backend = SmitBackend()
-        
         msg  = f'Class {self.__class__.__name__} of the '
         msg += f'module {self.__class__.__module__} '
         msg +=  'successfully initialized.'
-        
         self.backend.logger.info(msg)
    
     def create_table(self) -> None:
@@ -119,6 +117,21 @@ class SmitDb:
             read_all: tuple = session.exec(select(self.db_schema)).all()
             return read_all
     
+    def read_column(self, column: str) -> list:
+        """
+        Read all data in given column.
+
+        Args:
+            column (str): The column name to read.
+
+        Returns:
+            list: Each entry for given column.
+        """
+        with Session(self.engine) as session:
+            statement   = select(getattr(self.db_schema, column))
+            all_entries: list = session.exec(statement).all()
+            return all_entries
+        
     def delete_where(self, column: str, value: str) -> None:
         """
         Delete row for value found in column.
@@ -138,9 +151,8 @@ class SmitDb:
             session.delete(row)
             session.commit()
             
-        self.backend.logger.info(f'Deleted row where %s matches %s', column, value)
-
-                        
+        self.backend.logger.info('Deleted row where %s matches %s', column, value)
+              
     # Auth table specific methods
     def init_auth(self) -> None:
         """
@@ -171,7 +183,6 @@ class SmitDb:
             
         self.backend.logger.debug('Created dummy user in auth table')
 
-    # Check if this works, try in combination with except
     def create_user(self, username: str,
                     password: str,
                     email: str = None,
@@ -231,7 +242,7 @@ class SmitDb:
         - value (str): The value to search for in the 'username' column.
 
         Returns:
-        - dict: None or the selected row as tuple with columns as elements.
+        - tuple: None or the selected row as tuple with columns as elements.
         """
         with Session(self.engine) as session:
             statement = select(self.db_schema).where(self.db_schema.username == value)
@@ -243,28 +254,13 @@ class SmitDb:
             return None
             
     def select_all_usernames(self) -> list:
-            """
-            From authentication table select all usernames.
+        """
+        From authentication table select all usernames.
 
-            Returns:
-                list: All usernames from the authentication table.
-            """
-            with Session(self.engine) as session:
-                statement   = select(self.db_schema.username)
-                all_usernames: list = session.exec(statement).all()
-                return all_usernames
-# Debug
-# db = SmitDb(AuthDbSchema)
-# db.delete_where('username', 'peter')
-
-
-# # ## Create second user
-# db.create_user(
-#     username= 'fsa',
-#     password= '',
-#     email= 'a_dummy@dummymail.com',
-#     sng_username= 'a-dummy_sng_login',
-#     sng_password= 'a_dummy_sng_password',
-#     daymeter= '119996',
-#     nightmeter= '119997'
-# )
+        Returns:
+            list: All usernames from the authentication table.
+        """
+        with Session(self.engine) as session:
+            statement   = select(self.db_schema.username)
+            all_usernames: list = session.exec(statement).all()
+            return all_usernames

@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 import re
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, JSON, Column
 from typing_extensions import Annotated, Doc
 
 from pydantic import StringConstraints, ValidationInfo, field_validator
@@ -97,7 +97,12 @@ class AuthConfigSchema(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_on: Optional[datetime] = Field(default_factory=datetime.now, description="User creation date")
     
-    preauth_mails: Optional[list] = Field(default=None, description="Preauthorized email addresses")
+    preauth_mails: Optional[str] = Field(default=None,
+                                     description="Preauthorized email addresses")
+    
+    # Needed for Column(JSON)
+    class Config:
+        arbitrary_types_allowed = True
     
     @field_validator('preauth_mails')
     @classmethod
