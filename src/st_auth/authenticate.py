@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
+import re
 import bcrypt
 import jwt
 import bcrypt
+from numpy import delete
 import pydantic
 import streamlit as st
 import extra_streamlit_components as stx
@@ -137,6 +139,18 @@ class Authenticate:
         all_users: list = self.db_connection.select_all_usernames()
         return all_users
     # done
+    def _clear_userdata(self) -> None:
+        """
+        Delete cookie and session state for logged in user.
+        """
+        self.cookie_manager.delete(self.cookie_name)
+        
+        # Use database schema to clear session state variabels    
+        for key in AuthDbSchema.model_fields.keys():
+            st.session_state[key] = None
+            
+        st.session_state['authentication_status'] = None
+    # done
     def _generate_extra_fields_inputform(self, new_values: dict, form: str) -> None:
         """
         Add extra fields from AuthDbSchema to input form.
@@ -255,30 +269,18 @@ class Authenticate:
                 The location of the logout button i.e. main or sidebar.
             key: str
                 Unique key for the logout button widget.
-        """
-        def _clear_session_state(self):
-            """
-            Clears session state on logout.
-            """
-            self.cookie_manager.delete(self.cookie_name)
-            
-            # Use Schema from user database to clear session state variabels    
-            for key in AuthDbSchema.model_fields.keys():
-                st.session_state[key] = None
-                
-            st.session_state['logout'] = True
-            st.session_state['authentication_status'] = None
-        
-        
+        """        
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
         if location == 'main':
             if st.button(button_name, key):
-                _clear_session_state(self)
+                self._clear_userdata()
+                st.session_state['logout'] = True
 
         elif location == 'sidebar':
             if st.sidebar.button(button_name, key):
-                _clear_session_state(self)
+                self._clear_userdata()
+                st.session_state['logout'] = True
     # todo: all
     def _update_password(self, username: str, password: str):
         """
@@ -602,12 +604,32 @@ class Authenticate:
             if len(new_value) == 0:
                 raise UpdateError('New value not provided')
     # todo: all
-    def delete_user(self, username: str, form_name: str, location: str='main') -> None:
+    def delete_user(self, form_name: str, location: str='main') -> bool:
         """Delete user from session state and authentication table.
-
-        Args:
-            username (str): _description_
-            form_name (str): _description_
-            location (str, optional): _description_. Defaults to 'main'.
-        """
-        # implementation needed
+        
+        """        
+        # Create form
+        if location not in ['main', 'sidebar']:
+            raise ValueError("Location must be one of 'main' or 'sidebar'")
+        if location == 'main':
+            delete_user_form = st.form('Delete user')
+        elif location == 'sidebar':
+            delete_user_form = st.sidebar.form('Delete user')
+        
+        
+        delete_user_form.subheader(form_name)
+        
+        form_input = delete_user_form.text_input('Username').lower()
+        
+        # Form logic    
+        if delete_user_form.form_submit_button('Delete user'):
+            if self.username == form_input:
+                # Delete user from database
+                self.db_connection.delete_where('username', st.session_state['username'])
+                st.write('User deleted from database')
+                self._clear_userdata()
+                st.write('User logged out')
+                return True
+            else:
+                st.error('Username does not match')
+                return False

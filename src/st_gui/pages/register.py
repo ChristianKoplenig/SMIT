@@ -100,39 +100,6 @@ if st.session_state['authentication_status']:
             st.error(e)
     
     # Delete user
-    with st.expander('Delete user'):
-        st.write('Implementation needed')
-        
-        # Create form
-        del_user = st.form('DeleteUser')
-        del_user.subheader('Delete user')
-        
-        if st.session_state['username'] == del_user.text_input('Username'):
-            #uid = st.session_state['username']
-            st.write('Logout and delete user from database')
+    with st.expander('Confirm deletion'):
             
-
-            # Delete user from session state
-            # try:
-            #     # authenticator.delete_user()
-            
-            
-            # Delete user from database
-            
-            #SmitDb(AuthDbSchema).delete_where(AuthDbSchema.username, uid)
-            
-            
-            # #stx.CookieManager().delete('streamlit-smit-app', 'cookey', key='del_user_cookie')
-            # st.session_state['logout'] = True
-            # st.session_state['name'] = None
-            # st.session_state['username'] = None
-            # st.session_state['authentication_status'] = None
-            # del st.session_state['init']
-            # #del st.session_state['password']
-            # #del st.session_state['email']
-            
-            #switch_page('home') 
-        else:
-            st.error('Username does not match')
-        
-        del_user.form_submit_button('Delete user')
+        authenticator.delete_user('Delete user')

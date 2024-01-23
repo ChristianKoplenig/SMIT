@@ -122,6 +122,7 @@ class AuthModel:
                 error_messages['validation_errors'][field] = error_message
             return error_messages
 
+# Eventually move to authenticator class
     def get_preauth_mails(self) -> list:
         """
         Retrieves the preauthorized email addresses from the database.
