@@ -43,7 +43,7 @@ from db.auth_schema import AuthDbSchema
 #     return authenticator
 
 authenticator = stauth.Authenticate(
-    preauthorization=True,
+    #preauthorization=True,
     cookie_name='streamlit-smit-app',
     key='cookey')
 
@@ -108,23 +108,30 @@ if st.session_state['authentication_status']:
         del_user.subheader('Delete user')
         
         if st.session_state['username'] == del_user.text_input('Username'):
-            uid = st.session_state['username']
+            #uid = st.session_state['username']
             st.write('Logout and delete user from database')
             
-            # Delete user from database
-            #SmitDb(AuthDbSchema).delete_where(AuthDbSchema.username, uid)
 
             # Delete user from session state
-            #stx.CookieManager().delete('streamlit-smit-app', 'cookey', key='del_user_cookie')
-            st.session_state['logout'] = True
-            st.session_state['name'] = None
-            st.session_state['username'] = None
-            st.session_state['authentication_status'] = None
-            del st.session_state['init']
-            #del st.session_state['password']
-            #del st.session_state['email']
+            # try:
+            #     # authenticator.delete_user()
             
-            switch_page('home') 
+            
+            # Delete user from database
+            
+            #SmitDb(AuthDbSchema).delete_where(AuthDbSchema.username, uid)
+            
+            
+            # #stx.CookieManager().delete('streamlit-smit-app', 'cookey', key='del_user_cookie')
+            # st.session_state['logout'] = True
+            # st.session_state['name'] = None
+            # st.session_state['username'] = None
+            # st.session_state['authentication_status'] = None
+            # del st.session_state['init']
+            # #del st.session_state['password']
+            # #del st.session_state['email']
+            
+            #switch_page('home') 
         else:
             st.error('Username does not match')
         

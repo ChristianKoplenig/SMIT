@@ -13,8 +13,8 @@ class AuthDbSchema(SQLModel, table=True):
 
     Attributes:
         id (Optional[int]): The unique identifier of the user.
-        username (str): Authentication username.
-        password (str): Authentication password.
+        username (str): Authentication username; mandatory field for authenticator.
+        password (str): Authentication password; mandatory field for authenticator.
         email (str, optional): The email address of the user.
         sng_username (str, optional): The username for energy provider login.
         sng_password (str, optional): The password for energy provider login.
@@ -40,6 +40,8 @@ class AuthDbSchema(SQLModel, table=True):
     password: str = Field(description="Hash of Authentication password")
     
     # Additional fields
+    # Define according to individual needs 
+    # Fields containing the string 'password' will be hashed automatically
     email: Optional[str] = Field(default=None, description="Mail address for pwd recovery")
     sng_username: Optional[str] = Field(index=True, 
                                       description="Electricity provider username.") 
