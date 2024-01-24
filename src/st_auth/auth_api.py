@@ -1,10 +1,11 @@
+import streamlit as st
 from pydantic import ValidationError
-# Database connection
-from db.smitdb import SmitDb
-# Database schema
-from db.auth_schema import AuthDbSchema, AuthConfigSchema
 
-class AuthModel:
+# Database schema
+from db.schemas import AuthenticationSchema
+
+
+class AuthApi:
     """
     Class for retrieving data from the authentication table.
     
@@ -20,54 +21,14 @@ class AuthModel:
             Retrieves a user from the database based on the provided username.
     """
     def __init__(self):
-        self.db_connection = SmitDb(AuthDbSchema)
-        self.config_connection = SmitDb(AuthConfigSchema)
+        self.auth_connection = st.session_state.auth_connection
+        self.config_connection = st.session_state.config_connection
+
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        st.session_state.smit_api.logger.debug(msg)
         
-        
-    # def create_users_dict(self, db_all: list) -> dict:
-    #     """
-    #     Create a dictionary of users with their attributes.
-
-    #     Args:
-    #         db_all (list): A list of user objects from the database.
-
-    #     Returns:
-    #         dict: A dictionary where the keys are user IDs and the values are dictionaries of user attributes.
-    #     """
-
-    #     # Generate dictionary with uid as primary key
-    #     users = {}
-
-    #     for user in db_all:
-
-    #         dump = AuthDbSchema.model_dump(user)
-
-    #         uid = dump['id']
-    #         user_attributes = {}
-
-    #         # Assign all user attributes to uid key
-    #         for key in dump.keys():
-    #             user_attributes[key] = dump[key]
-
-    #         users.setdefault('uid', {}).setdefault(uid, user_attributes)
-    #     return users
-
-    def create_user_models(self, users: dict) -> dict:
-        """
-        Return dictionary with validated user models from AuthDbSchema.
-
-        Args:
-            users (dict): A dictionary containing user data grouped by user id from auth table.
-
-        Returns:
-            dict: A dictionary containing user models, where the keys are user IDs and the values are the corresponding models.
-        """
-        models: dict = {}
-        if 'uid' in users:
-            for uid in users['uid'].values():
-                models[uid['id']] = AuthDbSchema.model_validate(uid)
-        return models
-
     def single_user_model(self, user: tuple) -> dict[str, any]:
         """
         Return unvalidated dictionary with single user data from authentication table.
@@ -79,11 +40,9 @@ class AuthModel:
             dict: A dictionary containing the user attributes as key, value pairs.
         """
         model: dict = {}
-        model = AuthDbSchema.model_dump(user)
-        return model
+        model = AuthenticationSchema.model_dump(user)
+        return model        
 
-
-    # Get validated dict from db
     def get_user(self, username: str) -> dict[str, any]:
         """
         Retrieves a user from the database based on the provided username.
@@ -94,10 +53,10 @@ class AuthModel:
         Returns:
             dict[str, any]: A dictionary representing the user's data.
         """
-        row_db: tuple = self.db_connection.select_username(username)
+        row_db: tuple = self.auth_connection.select_username(username)
         model_db: dict = self.single_user_model(row_db)
         
-        validated_schema: AuthDbSchema = AuthDbSchema().model_validate(model_db)
+        validated_schema: AuthenticationSchema = AuthenticationSchema().model_validate(model_db)
         
         return validated_schema.model_dump()
     
@@ -112,7 +71,7 @@ class AuthModel:
             dict[str, any]: A validated dictionary representing the user's data.
         """
         try:
-            validated_dict: AuthDbSchema = AuthDbSchema.model_validate(user_dict)
+            validated_dict: AuthenticationSchema = AuthenticationSchema.model_validate(user_dict)
             return validated_dict.model_dump()
         except ValidationError as e:
             error_messages = {'validation_errors': {}}
@@ -121,8 +80,52 @@ class AuthModel:
                 error_message = error['msg']
                 error_messages['validation_errors'][field] = error_message
             return error_messages
+    # done
+    def read_all_users(self) -> list:
+        """
+        Generate list with entries from authentication table username column.
+        
+        Returns:
+            list: All usernames in authentication table.
+        """
+        users: list = []
+        users = self.auth_connection.read_column('username')
+        return users
+    
+    def write_user(self, new_user: dict) -> bool:
+        """Validate and write user data to authentication table.
 
-# Eventually move to authenticator class
+        Args:
+            new_user (dict): User data, `username` and `password` are required.
+
+        Returns:
+            bool: True if validation and creation successful.
+        """
+        try:
+            new_user_model: AuthenticationSchema = AuthenticationSchema.model_validate(new_user)
+            self.auth_connection.create_instance(new_user_model)
+            return True
+        except ValidationError as e:
+            error_messages = {'validation_errors': {}}
+            for error in e.errors():
+                field = error['loc'][0]
+                error_message = error['msg']
+                error_messages['validation_errors'][field] = error_message
+            return False
+        except Exception as e:
+            print(f'Could not add user to database: {e}')
+            return False
+        
+    def delete_user(self, username: str) -> bool:
+        try:
+            self.auth_connection.delete_where('username', username)
+            return True
+        except Exception as e:
+            print(f'Could not delete user from database: {e}')
+            return False
+        
+        
+    # todo: implement data validation
     def get_preauth_mails(self) -> list:
         """
         Retrieves the preauthorized email addresses from the database.
@@ -132,6 +135,7 @@ class AuthModel:
         """
         return self.config_connection.read_column('preauth_mails')
     
+    # todo: implement data validation
     def delete_preauth_mail(self, email: str) -> None:
         """
         Delete email from preauthorization addresses.
@@ -140,3 +144,25 @@ class AuthModel:
             email (str): The email address to delete.
         """
         self.config_connection.delete_where('preauth_mails', email)
+        
+
+    
+################# old ############################
+    # def create_user_models(self, users: dict) -> dict:
+    #     """
+    #     Return dictionary with validated user models from AuthDbSchema.
+
+    #     Args:
+    #         users (dict): A dictionary containing user data grouped by user id from auth table.
+
+    #     Returns:
+    #         dict: A dictionary containing user models, where the keys are user IDs and the values are the corresponding models.
+    #     """
+    #     models: dict = {}
+    #     if 'uid' in users:
+    #         for uid in users['uid'].values():
+    #             models[uid['id']] = AuthDbSchema.model_validate(uid)
+    #     return models
+
+
+

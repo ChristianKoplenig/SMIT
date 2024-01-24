@@ -1,27 +1,13 @@
 from datetime import datetime, timedelta
-import re
 import bcrypt
 import jwt
-import bcrypt
-from numpy import delete
-import pydantic
+# Import python modules
 import streamlit as st
 import extra_streamlit_components as stx
-
+# Import custom modules
 from st_auth.hasher import Hasher
-#from .validator import Validator
-#from .utils import generate_random_pw
+from db.schemas import AuthenticationSchema
 
-#from .exceptions import CredentialsError, ForgotError, RegisterError, ResetError, UpdateError
-
-#import json
-
-#### Pydantic
-from db.auth_schema import AuthDbSchema
-from st_auth.auth_api import AuthModel
-
-#### Database
-from db.smitdb import SmitDb
 
 class Authenticate:
     """
@@ -57,24 +43,22 @@ class Authenticate:
         self.cookie_expiry_days: float = cookie_expiry_days
         self.cookie_manager = stx.CookieManager()
         
-        # Manage preauthorization
+        # Connect to api
+        self.api = st.session_state.auth_api
+        
         if preauthorization:
-            self.preauthorized: list = AuthModel().get_preauth_mails()
+            self.preauthorized: list = self.api.get_preauth_mails()
         else:
             self.preauthorized: list = []
-            
-        # Connect to authentication database
-        self.db_connection = SmitDb(AuthDbSchema)
-        self.db_all_users = self._db_get_usernames()
-        
-        # Authentication status initialization
+
+        # Session state initialization
         if 'authentication_status' not in st.session_state:
-            st.session_state['authentication_status'] = None
+            st.session_state['authentication_status'] = None   
         
-        # Use Schema for authentication database to generate session state variabels    
-        for variable in AuthDbSchema.model_fields.keys():
+        for variable in AuthenticationSchema.model_fields.keys():
             if variable not in st.session_state:
                 st.session_state[variable] = None
+                
     # todo: modify session state variables            
     def _token_encode(self) -> str:
         """
@@ -136,7 +120,7 @@ class Authenticate:
         Returns:
             list: All usernames from the authentications table.
         """
-        all_users: list = self.db_connection.select_all_usernames()
+        all_users: list = self.api.read_all_users()
         return all_users
     # done
     def _clear_userdata(self) -> None:
@@ -146,7 +130,7 @@ class Authenticate:
         self.cookie_manager.delete(self.cookie_name)
         
         # Use database schema to clear session state variabels    
-        for key in AuthDbSchema.model_fields.keys():
+        for key in AuthenticationSchema.model_fields.keys():
             st.session_state[key] = None
             
         st.session_state['authentication_status'] = None
@@ -165,7 +149,7 @@ class Authenticate:
             new_values (dict): Input values from the form will be added to this dict.
             form (str): Name of the form from which the method will be called.
         """
-        for each in AuthDbSchema.model_fields:
+        for each in AuthenticationSchema.model_fields:
             # Filter fields that are needed for authentication verfication and for database
             if (not each == 'username') and \
                 (not each == 'password') and \
@@ -196,9 +180,9 @@ class Authenticate:
         Returns:
             bool: Password check state.
         """
-        db_user_row = self.db_connection.select_username(self.username)
+        db_user_row = self.api.get_user(self.username)
         self_bytes = self.password.encode()
-        db_bytes = db_user_row.password.encode()
+        db_bytes = db_user_row['password'].encode()
 
         if not bcrypt.hashpw(self_bytes, db_bytes) == db_bytes:
             return False
@@ -209,10 +193,10 @@ class Authenticate:
         """
         Get userdata from database and add to session state.
         """
-        if self.username in self.db_all_users:
+        if self.username in self._db_get_usernames():
             if self._check_pw():
                 # Add authentication schema attributes to session state
-                user_model = AuthModel().get_user(self.username)
+                user_model = self.api.get_user(self.username)
                 for key, value in user_model.items():
                     st.session_state[key] = value
                     
@@ -371,10 +355,8 @@ class Authenticate:
                 st.session_state[key] = value
         
         # Add new user to authentication table
-        new_user_model: AuthDbSchema = AuthDbSchema.model_validate(new_credentials)
-        self.db_connection.create_instance(new_user_model)
-        
-        st.info(f'User {new_credentials["username"]} successfully registered')
+        if self.api.write_user(new_credentials):
+            st.info(f'User {new_credentials["username"]} successfully registered')
     # done
     def register_user(self, form_name: str, location: str='main') -> None:
         """
@@ -410,19 +392,21 @@ class Authenticate:
                 del new_values['password_repeat']
                 
                 # Validate entered user credentials
-                validated_credentials: dict[str, any] = AuthModel().validate_user_dict(new_values)
+                validated_credentials: dict[str, any] = self.api.validate_user_dict(new_values)
                 if not 'validation_errors' in validated_credentials:                    
                     # If preauthorization is false, register user
                     if not self.preauthorized:                        
                         self._register_credentials(validated_credentials)
                         st.session_state['register_btn_clicked'] = False
+                        #st.switch_page('home')
                     # Validate entered email against self.preauthorized
                     else:
                         if validated_credentials['email'] in self.preauthorized:
                             self._register_credentials(validated_credentials)
                             st.session_state['register_btn_clicked'] = False
                             self.preauthorized.remove(validated_credentials['email'])
-                            AuthModel().delete_preauth_mail(validated_credentials['email'])
+                            self.api.delete_preauth_mail(validated_credentials['email'])
+                            #st.switch_page('home')
                         else:
                             st.error('Email not in preauthorized list')
                             st.stop()
@@ -619,13 +603,13 @@ class Authenticate:
         
         delete_user_form.subheader(form_name)
         
-        form_input = delete_user_form.text_input('Username').lower()
+        form_input: str = delete_user_form.text_input('Username').lower()
         
         # Form logic    
         if delete_user_form.form_submit_button('Delete user'):
             if self.username == form_input:
                 # Delete user from database
-                self.db_connection.delete_where('username', st.session_state['username'])
+                self.api.delete_user(st.session_state['username'])
                 st.write('User deleted from database')
                 self._clear_userdata()
                 st.write('User logged out')

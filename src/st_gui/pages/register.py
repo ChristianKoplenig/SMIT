@@ -1,46 +1,13 @@
 import streamlit as st
-from streamlit_extras.switch_page_button import switch_page
+#from streamlit_extras.switch_page_button import switch_page
 #import extra_streamlit_components as stx
 
 # Custom modules
 import st_auth.authenticate as stauth
-from db.smitdb import SmitDb
-from db.auth_schema import AuthDbSchema
 
 # st.set_page_config(
 #     page_title='User Management'
 # )
-
-# def create_credentials_dict(db_table: st.dataframe) -> dict:
-#     """Create credentials dictionary from database.
-
-#     Args:
-#         db_auth (Database table): Iterable table with auth credentials.
-
-#     Returns:
-#         dict: Dictionary of credentials.
-#     """
-#     cred_dict = {}
-
-#     for row in db_table.itertuples():
-#         un = row.username
-#         n = row.sng_username
-#         p = row.password
-#         em = row.email
-        
-#         # Append to dictionary
-#         cred_dict.setdefault('usernames', {}).setdefault(un, {'email': em, 'name': n, 'password': p})
-#     return cred_dict
-
-# Initialize Authenticator
-# @st.cache_resource
-# def load_authenticator(auth_module: stauth.Authenticate) -> stauth.Authenticate:
-#     """Cache backend init.
-#     """
-#     authenticator = auth_module(
-#         'streamlit-smit-app',
-#         'cookey')
-#     return authenticator
 
 authenticator = stauth.Authenticate(
     #preauthorization=True,
@@ -55,14 +22,12 @@ if st.session_state['login_btn_clicked'] and not st.session_state['register_btn_
 # Register user form
 if st.session_state['register_btn_clicked'] and not st.session_state['login_btn_clicked']:
     try:
-        if authenticator.register_user('Register new user'):
-            # SmitDb(AuthDbSchema).create_user(st.session_state.username,
-            #                              st.session_state.password)
-            switch_page('home')
+        authenticator.register_user('Register new user')
+            #switch_page('home')
 
     except Exception as e:
         st.error(e)
-        
+# Login/Register button logic     
 if st.session_state['authentication_status'] is None:
     st.write("# Please login or register")
     
@@ -100,6 +65,40 @@ if st.session_state['authentication_status']:
             st.error(e)
     
     # Delete user
-    with st.expander('Confirm deletion'):
-            
-        authenticator.delete_user('Delete user')
+    with st.expander('Delete user'):
+        authenticator.delete_user('Confirm deletion')
+
+
+
+
+################## old code ##################
+# def create_credentials_dict(db_table: st.dataframe) -> dict:
+#     """Create credentials dictionary from database.
+
+#     Args:
+#         db_auth (Database table): Iterable table with auth credentials.
+
+#     Returns:
+#         dict: Dictionary of credentials.
+#     """
+#     cred_dict = {}
+
+#     for row in db_table.itertuples():
+#         un = row.username
+#         n = row.sng_username
+#         p = row.password
+#         em = row.email
+        
+#         # Append to dictionary
+#         cred_dict.setdefault('usernames', {}).setdefault(un, {'email': em, 'name': n, 'password': p})
+#     return cred_dict
+
+# Initialize Authenticator
+# @st.cache_resource
+# def load_authenticator(auth_module: stauth.Authenticate) -> stauth.Authenticate:
+#     """Cache backend init.
+#     """
+#     authenticator = auth_module(
+#         'streamlit-smit-app',
+#         'cookey')
+#     return authenticator

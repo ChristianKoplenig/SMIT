@@ -1,18 +1,54 @@
 import streamlit as st
-from st_pages import show_pages_from_config
-from streamlit_extras.switch_page_button import switch_page
+#from st_pages import show_pages_from_config
+#from streamlit_extras.switch_page_button import switch_page
 
-#from smit.core import Application
-from smit.st_api import SmitBackend
+# Database import
+from db.smitdb import SmitDb
+from db.schemas import AuthenticationSchema, ConfigSchema
 
-show_pages_from_config()
+# Api import
+from smit.smit_api import SmitApi
+from st_auth.auth_api import AuthApi
 
-# Session state variable initialization
+#show_pages_from_config()
+
+# Initiate session state
 if 'authentication_status' not in st.session_state:
     st.session_state['authentication_status'] = None
 
 st.session_state['login_btn_clicked'] = False
 st.session_state['register_btn_clicked'] = False
+
+# Connect SmitApi to session state
+@st.cache_resource(ttl=600)
+def smit_init() -> None:
+    """Init backend api.
+    """
+    st.session_state.smit_api = SmitApi()
+    st.session_state.smit_api.logger.info('Smit api added to session state')
+
+# Add table connections to session state
+@st.cache_resource(ttl=600)
+def connect_db() -> None:
+    """Connect database tables.
+    """
+    # Database connection
+    st.session_state.auth_connection = SmitDb(AuthenticationSchema, st.session_state.smit_api)
+    st.session_state.config_connection = SmitDb(ConfigSchema, st.session_state.smit_api)
+    st.session_state.smit_api.logger.info('All table connections added to session state')
+
+# Connect AuthApi to session state
+@st.cache_resource(ttl=600)
+def auth_init() -> None:
+    """Init authentication api.
+    """
+    st.session_state.auth_api = AuthApi()
+    st.session_state.smit_api.logger.info('Auth api added to session state')
+
+
+smit_init()
+connect_db()
+auth_init()
 
 # Say hello
 st.markdown(
@@ -29,6 +65,25 @@ else:
         ### Please login or register to continue
         """)
 
+# Entry buttons    
+if not st.session_state['authentication_status']:
+    
+    if st.button('Login', key='btn_login_main'):
+        st.session_state['login_btn_clicked'] = True
+        #switch_page('user management')
+        st.switch_page('register')
+        
+    if st.button('Register', key='btn_register_main'):
+        st.session_state['register_btn_clicked'] = True
+        #switch_page('user management')
+        st.switch_page('register')
+
+# Logging
+st.session_state.smit_api.logger.debug('--- Streamlit initialized ---')
+
+
+
+############# old code #############
 # Initiate Smit Instance
 # @st.cache_resource
 # def load_smit() -> Application:
@@ -38,27 +93,16 @@ else:
 #     dummy = Application(True)
 #     return dummy
 
-@st.cache_resource
-def load_backend() -> SmitBackend:
-    """Cache backend init.
-    """
-    smit_core = SmitBackend()
-    return smit_core
-
-def session_init(smit_core) -> None:
-    """Add backend to current session
-
-    Args:
-        backend (Application): Instantiation of backend class.
-    """
-    for key, value in vars(smit_core).items():
-        st.session_state[key] = value
-    
-    st.session_state.logger.debug('Streamlit session state init')
+# @st.cache_resource
+# def load_backend() -> SmitBackend:
+#     """Cache backend init.
+#     """
+#     smit_core = SmitBackend()
+#     return smit_core
 
 
-# Connect to fly.io smit database
 # Add table with user data to session state
+
 # @st.cache_resource
 # def connect_users_db() -> None:
 #     """Fetch userdata from database.
@@ -71,23 +115,6 @@ def session_init(smit_core) -> None:
 #     st.session_state.auth_tbl = users_db.query('SELECT * FROM auth_dev;')
 #     st.session_state.logger.debug('Auth table queried')
 
-# Load backend
-backend: SmitBackend = load_backend()
-session_init(backend)
 
 # # Connect to auth table 
 # connect_users_db()
-
-# Entry buttons    
-if not st.session_state['authentication_status']:
-    
-    if st.button('Login', key='btn_login_main'):
-        st.session_state['login_btn_clicked'] = True
-        switch_page('user management')
-        
-    if st.button('Register', key='btn_register_main'):
-        st.session_state['register_btn_clicked'] = True
-        switch_page('user management')
-
-# Logging
-st.session_state.logger.debug('--- Streamlit initialized ---')

@@ -4,7 +4,8 @@ name = 'Home'
 
 [[pages]]
 path = 'src/st_gui/pages/register.py'
-name = 'User Management'
+name = 'Settings'
 
 [[pages]]
 path = 'src/st_gui/pages/debug.py'
+name = 'Debug'

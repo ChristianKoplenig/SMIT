@@ -1,13 +1,13 @@
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 import re
 
-from sqlmodel import Field, SQLModel, JSON, Column
+from sqlmodel import Field, SQLModel
 from typing_extensions import Annotated, Doc
 
 from pydantic import StringConstraints, ValidationInfo, field_validator
 
-class AuthDbSchema(SQLModel, table=True):
+class AuthenticationSchema(SQLModel, table=True):
     """
     Table for user management.
 
@@ -79,7 +79,7 @@ class AuthDbSchema(SQLModel, table=True):
             raise ValueError(f"{info.field_name} number must be 6 characters long")
         return v
     
-class AuthConfigSchema(SQLModel, table=True):
+class ConfigSchema(SQLModel, table=True):
     """
     Represents the authentication configuration schema.
 
@@ -113,5 +113,3 @@ class AuthConfigSchema(SQLModel, table=True):
         if not re.match(pattern, v):
             raise ValueError(f"{info.field_name} must be a valid email address")
         return v
-    
-    

@@ -4,10 +4,6 @@ from sqlmodel import Session, SQLModel, create_engine, select
 
 from db import smitdb_secrets as secrets
 
-from smit.st_api import SmitBackend
-
-from db.auth_schema import AuthDbSchema, AuthConfigSchema
-
 class SmitDb:
     """
     Connect and manipulate Smit database at fly.io.
@@ -43,7 +39,7 @@ class SmitDb:
         Reads the SMIT database and returns all SMIT users.
     """
 
-    def __init__(self, schema: SQLModel) -> None:
+    def __init__(self, schema: SQLModel, api: 'smit_api') -> None:
         """
         Create engine object for database.
         DB credentials are stored in secrets.py.
@@ -71,11 +67,11 @@ class SmitDb:
         self.engine = create_engine(url) #, echo=True)
         
         # Use logger from SmitBackend
-        self.backend = SmitBackend()
-        msg  = f'Class {self.__class__.__name__} of the '
-        msg += f'module {self.__class__.__module__} '
-        msg +=  'successfully initialized.'
-        self.backend.logger.info(msg)
+        self.backend = api
+        msg  = f'Db engine {self.__class__.__name__} connected to '
+        msg += f'schema {self.db_schema.__name__} '
+        msg +=  f'with api configuration {self.backend.__class__.__name__}.'
+        self.backend.logger.debug(msg)
    
     def create_table(self) -> None:
         """
@@ -97,8 +93,11 @@ class SmitDb:
             schema (SQLModel): The model instance representing the new entry.
         """
         with Session(self.engine) as session:
-            session.add(schema)
-            session.commit()
+            try:
+                session.add(schema)
+                session.commit()
+            except Exception as e:
+                raise f'Could not add instance of {schema.__class__.__name__} to database' from e
             
         self.backend.logger.info(f'Added instance of %s to database', schema.__class__.__name__)
 

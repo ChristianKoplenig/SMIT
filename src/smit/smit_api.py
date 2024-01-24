@@ -3,7 +3,7 @@
 import os
 import logging
 
-class SmitBackend:
+class SmitApi:
     """SMIT Backend functionality.
     """
     def __init__(self) -> None:
@@ -14,7 +14,7 @@ class SmitBackend:
         msg  = f'Class {self.__class__.__name__} of the '
         msg += f'module {self.__class__.__module__} '
         msg +=  'successfully initialized.'
-        self.logger.info(msg)
+        self.logger.debug(msg)
         
     def _setup_logger(self, filepath) -> None:
         """Configuration for logging.
