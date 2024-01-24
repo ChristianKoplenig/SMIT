@@ -99,7 +99,7 @@ class SmitDb:
             except Exception as e:
                 raise f'Could not add instance of {schema.__class__.__name__} to database' from e
             
-        self.backend.logger.info(f'Added instance of %s to database', schema.__class__.__name__)
+        self.backend.logger.info('Added instance of %s to database', schema.__class__.__name__)
 
     def read_all(self) -> tuple:
         """
@@ -150,7 +150,7 @@ class SmitDb:
             session.delete(row)
             session.commit()
             
-        self.backend.logger.info('Deleted row where %s matches %s', column, value)
+        self.backend.logger.debug('Deleted row where %s matches %s', column, value)
               
     # Auth table specific methods
     def init_auth(self) -> None:
