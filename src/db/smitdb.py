@@ -1,8 +1,14 @@
+from typing import TYPE_CHECKING
 from pydantic import ValidationError
 from sqlalchemy.engine import URL
+from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session, SQLModel, create_engine, select
-
+# Custom imports
 from db import smitdb_secrets as secrets
+
+# Imports for type hints
+if TYPE_CHECKING:
+    from smit.smit_api import SmitApi
 
 class SmitDb:
     """
@@ -39,7 +45,7 @@ class SmitDb:
         Reads the SMIT database and returns all SMIT users.
     """
 
-    def __init__(self, schema: SQLModel, api: 'smit_api') -> None:
+    def __init__(self, schema: SQLModel, api: 'SmitApi') -> None:
         """
         Create engine object for database.
         DB credentials are stored in secrets.py.
@@ -48,6 +54,9 @@ class SmitDb:
         ----------
         schema : Type[SQLModel]
             SQLModel class schema representing the table to modify.
+            
+        api : Type[SmitApi]
+            Backend Api class instance.
         """
         self.db_schema: SQLModel = schema
 
@@ -130,6 +139,53 @@ class SmitDb:
             statement   = select(getattr(self.db_schema, column))
             all_entries: list = session.exec(statement).all()
             return all_entries
+        
+    def select_where(self, column: str, value: str) -> tuple:
+        """
+        Select row for value found in column.
+
+        Args:
+            column (str): The column name to filter the row.
+            value (str): The value to match in the specified column.
+
+        Returns:
+            Selected row as tuple.
+        """
+        with Session(self.engine) as session:
+            statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
+            results = session.exec(statement)
+            row = results.one()
+            
+            self.backend.logger.debug('Selected row where %s matches %s', column, value)
+            return row
+        
+    def update_where(self, column: str, value: str, new_value: str) -> bool:
+        """
+        Update row for value found in column.
+
+        Args:
+            column (str): The column name to filter the row.
+            value (str): The value to match in the specified column.
+            new_value (str): The new value to write to the specified column.
+
+        Returns:
+            bool: True if update was successful, False otherwise.
+        """
+        try:
+            with Session(self.engine) as session:
+                statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
+                results = session.exec(statement)
+                row = results.one()
+                
+                setattr(row, column, new_value)
+                session.add(row)
+                session.commit()
+                
+            self.backend.logger.debug('Updated row where %s matches %s', column, value)
+            return True
+        except SQLAlchemyError as e:
+            self.backend.logger.error('Error updating row: %s', str(e))
+            return False
         
     def delete_where(self, column: str, value: str) -> None:
         """
@@ -263,3 +319,11 @@ class SmitDb:
             statement   = select(self.db_schema.username)
             all_usernames: list = session.exec(statement).all()
             return all_usernames
+
+
+############ Debugging ############
+# from db.schemas import AuthenticationSchema
+# from smit.smit_api import SmitApi
+
+# a = SmitDb(AuthenticationSchema, SmitApi())
+# print(a.select_where('username','aa'))

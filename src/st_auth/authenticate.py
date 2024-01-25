@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from hashlib import new
 import bcrypt
 import jwt
 # Import python modules
@@ -7,7 +8,6 @@ import extra_streamlit_components as stx
 # Import custom modules
 from st_auth.hasher import Hasher
 from db.schemas import AuthenticationSchema
-
 
 class Authenticate:
     """
@@ -527,23 +527,8 @@ class Authenticate:
             else:
                 raise ForgotError('Email not provided')
         return None, email
-    # todo: all
-    def _update_entry(self, username: str, key: str, value: str):
-        """
-        Updates credentials dictionary with user's updated entry.
-
-        Parameters
-        ----------
-        username: str
-            The username of the user to update the entry for.
-        key: str
-            The updated entry key i.e. "email".
-        value: str
-            The updated entry value i.e. "jsmith@gmail.com".
-        """
-        self.credentials['usernames'][username][key] = value
-    # todo: all
-    def update_user_details(self, username: str, form_name: str, location: str='main') -> bool:
+    # done
+    def update_user_details(self, form_name: str, location: str='main') -> bool:
         """
         Creates a update user details widget.
 
@@ -567,27 +552,47 @@ class Authenticate:
         elif location == 'sidebar':
             update_user_details_form = st.sidebar.form('Update user details')
         
+        credentials: dict = self.api.get_user(st.session_state['username'])
+        new_values: dict = {}
+        
         update_user_details_form.subheader(form_name)
-        self.username = username.lower()
-        field = update_user_details_form.selectbox('Field', ['Name', 'Email']).lower()
-        new_value = update_user_details_form.text_input('New value')
+        
+        new_values['username'] = update_user_details_form.text_input('username').lower()
+        self._generate_extra_fields_inputform(new_values, update_user_details_form)   
 
         if update_user_details_form.form_submit_button('Update'):
-            if len(new_value) > 0:
-                if new_value != self.credentials['usernames'][self.username][field]:
-                    self._update_entry(self.username, field, new_value)
-                    if field == 'name':
-                        st.session_state['name'] = new_value
-                        self.exp_date = self._set_exp_date()
-                        self.token = self._token_encode()
-                        self.cookie_manager.set(self.cookie_name, self.token,
-                        expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
-                    return True
-                else:
-                    raise UpdateError('New and current values are the same')
-            if len(new_value) == 0:
-                raise UpdateError('New value not provided')
-    # todo: all
+            # Write new values to credentials, validate credentials
+            for key, value in new_values.items():
+                if len(value) > 0:
+                    if 'password' in key:
+                        credentials[key] = self._hash_pwd(value)
+                    else:
+                        credentials[key] = value
+                    
+            validated_credentials = self.api.validate_user_dict(credentials)
+            
+            
+            if not 'validation_errors' in validated_credentials:
+                # Update session state
+                for key, value in validated_credentials.items():
+                    st.session_state[key] = value                
+                
+                # Update database
+                for key, value in new_values.items():
+                    if len(value) > 0:
+                        self.api.update_by_id(st.session_state['id'], key, value)
+                
+                # Success message
+                st.write('__Updated credentials__')
+                for key, value in new_values.items():
+                    if len(value) > 0:
+                        st.success(f'Updated: {key} to: {value}')
+                return True
+            else:
+                for key, value in validated_credentials['validation_errors'].items():
+                    st.error(f'{value}')
+                return False
+    # done
     def delete_user(self, form_name: str, location: str='main') -> bool:
         """Delete user from session state and authentication table.
         

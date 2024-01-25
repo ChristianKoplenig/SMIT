@@ -71,7 +71,7 @@ if not st.session_state['authentication_status']:
     if st.button('Login', key='btn_login_main'):
         st.session_state['login_btn_clicked'] = True
         #switch_page('user management')
-        st.switch_page('register')
+        st.switch_page('pages/register.py')
         
     if st.button('Register', key='btn_register_main'):
         st.session_state['register_btn_clicked'] = True

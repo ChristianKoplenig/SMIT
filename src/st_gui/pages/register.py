@@ -1,13 +1,7 @@
 import streamlit as st
-#from streamlit_extras.switch_page_button import switch_page
-#import extra_streamlit_components as stx
 
 # Custom modules
 import st_auth.authenticate as stauth
-
-# st.set_page_config(
-#     page_title='User Management'
-# )
 
 authenticator = stauth.Authenticate(
     #preauthorization=True,
@@ -57,12 +51,14 @@ if st.session_state['authentication_status']:
     
     # Update user details
     with st.expander('Update user details'):
+        
         try:
-            if authenticator.update_user_details(st.session_state["username"], 'Update user details'):
+            if authenticator.update_user_details('Update user details'):
                 st.success('User details modified successfully')
-                st.write('Database update not implemented yet')
+        
         except Exception as e:
             st.error(e)
+            st.stop()
     
     # Delete user
     with st.expander('Delete user'):

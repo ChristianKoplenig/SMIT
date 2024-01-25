@@ -28,6 +28,17 @@ class AuthApi:
         msg += f'module {self.__class__.__module__} '
         msg +=  'successfully initialized.'
         st.session_state.smit_api.logger.debug(msg)
+
+    def read_all_users(self) -> list:
+        """
+        Generate list with entries from authentication table username column.
+        
+        Returns:
+            list: All usernames in authentication table.
+        """
+        users: list = []
+        users = self.auth_connection.read_column('username')
+        return users
         
     def single_user_model(self, user: tuple) -> dict[str, any]:
         """
@@ -41,25 +52,8 @@ class AuthApi:
         """
         model: dict = {}
         model = AuthenticationSchema.model_dump(user)
-        return model        
+        return model
 
-    def get_user(self, username: str) -> dict[str, any]:
-        """
-        Retrieves a user from the database based on the provided username.
-
-        Args:
-            username (str): The username of the user to retrieve.
-
-        Returns:
-            dict[str, any]: A dictionary representing the user's data.
-        """
-        row_db: tuple = self.auth_connection.select_username(username)
-        model_db: dict = self.single_user_model(row_db)
-        
-        validated_schema: AuthenticationSchema = AuthenticationSchema().model_validate(model_db)
-        
-        return validated_schema.model_dump()
-    
     def validate_user_dict(self, user_dict: dict) -> dict[str, any]:
         """
         Validates a user dictionary.
@@ -80,17 +74,23 @@ class AuthApi:
                 error_message = error['msg']
                 error_messages['validation_errors'][field] = error_message
             return error_messages
-    # done
-    def read_all_users(self) -> list:
+
+    def get_user(self, username: str) -> dict[str, any]:
         """
-        Generate list with entries from authentication table username column.
-        
+        Retrieves a user from the database based on the provided username.
+
+        Args:
+            username (str): The username of the user to retrieve.
+
         Returns:
-            list: All usernames in authentication table.
+            dict[str, any]: A dictionary representing the user's data.
         """
-        users: list = []
-        users = self.auth_connection.read_column('username')
-        return users
+        row_db: tuple = self.auth_connection.select_username(username)
+        model_db: dict = self.single_user_model(row_db)
+        
+        validated_schema: AuthenticationSchema = AuthenticationSchema().model_validate(model_db)
+        
+        return validated_schema.model_dump()
     
     def write_user(self, new_user: dict) -> bool:
         """Validate and write user data to authentication table.
@@ -116,14 +116,45 @@ class AuthApi:
             print(f'Could not add user to database: {e}')
             return False
         
+    def update_by_id(self, uid: int, column: str, new_value: str) -> bool:
+        """
+        Update database entry with given value.
+
+        Args:
+            uid (int): The `id` of the user.
+            column (str): The column to search in.
+            new_value (str): The new entry value.
+
+        Returns:
+            bool: True if the update was successful, False otherwise.
+        """
+        try:
+            row: AuthenticationSchema = self.auth_connection.select_where('id', uid)
+            uid_data: dict = row.model_dump()
+            update_column: str = column
+            old_value = uid_data[column]
+            self.auth_connection.update_where(update_column, old_value, new_value)
+            return True
+        except Exception as e:
+            print(f'Could not update user: {e}')
+            return False
+
     def delete_user(self, username: str) -> bool:
+        """
+        Deletes a user from the database.
+
+        Args:
+            username (str): The username for deletion.
+
+        Returns:
+            bool: True if the user is successfully deleted, False otherwise.
+        """
         try:
             self.auth_connection.delete_where('username', username)
             return True
         except Exception as e:
             print(f'Could not delete user from database: {e}')
             return False
-        
         
     # todo: implement data validation
     def get_preauth_mails(self) -> list:
