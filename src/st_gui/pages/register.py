@@ -43,11 +43,11 @@ if st.session_state['authentication_status']:
     # Reset password
     with st.expander('Reset Password'):
         try:
-            if authenticator.reset_password(st.session_state["username"], 'Reset password'):
+            if authenticator.reset_password('Enter new password'):
                 st.success('Password modified successfully')
-                st.write('Database update not implemented yet')
         except Exception as e:
             st.error(e)
+            st.stop()
     
     # Update user details
     with st.expander('Update user details'):

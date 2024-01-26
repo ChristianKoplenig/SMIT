@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from hashlib import new
 import bcrypt
 import jwt
 # Import python modules
@@ -55,6 +54,11 @@ class Authenticate:
         if 'authentication_status' not in st.session_state:
             st.session_state['authentication_status'] = None   
         
+        # If user is logged in
+        if 'username' in st.session_state:
+            self.username: str = st.session_state['username']
+            self.password: str = st.session_state['password']
+            
         for variable in AuthenticationSchema.model_fields.keys():
             if variable not in st.session_state:
                 st.session_state[variable] = None
@@ -70,7 +74,7 @@ class Authenticate:
             The JWT cookie for passwordless reauthentication.
         """
         return jwt.encode({'name':st.session_state['id'],
-            'username':st.session_state['username'],
+            'username':self.username,
             'exp_date':self.exp_date}, self.key, algorithm='HS256')
     # todo: should work, self.token defined in _check_cookie()
     def _token_decode(self) -> str:
@@ -265,21 +269,44 @@ class Authenticate:
             if st.sidebar.button(button_name, key):
                 self._clear_userdata()
                 st.session_state['logout'] = True
-    # todo: all
-    def _update_password(self, username: str, password: str):
+    # done
+    def _update_password(self, reset_pwd: dict) -> bool:
         """
         Updates credentials dictionary with user's reset hashed password.
 
-        Parameters
-        ----------
-        username: str
-            The username of the user to update the password for.
-        password: str
-            The updated plain text password.
+        Parameters:
+            reset_pwd: dict
+                Dictionary with plain text passwords from input form.
         """
-        self.credentials['usernames'][username]['password'] = Hasher([password]).generate()[0]
-    # todo: all
-    def reset_password(self, username: str, form_name: str, location: str='main') -> bool:
+        credentials: dict = self.api.get_user(self.username)
+        self.password = reset_pwd['old']
+        
+        if self._check_pw():
+            
+            credentials['password'] = reset_pwd['new']
+            
+            unsafe_validated_credentials = self.api.validate_user_dict(credentials)
+            
+            if not 'validation_errors' in unsafe_validated_credentials:
+                # Hash password
+                credentials['password'] = self._hash_pwd(credentials['password'])
+                
+                # Update session state
+                st.session_state['password'] = credentials['password']
+                
+                # Update database
+                self.api.update_by_id(st.session_state['id'], 'password', credentials['password'])
+                
+                return True
+            else:
+                for each in unsafe_validated_credentials['validation_errors'].items():
+                    st.error(f'{each}')
+                return False
+        else:
+            st.error('Old password for logged in user is not correct')
+            return False
+    # done
+    def reset_password(self, form_name: str, location: str='main') -> bool:
         """
         Creates a password reset widget.
 
@@ -304,26 +331,28 @@ class Authenticate:
             reset_password_form = st.sidebar.form('Reset password')
         
         reset_password_form.subheader(form_name)
-        self.username = username.lower()
-        self.password = reset_password_form.text_input('Current password', type='password')
+        old_password = reset_password_form.text_input('Current password', type='password')
         new_password = reset_password_form.text_input('New password', type='password')
         new_password_repeat = reset_password_form.text_input('Repeat password', type='password')
 
         if reset_password_form.form_submit_button('Reset'):
-            if self._check_credentials(inplace=False):
-                if len(new_password) > 0:
-                    if new_password == new_password_repeat:
-                        if self.password != new_password: 
-                            self._update_password(self.username, new_password)
+            if len(new_password) > 0:
+                if new_password == new_password_repeat:
+                    if old_password != new_password:
+                        reset_pwd: dict = {
+                            'old': old_password,
+                            'new': new_password
+                        }
+                        if self._update_password(reset_pwd):
                             return True
                         else:
-                            raise ResetError('New and current passwords are the same')
+                            return False
                     else:
-                        raise ResetError('Passwords do not match')
+                        st.error('New and current password is the same')
                 else:
-                    raise ResetError('No new password provided')
+                    st.error('New passwords do not match')
             else:
-                raise CredentialsError('password')
+                st.error('Provide new password')
     # done
     def _register_credentials(self, new_credentials: dict) -> None:
         """
@@ -552,7 +581,7 @@ class Authenticate:
         elif location == 'sidebar':
             update_user_details_form = st.sidebar.form('Update user details')
         
-        credentials: dict = self.api.get_user(st.session_state['username'])
+        credentials: dict = self.api.get_user(self.username)
         new_values: dict = {}
         
         update_user_details_form.subheader(form_name)
@@ -564,19 +593,22 @@ class Authenticate:
             # Write new values to credentials, validate credentials
             for key, value in new_values.items():
                 if len(value) > 0:
-                    if 'password' in key:
-                        credentials[key] = self._hash_pwd(value)
-                    else:
-                        credentials[key] = value
-                    
-            validated_credentials = self.api.validate_user_dict(credentials)
+                    credentials[key] = value
             
+            # Validate with plain text passwords        
+            unsafe_validated_credentials = self.api.validate_user_dict(credentials)
             
-            if not 'validation_errors' in validated_credentials:
-                # Update session state
-                for key, value in validated_credentials.items():
-                    st.session_state[key] = value                
+            if not 'validation_errors' in unsafe_validated_credentials:
+                # Hash passwords if keys with `password` are updated
+                for key, value in new_values.items():
+                    if len(value) > 0:
+                        if 'password' in key:
+                            credentials[key] = self._hash_pwd(value)             
                 
+                # Update session state
+                for key, value in credentials.items():
+                    st.session_state[key] = value
+                    
                 # Update database
                 for key, value in new_values.items():
                     if len(value) > 0:
@@ -589,7 +621,7 @@ class Authenticate:
                         st.success(f'Updated: {key} to: {value}')
                 return True
             else:
-                for key, value in validated_credentials['validation_errors'].items():
+                for key, value in unsafe_validated_credentials['validation_errors'].items():
                     st.error(f'{value}')
                 return False
     # done
@@ -614,7 +646,7 @@ class Authenticate:
         if delete_user_form.form_submit_button('Delete user'):
             if self.username == form_input:
                 # Delete user from database
-                self.api.delete_user(st.session_state['username'])
+                self.api.delete_user(self.username)
                 st.write('User deleted from database')
                 self._clear_userdata()
                 st.write('User logged out')
