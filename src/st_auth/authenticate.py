@@ -5,7 +5,6 @@ import jwt
 import streamlit as st
 import extra_streamlit_components as stx
 # Import custom modules
-from st_auth.hasher import Hasher
 from db.schemas import AuthenticationSchema
 
 class Authenticate:
@@ -446,116 +445,6 @@ class Authenticate:
             else:
                 st.error('Passwords do not match')
                 st.stop()
-    # todo: all
-    def _set_random_password(self, username: str) -> str:
-        """
-        Updates credentials dictionary with user's hashed random password.
-
-        Parameters
-        ----------
-        username: str
-            Username of user to set random password for.
-        Returns
-        -------
-        str
-            New plain text password that should be transferred to user securely.
-        """
-        self.random_password = generate_random_pw()
-        self.credentials['usernames'][username]['password'] = Hasher([self.random_password]).generate()[0]
-        return self.random_password
-    # todo: all
-    def forgot_password(self, form_name: str, location: str='main') -> tuple:
-        """
-        Creates a forgot password widget.
-
-        Parameters
-        ----------
-        form_name: str
-            The rendered name of the forgot password form.
-        location: str
-            The location of the forgot password form i.e. main or sidebar.
-        Returns
-        -------
-        str
-            Username associated with forgotten password.
-        str
-            Email associated with forgotten password.
-        str
-            New plain text password that should be transferred to user securely.
-        """
-        if location not in ['main', 'sidebar']:
-            raise ValueError("Location must be one of 'main' or 'sidebar'")
-        if location == 'main':
-            forgot_password_form = st.form('Forgot password')
-        elif location == 'sidebar':
-            forgot_password_form = st.sidebar.form('Forgot password')
-
-        forgot_password_form.subheader(form_name)
-        username = forgot_password_form.text_input('Username').lower()
-
-        if forgot_password_form.form_submit_button('Submit'):
-            if len(username) > 0:
-                if username in self.credentials['usernames']:
-                    return username, self.credentials['usernames'][username]['email'], self._set_random_password(username)
-                else:
-                    return False, None, None
-            else:
-                raise ForgotError('Username not provided')
-        return None, None, None
-    # todo: all
-    def _get_username(self, key: str, value: str) -> str:
-        """
-        Retrieves username based on a provided entry.
-
-        Parameters
-        ----------
-        key: str
-            Name of the credential to query i.e. "email".
-        value: str
-            Value of the queried credential i.e. "jsmith@gmail.com".
-        Returns
-        -------
-        str
-            Username associated with given key, value pair i.e. "jsmith".
-        """
-        for username, entries in self.credentials['usernames'].items():
-            if entries[key] == value:
-                return username
-        return False
-    # todo: all
-    def forgot_username(self, form_name: str, location: str='main') -> tuple:
-        """
-        Creates a forgot username widget.
-
-        Parameters
-        ----------
-        form_name: str
-            The rendered name of the forgot username form.
-        location: str
-            The location of the forgot username form i.e. main or sidebar.
-        Returns
-        -------
-        str
-            Forgotten username that should be transferred to user securely.
-        str
-            Email associated with forgotten username.
-        """
-        if location not in ['main', 'sidebar']:
-            raise ValueError("Location must be one of 'main' or 'sidebar'")
-        if location == 'main':
-            forgot_username_form = st.form('Forgot username')
-        elif location == 'sidebar':
-            forgot_username_form = st.sidebar.form('Forgot username')
-
-        forgot_username_form.subheader(form_name)
-        email = forgot_username_form.text_input('Email')
-
-        if forgot_username_form.form_submit_button('Submit'):
-            if len(email) > 0:
-                return self._get_username('email', email), email
-            else:
-                raise ForgotError('Email not provided')
-        return None, email
     # done
     def update_user_details(self, form_name: str, location: str='main') -> bool:
         """
@@ -654,3 +543,118 @@ class Authenticate:
             else:
                 st.error('Username does not match')
                 return False
+            
+############ unused functions ############
+    # todo: all
+    # def _set_random_password(self, username: str) -> str:
+    #     """
+    #     Updates credentials dictionary with user's hashed random password.
+
+    #     Parameters
+    #     ----------
+    #     username: str
+    #         Username of user to set random password for.
+    #     Returns
+    #     -------
+    #     str
+    #         New plain text password that should be transferred to user securely.
+    #     """
+    #     self.random_password = generate_random_pw()
+    #     self.credentials['usernames'][username]['password'] = Hasher([self.random_password]).generate()[0]
+    #     return self.random_password
+    
+    # # todo: all
+    # def forgot_password(self, form_name: str, location: str='main') -> tuple:
+    #     """
+    #     Creates a forgot password widget.
+
+    #     Parameters
+    #     ----------
+    #     form_name: str
+    #         The rendered name of the forgot password form.
+    #     location: str
+    #         The location of the forgot password form i.e. main or sidebar.
+    #     Returns
+    #     -------
+    #     str
+    #         Username associated with forgotten password.
+    #     str
+    #         Email associated with forgotten password.
+    #     str
+    #         New plain text password that should be transferred to user securely.
+    #     """
+    #     if location not in ['main', 'sidebar']:
+    #         raise ValueError("Location must be one of 'main' or 'sidebar'")
+    #     if location == 'main':
+    #         forgot_password_form = st.form('Forgot password')
+    #     elif location == 'sidebar':
+    #         forgot_password_form = st.sidebar.form('Forgot password')
+
+    #     forgot_password_form.subheader(form_name)
+    #     username = forgot_password_form.text_input('Username').lower()
+
+    #     if forgot_password_form.form_submit_button('Submit'):
+    #         if len(username) > 0:
+    #             if username in self.credentials['usernames']:
+    #                 return username, self.credentials['usernames'][username]['email'], self._set_random_password(username)
+    #             else:
+    #                 return False, None, None
+    #         else:
+    #             raise ForgotError('Username not provided')
+    #     return None, None, None
+    
+    # # todo: all
+    # def _get_username(self, key: str, value: str) -> str:
+    #     """
+    #     Retrieves username based on a provided entry.
+
+    #     Parameters
+    #     ----------
+    #     key: str
+    #         Name of the credential to query i.e. "email".
+    #     value: str
+    #         Value of the queried credential i.e. "jsmith@gmail.com".
+    #     Returns
+    #     -------
+    #     str
+    #         Username associated with given key, value pair i.e. "jsmith".
+    #     """
+    #     for username, entries in self.credentials['usernames'].items():
+    #         if entries[key] == value:
+    #             return username
+    #     return False
+
+    # # todo: all
+    # def forgot_username(self, form_name: str, location: str='main') -> tuple:
+    #     """
+    #     Creates a forgot username widget.
+
+    #     Parameters
+    #     ----------
+    #     form_name: str
+    #         The rendered name of the forgot username form.
+    #     location: str
+    #         The location of the forgot username form i.e. main or sidebar.
+    #     Returns
+    #     -------
+    #     str
+    #         Forgotten username that should be transferred to user securely.
+    #     str
+    #         Email associated with forgotten username.
+    #     """
+    #     if location not in ['main', 'sidebar']:
+    #         raise ValueError("Location must be one of 'main' or 'sidebar'")
+    #     if location == 'main':
+    #         forgot_username_form = st.form('Forgot username')
+    #     elif location == 'sidebar':
+    #         forgot_username_form = st.sidebar.form('Forgot username')
+
+    #     forgot_username_form.subheader(form_name)
+    #     email = forgot_username_form.text_input('Email')
+
+    #     if forgot_username_form.form_submit_button('Submit'):
+    #         if len(email) > 0:
+    #             return self._get_username('email', email), email
+    #         else:
+    #             raise ForgotError('Email not provided')
+    #     return None, email
