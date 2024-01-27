@@ -1,11 +1,8 @@
-from datetime import datetime, timedelta
 import bcrypt
-import jwt
-# Import python modules
 import streamlit as st
-import extra_streamlit_components as stx
-# Import custom modules
+# Import python modules
 from db.schemas import AuthenticationSchema
+from st_auth.cookie_manager import CookieManager
 
 class Authenticate:
     """
@@ -15,7 +12,6 @@ class Authenticate:
     def __init__(self,
                  cookie_name: str,
                  key: str,
-                 cookie_expiry_days: float=30.0,
                  preauthorization: bool = False,
                  ) -> None:
         """
@@ -36,14 +32,11 @@ class Authenticate:
         validator: Validator
             A Validator object that checks the validity of the username, name, and email fields.
         """
-        self.cookie_name: str = cookie_name
-        self.key: str = key
-        self.cookie_expiry_days: float = cookie_expiry_days
-        self.cookie_manager = stx.CookieManager()
+
         
         # Connect to api
         self.api = st.session_state.auth_api
-        
+
         if preauthorization:
             self.preauthorized: list = self.api.get_preauth_mails()
         else:
@@ -51,7 +44,7 @@ class Authenticate:
 
         # Session state initialization
         if 'authentication_status' not in st.session_state:
-            st.session_state['authentication_status'] = None   
+            st.session_state['authentication_status'] = None
         
         # If user is logged in
         if 'username' in st.session_state:
@@ -61,60 +54,9 @@ class Authenticate:
         for variable in AuthenticationSchema.model_fields.keys():
             if variable not in st.session_state:
                 st.session_state[variable] = None
-                
-    # todo: modify session state variables            
-    def _token_encode(self) -> str:
-        """
-        Encodes the contents of the reauthentication cookie.
 
-        Returns
-        -------
-        str
-            The JWT cookie for passwordless reauthentication.
-        """
-        return jwt.encode({'name':st.session_state['id'],
-            'username':self.username,
-            'exp_date':self.exp_date}, self.key, algorithm='HS256')
-    # todo: should work, self.token defined in _check_cookie()
-    def _token_decode(self) -> str:
-        """
-        Decodes the contents of the reauthentication cookie.
-
-        Returns
-        -------
-        str
-            The decoded JWT cookie for passwordless reauthentication.
-        """
-        try:
-            return jwt.decode(self.token, self.key, algorithms=['HS256'])
-        except:
-            return False
-    # todo: this should work, check if return value is string or float
-    def _set_exp_date(self) -> str:
-        """
-        Creates the reauthentication cookie's expiry date.
-
-        Returns
-        -------
-        str
-            The JWT cookie's expiry timestamp in Unix epoch.
-        """
-        return (datetime.utcnow() + timedelta(days=self.cookie_expiry_days)).timestamp()
-    # todo: check session state variables
-    def _check_cookie(self) -> None:
-        """
-        Checks the validity of the reauthentication cookie.
-        """
-        self.token = self.cookie_manager.get(self.cookie_name)
-        if self.token is not None:
-            self.token = self._token_decode()
-            if self.token is not False:
-                if not st.session_state['logout']:
-                    if self.token['exp_date'] > datetime.utcnow().timestamp():
-                        if 'name' and 'username' in self.token:
-                            st.session_state['name'] = self.token['name']
-                            st.session_state['username'] = self.token['username']
-                            st.session_state['authentication_status'] = True
+        # Cookie management initialization
+        self.cookie_manager = CookieManager(cookie_name, key)
     # done                        
     def _db_get_usernames(self) -> list:
         """ 
@@ -130,7 +72,7 @@ class Authenticate:
         """
         Delete cookie and session state for logged in user.
         """
-        self.cookie_manager.delete(self.cookie_name)
+        self.cookie_manager.delete_cookie()
         
         # Use database schema to clear session state variabels    
         for key in AuthenticationSchema.model_fields.keys():
@@ -202,12 +144,6 @@ class Authenticate:
                 user_model = self.api.get_user(self.username)
                 for key, value in user_model.items():
                     st.session_state[key] = value
-                    
-                # Manage cookie
-                self.exp_date = self._set_exp_date()
-                self.token = self._token_encode()
-                self.cookie_manager.set(self.cookie_name, self.token,
-                    expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
                 
                 st.session_state['authentication_status'] = True
             else:
@@ -218,7 +154,7 @@ class Authenticate:
             st.session_state['authentication_status'] = False
             st.error('Username not in database')
             st.stop()
-    # todo: cookie management
+    # done
     def login(self, form_name: str, location: str='main') -> None:
         """Create login widget, call user validation.
 
@@ -231,7 +167,8 @@ class Authenticate:
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
         if not st.session_state['authentication_status']:
-            #self._check_cookie()
+            # Check if cookie exist and use for login
+            self.cookie_manager.check_cookie()
             if not st.session_state['authentication_status']:
                 if location == 'main':
                     login_form = st.form('Login')
@@ -244,6 +181,8 @@ class Authenticate:
 
                 if login_form.form_submit_button('Login'):
                     self._check_credentials()
+                    # If no cookie is found, create cookie for the logged in user
+                    self.cookie_manager.create_cookie()
     # done
     def logout(self, button_name: str, location: str='main', key: str=None):
         """
@@ -262,12 +201,10 @@ class Authenticate:
         if location == 'main':
             if st.button(button_name, key):
                 self._clear_userdata()
-                st.session_state['logout'] = True
 
         elif location == 'sidebar':
             if st.sidebar.button(button_name, key):
                 self._clear_userdata()
-                st.session_state['logout'] = True
     # done
     def _update_password(self, reset_pwd: dict) -> bool:
         """
@@ -373,6 +310,9 @@ class Authenticate:
         st.session_state['password'] = new_credentials['password']
         st.session_state['authentication_status'] = True
         
+        self.username = new_credentials['username']
+        self.password = new_credentials['password']
+        
         for key, value in new_credentials.items():
             # Filter fields that are needed for authentication verfication and for database
             if (not key == 'username') and \
@@ -385,6 +325,8 @@ class Authenticate:
         # Add new user to authentication table
         if self.api.write_user(new_credentials):
             st.info(f'User {new_credentials["username"]} successfully registered')
+
+        self.cookie_manager.create_cookie()
     # done
     def register_user(self, form_name: str, location: str='main') -> None:
         """
@@ -425,8 +367,9 @@ class Authenticate:
                     # If preauthorization is false, register user
                     if not self.preauthorized:                        
                         self._register_credentials(validated_credentials)
+                        
                         st.session_state['register_btn_clicked'] = False
-                        #st.switch_page('home')
+                    
                     # Validate entered email against self.preauthorized
                     else:
                         if validated_credentials['email'] in self.preauthorized:
@@ -434,7 +377,6 @@ class Authenticate:
                             st.session_state['register_btn_clicked'] = False
                             self.preauthorized.remove(validated_credentials['email'])
                             self.api.delete_preauth_mail(validated_credentials['email'])
-                            #st.switch_page('home')
                         else:
                             st.error('Email not in preauthorized list')
                             st.stop()
@@ -535,126 +477,11 @@ class Authenticate:
         if delete_user_form.form_submit_button('Delete user'):
             if self.username == form_input:
                 # Delete user from database
+                self._clear_userdata()
                 self.api.delete_user(self.username)
                 st.write('User deleted from database')
-                self._clear_userdata()
                 st.write('User logged out')
                 return True
             else:
                 st.error('Username does not match')
                 return False
-            
-############ unused functions ############
-    # todo: all
-    # def _set_random_password(self, username: str) -> str:
-    #     """
-    #     Updates credentials dictionary with user's hashed random password.
-
-    #     Parameters
-    #     ----------
-    #     username: str
-    #         Username of user to set random password for.
-    #     Returns
-    #     -------
-    #     str
-    #         New plain text password that should be transferred to user securely.
-    #     """
-    #     self.random_password = generate_random_pw()
-    #     self.credentials['usernames'][username]['password'] = Hasher([self.random_password]).generate()[0]
-    #     return self.random_password
-    
-    # # todo: all
-    # def forgot_password(self, form_name: str, location: str='main') -> tuple:
-    #     """
-    #     Creates a forgot password widget.
-
-    #     Parameters
-    #     ----------
-    #     form_name: str
-    #         The rendered name of the forgot password form.
-    #     location: str
-    #         The location of the forgot password form i.e. main or sidebar.
-    #     Returns
-    #     -------
-    #     str
-    #         Username associated with forgotten password.
-    #     str
-    #         Email associated with forgotten password.
-    #     str
-    #         New plain text password that should be transferred to user securely.
-    #     """
-    #     if location not in ['main', 'sidebar']:
-    #         raise ValueError("Location must be one of 'main' or 'sidebar'")
-    #     if location == 'main':
-    #         forgot_password_form = st.form('Forgot password')
-    #     elif location == 'sidebar':
-    #         forgot_password_form = st.sidebar.form('Forgot password')
-
-    #     forgot_password_form.subheader(form_name)
-    #     username = forgot_password_form.text_input('Username').lower()
-
-    #     if forgot_password_form.form_submit_button('Submit'):
-    #         if len(username) > 0:
-    #             if username in self.credentials['usernames']:
-    #                 return username, self.credentials['usernames'][username]['email'], self._set_random_password(username)
-    #             else:
-    #                 return False, None, None
-    #         else:
-    #             raise ForgotError('Username not provided')
-    #     return None, None, None
-    
-    # # todo: all
-    # def _get_username(self, key: str, value: str) -> str:
-    #     """
-    #     Retrieves username based on a provided entry.
-
-    #     Parameters
-    #     ----------
-    #     key: str
-    #         Name of the credential to query i.e. "email".
-    #     value: str
-    #         Value of the queried credential i.e. "jsmith@gmail.com".
-    #     Returns
-    #     -------
-    #     str
-    #         Username associated with given key, value pair i.e. "jsmith".
-    #     """
-    #     for username, entries in self.credentials['usernames'].items():
-    #         if entries[key] == value:
-    #             return username
-    #     return False
-
-    # # todo: all
-    # def forgot_username(self, form_name: str, location: str='main') -> tuple:
-    #     """
-    #     Creates a forgot username widget.
-
-    #     Parameters
-    #     ----------
-    #     form_name: str
-    #         The rendered name of the forgot username form.
-    #     location: str
-    #         The location of the forgot username form i.e. main or sidebar.
-    #     Returns
-    #     -------
-    #     str
-    #         Forgotten username that should be transferred to user securely.
-    #     str
-    #         Email associated with forgotten username.
-    #     """
-    #     if location not in ['main', 'sidebar']:
-    #         raise ValueError("Location must be one of 'main' or 'sidebar'")
-    #     if location == 'main':
-    #         forgot_username_form = st.form('Forgot username')
-    #     elif location == 'sidebar':
-    #         forgot_username_form = st.sidebar.form('Forgot username')
-
-    #     forgot_username_form.subheader(form_name)
-    #     email = forgot_username_form.text_input('Email')
-
-    #     if forgot_username_form.form_submit_button('Submit'):
-    #         if len(email) > 0:
-    #             return self._get_username('email', email), email
-    #         else:
-    #             raise ForgotError('Email not provided')
-    #     return None, email
