@@ -1,10 +1,14 @@
 from typing import TYPE_CHECKING
 from pydantic import ValidationError
 from sqlalchemy.engine import URL
-from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session, SQLModel, create_engine, select
 # Custom imports
 from db import smitdb_secrets as secrets
+from db.db_exceptions import (ExceptionLogger,
+                              ReadError,
+                              CreateError,
+                              UpdateError,
+                              DeleteError)
 
 # Imports for type hints
 if TYPE_CHECKING:
@@ -81,14 +85,21 @@ class SmitDb:
         msg += f'schema {self.db_schema.__name__} '
         msg +=  f'with api configuration {self.backend.__class__.__name__}.'
         self.backend.logger.debug(msg)
+        
+    def _log_exception(self, e: Exception) -> None:
+        formatted_error_message = ExceptionLogger().logging_input(e)
+        self.backend.logger.error(formatted_error_message)
    
     def create_table(self) -> None:
         """
         Create (if not exist) all tables from SQLModel classes.
         """
-        SQLModel.metadata.create_all(self.engine)
-        
-        self.backend.logger.debug('Created table %s', self.db_schema.__name__)
+        try:
+            SQLModel.metadata.create_all(self.engine)
+            self.backend.logger.debug('Created table %s', self.db_schema.__name__)
+        except Exception as e:
+            self._log_exception(e)
+            raise e
         
     def create_instance(self, schema: SQLModel) -> None:
         """
@@ -101,15 +112,15 @@ class SmitDb:
         Args:
             schema (SQLModel): The model instance representing the new entry.
         """
-        with Session(self.engine) as session:
-            try:
+        try:
+            with Session(self.engine) as session:
                 session.add(schema)
                 session.commit()
-            except Exception as e:
-                raise f'Could not add instance of {schema.__class__.__name__} to database' from e
+                self.backend.logger.info('Added instance of %s to database', schema.__class__.__name__)
+        except Exception as e:
+            self._log_exception(e)
+            raise CreateError(f'Could not add instance of {schema.__class__.__name__} to database') from e
             
-        self.backend.logger.info('Added instance of %s to database', schema.__class__.__name__)
-
     def read_all(self) -> tuple:
         """
         Read all data in given schema.
@@ -121,24 +132,35 @@ class SmitDb:
         Returns:
             tuple: Each row as tuple with columns as attributes.
         """
-        with Session(self.engine) as session:
-            read_all: tuple = session.exec(select(self.db_schema)).all()
-            return read_all
-    
+        try:
+            with Session(self.engine) as session:
+                read_all: tuple = session.exec(select(self.db_schema)).all()
+                return read_all
+        except Exception as e:
+            self._log_exception(e)
+            raise ReadError(f'Reading data for schema {self.db_schema.__name__} failed') from e
+        
     def read_column(self, column: str) -> list:
         """
-        Read all data in given column.
+        Read all data in the given column.
 
         Args:
             column (str): The column name to read.
 
         Returns:
-            list: Each entry for given column.
+            list: Each entry for the given column.
+
+        Raises:
+            ReadError: If reading data for the column fails.
         """
-        with Session(self.engine) as session:
-            statement   = select(getattr(self.db_schema, column))
-            all_entries: list = session.exec(statement).all()
-            return all_entries
+        try:
+            with Session(self.engine) as session:
+                statement = select(getattr(self.db_schema, column))
+                all_entries: list = session.exec(statement).all()
+                return all_entries
+        except Exception as e:
+            self._log_exception(e)
+            raise ReadError(f'Reading data for column name: {column} failed') from e
         
     def select_where(self, column: str, value: str) -> tuple:
         """
@@ -151,13 +173,17 @@ class SmitDb:
         Returns:
             Selected row as tuple.
         """
-        with Session(self.engine) as session:
-            statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
-            results = session.exec(statement)
-            row = results.one()
-            
-            self.backend.logger.debug('Selected row where %s matches %s', column, value)
-            return row
+        try:
+            with Session(self.engine) as session:
+                statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
+                results = session.exec(statement)
+                row = results.one()
+
+                self.backend.logger.debug('Selected row where %s matches %s', column, value)
+                return row
+        except Exception as e:
+            self._log_exception(e)
+            raise ReadError(f'Selecting "{column}": "{value}" failed') from e
         
     def update_where(self, column: str, value: str, new_value: str) -> bool:
         """
@@ -181,11 +207,11 @@ class SmitDb:
                 session.add(row)
                 session.commit()
                 
-            self.backend.logger.debug('Updated row where %s matches %s', column, value)
+                self.backend.logger.debug('Updated row where %s matches %s', column, value)
             return True
-        except SQLAlchemyError as e:
-            self.backend.logger.error('Error updating row: %s', str(e))
-            return False
+        except Exception as e:
+            self._log_exception(e)
+            raise UpdateError(f'Changing "{column}: {value}" to: "{new_value}" failed') from e
         
     def delete_where(self, column: str, value: str) -> None:
         """
@@ -198,16 +224,20 @@ class SmitDb:
         Returns:
             None
         """
-        with Session(self.engine) as session:
-            statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
-            results = session.exec(statement)
-            row = results.one()
-            
-            session.delete(row)
-            session.commit()
-            
-        self.backend.logger.debug('Deleted row where %s matches %s', column, value)
-              
+        try:
+            with Session(self.engine) as session:
+                statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
+                results = session.exec(statement)
+                row = results.one()
+
+                session.delete(row)
+                session.commit()
+
+                self.backend.logger.debug('Deleted row where %s matches %s', column, value)
+        except Exception as e:
+            self._log_exception(e)
+            raise DeleteError(f'Deleting row for "{column}": "{value}" failed') from e
+                     
     # Auth table specific methods
     def init_auth(self) -> None:
         """
@@ -236,7 +266,7 @@ class SmitDb:
             session.add(dummy)
             session.commit()
             
-        self.backend.logger.debug('Created dummy user in auth table')
+        self.backend.logger.debug('Created dummy user in authentication table')
 
     def create_user(self, username: str,
                     password: str,
@@ -276,19 +306,18 @@ class SmitDb:
             nightmeter= nightmeter)
         
         try:
-            self.db_schema.model_validate(user)
-        except ValidationError as e:
-            for error in e.errors():
-                print('------------------')
-                for key, value in error.items():
-                    print(f'{key}: {value}')
-        else:
             with Session(self.engine) as session:
+                self.db_schema.model_validate(user)
                 session.add(user)
                 session.commit()
                 
-            self.backend.logger.info('Created user %s in auth table', user.username)
-                
+            self.backend.logger.info('Created user %s in authentication table', user.username)
+        
+        except ValidationError as e:
+            for error in e.errors():
+                for key, value in error.items():
+                    print(f'{key}: {value}')
+           
     def select_username(self, value: str) -> tuple:
         """
         From authentication table select one row by username.
@@ -321,9 +350,15 @@ class SmitDb:
             return all_usernames
 
 
+############ Exceptions Class ############
+
+
 ############ Debugging ############
 # from db.schemas import AuthenticationSchema
 # from smit.smit_api import SmitApi
 
-# a = SmitDb(AuthenticationSchema, SmitApi())
-# print(a.select_where('username','aa'))
+# conn = SmitDb(AuthenticationSchema, SmitApi())
+# try:
+#     conn.update_where('userna', 'dummy_user',  'sdf')
+# except Exception as exc:
+#     print(exc)
