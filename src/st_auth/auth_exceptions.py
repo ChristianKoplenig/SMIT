@@ -1,4 +1,4 @@
-class DbExceptionLogger:
+class AuthExceptionLogger:
     """
     A class that provides methods for logging exceptions.
     """
@@ -20,9 +20,9 @@ class DbExceptionLogger:
         error_message = f'Method: "{method_name}()" raised: "{error_type}" for input: "{e.args[0]}" at line: {line_number}'
         return error_message
     
-class DbReadError(Exception):
+class AuthCreateError(Exception):
     """
-    Exceptions raised for the database connection.
+    Exceptions raised for authentication API.
 
     Attributes
     ----------
@@ -34,27 +34,11 @@ class DbReadError(Exception):
         super().__init__(self.message)
     
     def __str__(self) -> str:
-        return f"Database Error: {self.message}"
+        return f"Authentication Error: {self.message}"
 
-class DbCreateError(Exception):
+class AuthUpdateError(Exception):
     """
-    Exceptions raised for the database connection.
-
-    Attributes
-    ----------
-    message: str
-        The custom error message to display.
-    """
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__(self.message)
-    
-    def __str__(self) -> str:
-        return f"Database Error: {self.message}"
-    
-class DbUpdateError(Exception):
-    """
-    Exceptions raised for the database connection.
+    Exceptions raised for authentication API.
 
     Attributes
     ----------
@@ -66,11 +50,11 @@ class DbUpdateError(Exception):
         super().__init__(self.message)
     
     def __str__(self) -> str:
-        return f"Database Error: {self.message}"
+        return f"Authentication Error: {self.message}"
     
-class DbDeleteError(Exception):
+class AuthWriteError(Exception):
     """
-    Exceptions raised for the database connection.
+    Exceptions raised for authentication API.
 
     Attributes
     ----------
@@ -82,4 +66,36 @@ class DbDeleteError(Exception):
         super().__init__(self.message)
     
     def __str__(self) -> str:
-        return f"Database Error: {self.message}"
+        return f"Authentication Error: {self.message}"
+    
+class AuthReadError(Exception):
+    """
+    Exceptions raised for authentication API.
+
+    Attributes
+    ----------
+    message: str
+        The custom error message to display.
+    """
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
+    
+    def __str__(self) -> str:
+        return f"Authentication Error: {self.message}"
+
+class AuthDeleteError(Exception):
+    """
+    Exceptions raised for authentication API.
+
+    Attributes
+    ----------
+    message: str
+        The custom error message to display.
+    """
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
+    
+    def __str__(self) -> str:
+        return f"Authentication Error: {self.message}"

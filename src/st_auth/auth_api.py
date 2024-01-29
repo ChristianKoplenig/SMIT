@@ -1,8 +1,17 @@
 import streamlit as st
-from pydantic import ValidationError
 
-# Database schema
+# Database imports
 from db.schemas import AuthenticationSchema
+
+# Error handling
+from pydantic import ValidationError
+import db.db_exceptions as db_exc
+from st_auth.auth_exceptions import (AuthExceptionLogger,
+                                     AuthCreateError,
+                                     AuthUpdateError,
+                                     AuthWriteError,
+                                     AuthReadError,
+                                     AuthDeleteError)
 
 
 class AuthApi:
@@ -29,6 +38,27 @@ class AuthApi:
         msg +=  'successfully initialized.'
         st.session_state.smit_api.logger.debug(msg)
 
+    def _log_exception(self, e: Exception) -> None:
+            """
+            Logs the given exception and its formatted error message.
+
+            Args:
+                e (Exception): The exception to be logged.
+
+            Returns:
+                None
+            """
+            formatted_error_message = AuthExceptionLogger().logging_input(e)
+            st.session_state.smit_api.logger.error(formatted_error_message)
+
+    def _format_validation_error(self, e: ValidationError) -> str:
+        error_messages = {'validation_errors': {}}
+        for error in e.errors():
+            field = error['loc'][0]
+            error_message = error['msg']
+            error_messages['validation_errors'][field] = error_message
+        return error_messages  
+         
     def read_all_users(self) -> list:
         """
         Generate list with entries from authentication table username column.
@@ -36,9 +66,15 @@ class AuthApi:
         Returns:
             list: All usernames in authentication table.
         """
-        users: list = []
-        users = self.auth_connection.read_column('username')
-        return users
+        try:
+            users: list = []
+            users = self.auth_connection.read_column('username')
+            return users
+        except db_exc.DbReadError as e:
+            raise e
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthReadError('Read all users from authentication database table failed.') from e
         
     def single_user_model(self, user: tuple) -> dict[str, any]:
         """
@@ -50,9 +86,13 @@ class AuthApi:
         Returns:
             dict: A dictionary containing the user attributes as key, value pairs.
         """
-        model: dict = {}
-        model = AuthenticationSchema.model_dump(user)
-        return model
+        try:
+            model: dict = {}
+            model = AuthenticationSchema.model_dump(user)
+            return model
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthCreateError(f'Creation of user model dictionary for user: "{user}" failed.') from e
 
     def validate_user_dict(self, user_dict: dict) -> dict[str, any]:
         """
@@ -68,12 +108,10 @@ class AuthApi:
             validated_dict: AuthenticationSchema = AuthenticationSchema.model_validate(user_dict)
             return validated_dict.model_dump()
         except ValidationError as e:
-            error_messages = {'validation_errors': {}}
-            for error in e.errors():
-                field = error['loc'][0]
-                error_message = error['msg']
-                error_messages['validation_errors'][field] = error_message
-            return error_messages
+            return self._format_validation_error(e)
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthCreateError(f'Creation of user dictionary: "{user_dict}" failed.') from e
 
     def get_user(self, username: str) -> dict[str, any]:
         """
@@ -85,13 +123,22 @@ class AuthApi:
         Returns:
             dict[str, any]: A dictionary representing the user's data.
         """
-        row_db: tuple = self.auth_connection.select_username(username)
-        model_db: dict = self.single_user_model(row_db)
+        try:
+            row_db: tuple = self.auth_connection.select_where('username', username)
+            model_db: dict = self.single_user_model(row_db)
+            validated_schema: AuthenticationSchema = AuthenticationSchema().model_validate(model_db)
+            return validated_schema.model_dump()
+        except db_exc.DbReadError as e:
+            raise e
+        except ValidationError as e:
+            return self._format_validation_error(e)
+        except AuthCreateError as e:
+            raise e
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthReadError(f'Failed to retrieve "{username}" from database.') from e
         
-        validated_schema: AuthenticationSchema = AuthenticationSchema().model_validate(model_db)
-        
-        return validated_schema.model_dump()
-    
+    # Todo: return values
     def write_user(self, new_user: dict) -> bool:
         """Validate and write user data to authentication table.
 
@@ -106,15 +153,12 @@ class AuthApi:
             self.auth_connection.create_instance(new_user_model)
             return True
         except ValidationError as e:
-            error_messages = {'validation_errors': {}}
-            for error in e.errors():
-                field = error['loc'][0]
-                error_message = error['msg']
-                error_messages['validation_errors'][field] = error_message
-            return False
+            return self._format_validation_error(e)
+        except db_exc.DbCreateError as e:
+            raise e
         except Exception as e:
-            print(f'Could not add user to database: {e}')
-            return False
+            self._log_exception(e)
+            raise AuthWriteError(f'Failed to write user: "{new_user}"') from e
         
     def update_by_id(self, uid: int, column: str, new_value: str) -> bool:
         """
@@ -135,9 +179,15 @@ class AuthApi:
             old_value = uid_data[column]
             self.auth_connection.update_where(update_column, old_value, new_value)
             return True
+        except db_exc.DbReadError as e:
+            raise e
+        except AuthCreateError as e:
+            raise e
+        except db_exc.DbUpdateError as e:
+            raise e
         except Exception as e:
-            print(f'Could not update user: {e}')
-            return False
+            self._log_exception(e)
+            raise AuthUpdateError(f'Failed to update "{column}" for user id: {uid}') from e
 
     def delete_user(self, username: str) -> bool:
         """
@@ -152,9 +202,11 @@ class AuthApi:
         try:
             self.auth_connection.delete_where('username', username)
             return True
+        except db_exc.DbDeleteError as e:
+            raise e
         except Exception as e:
-            print(f'Could not delete user from database: {e}')
-            return False
+            self._log_exception(e)
+            raise AuthDeleteError(f'Failed to delete user: "{username}" from database') from e
         
     # todo: implement data validation
     def get_preauth_mails(self) -> list:
@@ -164,8 +216,14 @@ class AuthApi:
         Returns:
             list: A list of preauthorized email addresses.
         """
-        return self.config_connection.read_column('preauth_mails')
-    
+        try:
+            return self.config_connection.read_column('preauth_mails')
+        except db_exc.DbReadError as e:
+            raise e
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthReadError('Failed to retrieve preauthorized emails from database.') from e
+        
     # todo: implement data validation
     def delete_preauth_mail(self, email: str) -> None:
         """
@@ -174,8 +232,13 @@ class AuthApi:
         Args:
             email (str): The email address to delete.
         """
-        self.config_connection.delete_where('preauth_mails', email)
-        
+        try:
+            self.config_connection.delete_where('preauth_mails', email)
+        except db_exc.DbDeleteError as e:
+            raise e
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthDeleteError(f'Failed to delete "{email}" from preauthorized list') from e
 
     
 ################# old ############################

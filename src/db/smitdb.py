@@ -4,11 +4,11 @@ from sqlalchemy.engine import URL
 from sqlmodel import Session, SQLModel, create_engine, select
 # Custom imports
 from db import smitdb_secrets as secrets
-from db.db_exceptions import (ExceptionLogger,
-                              ReadError,
-                              CreateError,
-                              UpdateError,
-                              DeleteError)
+from db.db_exceptions import (DbExceptionLogger,
+                              DbReadError,
+                              DbCreateError,
+                              DbUpdateError,
+                              DbDeleteError)
 
 # Imports for type hints
 if TYPE_CHECKING:
@@ -87,7 +87,7 @@ class SmitDb:
         self.backend.logger.debug(msg)
         
     def _log_exception(self, e: Exception) -> None:
-        formatted_error_message = ExceptionLogger().logging_input(e)
+        formatted_error_message = DbExceptionLogger().logging_input(e)
         self.backend.logger.error(formatted_error_message)
    
     def create_table(self) -> None:
@@ -119,7 +119,7 @@ class SmitDb:
                 self.backend.logger.info('Added instance of %s to database', schema.__class__.__name__)
         except Exception as e:
             self._log_exception(e)
-            raise CreateError(f'Could not add instance of {schema.__class__.__name__} to database') from e
+            raise DbCreateError(f'Could not add instance of {schema.__class__.__name__} to database') from e
             
     def read_all(self) -> tuple:
         """
@@ -138,7 +138,7 @@ class SmitDb:
                 return read_all
         except Exception as e:
             self._log_exception(e)
-            raise ReadError(f'Reading data for schema {self.db_schema.__name__} failed') from e
+            raise DbReadError(f'Reading data for schema {self.db_schema.__name__} failed') from e
         
     def read_column(self, column: str) -> list:
         """
@@ -160,7 +160,7 @@ class SmitDb:
                 return all_entries
         except Exception as e:
             self._log_exception(e)
-            raise ReadError(f'Reading data for column name: {column} failed') from e
+            raise DbReadError(f'Reading column: "{column}" from schema: "{self.db_schema}" failed') from e
         
     def select_where(self, column: str, value: str) -> tuple:
         """
@@ -183,7 +183,7 @@ class SmitDb:
                 return row
         except Exception as e:
             self._log_exception(e)
-            raise ReadError(f'Selecting "{column}": "{value}" failed') from e
+            raise DbReadError(f'Selecting "{column}": "{value}" failed') from e
         
     def update_where(self, column: str, value: str, new_value: str) -> bool:
         """
@@ -207,11 +207,11 @@ class SmitDb:
                 session.add(row)
                 session.commit()
                 
-                self.backend.logger.debug('Updated row where %s matches %s', column, value)
+                self.backend.logger.debug('Updated %s from: %s to: %s', column, value, new_value)
             return True
         except Exception as e:
             self._log_exception(e)
-            raise UpdateError(f'Changing "{column}: {value}" to: "{new_value}" failed') from e
+            raise DbUpdateError(f'Changing "{column}: {value}" to: "{new_value}" failed') from e
         
     def delete_where(self, column: str, value: str) -> None:
         """
@@ -236,7 +236,7 @@ class SmitDb:
                 self.backend.logger.debug('Deleted row where %s matches %s', column, value)
         except Exception as e:
             self._log_exception(e)
-            raise DeleteError(f'Deleting row for "{column}": "{value}" failed') from e
+            raise DbDeleteError(f'Deleting row for "{column}": "{value}" failed') from e
                      
     # Auth table specific methods
     def init_auth(self) -> None:
@@ -318,36 +318,36 @@ class SmitDb:
                 for key, value in error.items():
                     print(f'{key}: {value}')
            
-    def select_username(self, value: str) -> tuple:
-        """
-        From authentication table select one row by username.
+    # def select_username(self, value: str) -> tuple:
+    #     """
+    #     From authentication table select one row by username.
 
-        Parameters:
-        - value (str): The value to search for in the 'username' column.
+    #     Parameters:
+    #     - value (str): The value to search for in the 'username' column.
 
-        Returns:
-        - tuple: None or the selected row as tuple with columns as elements.
-        """
-        with Session(self.engine) as session:
-            statement = select(self.db_schema).where(self.db_schema.username == value)
-            select_row = session.exec(statement).one()
+    #     Returns:
+    #     - tuple: None or the selected row as tuple with columns as elements.
+    #     """
+    #     with Session(self.engine) as session:
+    #         statement = select(self.db_schema).where(self.db_schema.username == value)
+    #         select_row = session.exec(statement).one()
             
-            if select_row is not None:
-                return select_row
+    #         if select_row is not None:
+    #             return select_row
             
-            return None
+    #         return None
             
-    def select_all_usernames(self) -> list:
-        """
-        From authentication table select all usernames.
+    # def select_all_usernames(self) -> list:
+    #     """
+    #     From authentication table select all usernames.
 
-        Returns:
-            list: All usernames from the authentication table.
-        """
-        with Session(self.engine) as session:
-            statement   = select(self.db_schema.username)
-            all_usernames: list = session.exec(statement).all()
-            return all_usernames
+    #     Returns:
+    #         list: All usernames from the authentication table.
+    #     """
+    #     with Session(self.engine) as session:
+    #         statement   = select(self.db_schema.username)
+    #         all_usernames: list = session.exec(statement).all()
+    #         return all_usernames
 
 
 ############ Exceptions Class ############
