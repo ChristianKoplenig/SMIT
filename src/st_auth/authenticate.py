@@ -1,8 +1,11 @@
+from cgi import print_directory
 import bcrypt
 import streamlit as st
 # Import python modules
 from db.schemas import AuthenticationSchema
 from st_auth.cookie_manager import CookieManager
+
+from st_auth.auth_exceptions import AuthFormError, AuthValidateError, AuthCreateError
 
 class Authenticate:
     """
@@ -32,7 +35,6 @@ class Authenticate:
         validator: Validator
             A Validator object that checks the validity of the username, name, and email fields.
         """
-
         
         # Connect to api
         self.api = st.session_state.auth_api
@@ -45,8 +47,7 @@ class Authenticate:
         # Session state initialization
         if 'authentication_status' not in st.session_state:
             st.session_state['authentication_status'] = None
-        
-        # If user is logged in
+
         if 'username' in st.session_state:
             self.username: str = st.session_state['username']
             self.password: str = st.session_state['password']
@@ -57,6 +58,7 @@ class Authenticate:
 
         # Cookie management initialization
         self.cookie_manager = CookieManager(cookie_name, key)
+
     # done                        
     def _db_get_usernames(self) -> list:
         """ 
@@ -168,7 +170,8 @@ class Authenticate:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
         if not st.session_state['authentication_status']:
             # Check if cookie exist and use for login
-            self.cookie_manager.check_cookie()
+            self.username = self.cookie_manager.check_cookie()
+            
             if not st.session_state['authentication_status']:
                 if location == 'main':
                     login_form = st.form('Login')
@@ -180,9 +183,13 @@ class Authenticate:
                 self.password: str = login_form.text_input('Password', type='password')
 
                 if login_form.form_submit_button('Login'):
-                    self._check_credentials()
-                    # If no cookie is found, create cookie for the logged in user
-                    self.cookie_manager.create_cookie()
+                    try:
+                        self._check_credentials()
+                        # If no cookie is found, create cookie for the logged in user
+                        self.cookie_manager.create_cookie()
+                    except Exception as e:
+                        st.error(e)
+                        st.stop()
     # done
     def logout(self, button_name: str, location: str='main', key: str=None):
         """
@@ -427,34 +434,61 @@ class Authenticate:
                     credentials[key] = value
             
             # Validate with plain text passwords        
-            unsafe_validated_credentials = self.api.validate_user_dict(credentials)
-            
-            if not 'validation_errors' in unsafe_validated_credentials:
-                # Hash passwords if keys with `password` are updated
+            try:
+                # unsafe_validated_credentials = self.api.validate_user_dict(credentials)
+                self.api.validate_user_dict(credentials)
+                
+                
+                ######### do stuf if no exception
+                #Hash passwords if keys with `password` are updated
                 for key, value in new_values.items():
                     if len(value) > 0:
                         if 'password' in key:
                             credentials[key] = self._hash_pwd(value)             
-                
+
                 # Update session state
                 for key, value in credentials.items():
                     st.session_state[key] = value
-                    
+
                 # Update database
                 for key, value in new_values.items():
                     if len(value) > 0:
+
+                        ## try/except for database update
                         self.api.update_by_id(st.session_state['id'], key, value)
                 
-                # Success message
-                st.write('__Updated credentials__')
-                for key, value in new_values.items():
-                    if len(value) > 0:
-                        st.success(f'Updated: {key} to: {value}')
                 return True
-            else:
-                for key, value in unsafe_validated_credentials['validation_errors'].items():
-                    st.error(f'{value}')
-                return False
+            
+            except AuthValidateError as ve:
+                raise ve
+            
+            except AuthCreateError as ce:
+                raise ce
+            
+            
+            
+            
+            
+            
+            
+            # except Exception as e:
+            #     # print(f' authenticator: {e}')
+            #     # raise
+            #     pass
+            
+            #if not 'validation_errors' in unsafe_validated_credentials:
+            
+
+            
+            # Success message
+            # st.write('__Updated credentials__')
+            # for key, value in new_values.items():
+            #     if len(value) > 0:
+            #         st.success(f'Updated: {key} to: {value}')
+            # # else:
+            #     for key, value in unsafe_validated_credentials['validation_errors'].items():
+            #         st.error(f'{value}')
+            #     return False
     # done
     def delete_user(self, form_name: str, location: str='main') -> bool:
         """Delete user from session state and authentication table.
@@ -479,9 +513,9 @@ class Authenticate:
                 # Delete user from database
                 self._clear_userdata()
                 self.api.delete_user(self.username)
-                st.write('User deleted from database')
-                st.write('User logged out')
+                # st.write('User deleted from database')
+                # st.write('User logged out')
                 return True
             else:
-                st.error('Username does not match')
-                return False
+                # st.error('Username does not match')
+                raise AuthFormError('Username does not match')

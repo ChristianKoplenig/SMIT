@@ -11,7 +11,9 @@ from st_auth.auth_exceptions import (AuthExceptionLogger,
                                      AuthUpdateError,
                                      AuthWriteError,
                                      AuthReadError,
-                                     AuthDeleteError)
+                                     AuthDeleteError,
+                                     AuthValidateError,
+                                     AuthFormError)
 
 
 class AuthApi:
@@ -107,8 +109,10 @@ class AuthApi:
         try:
             validated_dict: AuthenticationSchema = AuthenticationSchema.model_validate(user_dict)
             return validated_dict.model_dump()
-        except ValidationError as e:
-            return self._format_validation_error(e)
+        
+        except ValidationError as ve:
+            raise AuthValidateError(ve) from ve
+            
         except Exception as e:
             self._log_exception(e)
             raise AuthCreateError(f'Creation of user dictionary: "{user_dict}" failed.') from e

@@ -53,3 +53,15 @@ class SmitApi:
             
             self.logger.addHandler(file_handler)
             self.logger.addHandler(console_handler)
+            
+    #### Check if this is needed?
+    # Return Logger
+    def get_logger(self) -> logging.Logger:
+        """Return logger.
+        
+        Returns
+        -------
+        logging.Logger
+            The logger.
+        """
+        return self.logger

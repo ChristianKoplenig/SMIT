@@ -4,6 +4,10 @@ import streamlit as st
 import extra_streamlit_components as stx
 import jwt
 
+from smit.smit_api import SmitApi
+
+from st_auth.auth_exceptions import AuthExceptionLogger, AuthCookieError
+
 class CookieManager:
     """Cookie management for Streamlit application.
 
@@ -40,6 +44,27 @@ class CookieManager:
         self.api = st.session_state.auth_api
 
         self.exp_date = self._set_exp_date()
+        
+        # Use logger from SmitApi class
+        self.logger = SmitApi().logger
+        
+        msg  = f'Class {self.__class__.__name__} of the '
+        msg += f'module {self.__class__.__module__} '
+        msg +=  'successfully initialized.'
+        self.logger.debug(msg)
+        
+    def _log_exception(self, e: Exception) -> None:
+            """
+            Logs the given exception and its formatted error message.
+
+            Args:
+                e (Exception): The exception to be logged.
+
+            Returns:
+                None
+            """
+            formatted_error_message = AuthExceptionLogger().logging_input(e)
+            st.session_state.smit_api.logger.error(formatted_error_message)        
             
     def _set_exp_date(self) -> str:
         """Creates the reauthentication cookie's expiry date.
@@ -59,12 +84,18 @@ class CookieManager:
         str
             The JWT cookie for passwordless reauthentication.
         """
-        uid = st.session_state['id']
-        username = st.session_state['username']
-        
-        return jwt.encode({'uid': uid,
-            'username':username,
-            'exp_date':self.exp_date}, self.key, algorithm='HS256')
+        try:
+            uid = st.session_state['id']
+            username = st.session_state['username']
+
+            return jwt.encode({'uid': uid,
+                'username':username,
+                'exp_date':self.exp_date}, self.key, algorithm='HS256')
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthCookieError('Encoding reauthentication cookie failed.') from e
+            
+            
     
     # todo: should work, self.token defined in _check_cookie()
     def _token_decode(self, token: str) -> str:
@@ -77,8 +108,9 @@ class CookieManager:
         """
         try:
             return jwt.decode(token, self.key, algorithms=['HS256'])
-        except:
-            return False
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthCookieError('Decoding reauthentication cookie failed.') from e
 
     # todo: return value bool implement
     def check_cookie(self) -> None:
@@ -98,19 +130,27 @@ class CookieManager:
         -------
         >>> cookie_manager.check_cookie()
         """
-        token = self.cookie_manager.get(self.cookie_name)
-        if token is not None:
-            token = self._token_decode(token)
-            if token is not False:
-                if token['exp_date'] > datetime.utcnow().timestamp():
-                    if 'uid' and 'username' in token:
-                        
-                        # Add authentication schema attributes to session state
-                        user_model = self.api.get_user(token['username'])
-                        for key, value in user_model.items():
-                            st.session_state[key] = value
+        try:
+            token = self.cookie_manager.get(self.cookie_name)
+            if token is not None:
+                token = self._token_decode(token)
                 
-                        st.session_state['authentication_status'] = True
+                if token is not False:
+                    if token['exp_date'] > datetime.utcnow().timestamp():
+                        if 'uid' and 'username' in token:
+                            self.logger.debug('Cookie found, logging in with username %s', token['username'])
+                            # Add authentication schema attributes to session state
+                            user_model = self.api.get_user(token['username'])
+                            for key, value in user_model.items():
+                                st.session_state[key] = value
+                    
+                            st.session_state['authentication_status'] = True
+                        return token['username']
+                    else:
+                        raise AuthCookieError('Reauthentication cookie expired.')
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthCookieError('Retrieving reauthentication cookie failed.') from e
 
                             
     def delete_cookie(self) -> bool:
@@ -121,8 +161,12 @@ class CookieManager:
         bool
             True on cookie deletion.
         """
-        self.cookie_manager.delete(self.cookie_name)
-        return True
+        try:
+            self.cookie_manager.delete(self.cookie_name)
+            return True
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthCookieError('Deleting reauthentication cookie failed.') from e
     
     def create_cookie(self) -> bool:
         """Create reauthentication cookie.
@@ -134,9 +178,13 @@ class CookieManager:
         bool
             True if cookie is created, False otherwise.
         """
-        token = self._token_encode()
-        self.cookie_manager.set(
-            self.cookie_name,
-            token,
-            expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
-        return True
+        try:
+            token = self._token_encode()
+            self.cookie_manager.set(
+                self.cookie_name,
+                token,
+                expires_at=datetime.now() + timedelta(days=self.cookie_expiry_days))
+            return True
+        except Exception as e:
+            self._log_exception(e)
+            raise AuthCookieError('Creating reauthentication cookie failed.') from e

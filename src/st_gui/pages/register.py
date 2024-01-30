@@ -1,4 +1,6 @@
 import streamlit as st
+from st_auth.auth_exceptions import AuthCreateError, AuthValidateError, AuthFormError
+from pydantic import ValidationError
 
 # Custom modules
 import st_auth.authenticate as stauth
@@ -11,16 +13,21 @@ authenticator = stauth.Authenticate(
 # Login form
 if st.session_state['login_btn_clicked'] and not st.session_state['register_btn_clicked']:
     if not st.session_state['authentication_status']:
-        authenticator.login('Login', 'main')
-
+        try:
+            authenticator.login('Login', 'main')
+        except Exception as e:
+            st.error(e)
+            st.stop()
+            
 # Register user form
 if st.session_state['register_btn_clicked'] and not st.session_state['login_btn_clicked']:
     try:
         authenticator.register_user('Register new user')
             #switch_page('home')
-
     except Exception as e:
         st.error(e)
+        st.stop()
+        
 # Login/Register button logic     
 if st.session_state['authentication_status'] is None:
     st.write("# Please login or register")
@@ -40,8 +47,9 @@ if st.session_state['authentication_status']:
     # Logout button
     authenticator.logout('Logout', 'main', key='btn_logout_register')
     
+    tab_reset, tab_update, tab_delete = st.tabs(['Reset password', 'Update user details', 'Delete user'])
     # Reset password
-    with st.expander('Reset Password'):
+    with tab_reset:
         try:
             if authenticator.reset_password('Enter new password'):
                 st.success('Password modified successfully')
@@ -50,19 +58,26 @@ if st.session_state['authentication_status']:
             st.stop()
     
     # Update user details
-    with st.expander('Update user details'):
-        
+    with tab_update:
         try:
             if authenticator.update_user_details('Update user details'):
                 st.success('User details modified successfully')
         
+        except AuthValidateError as ve:
+            for key, value in ve.error_dict.items():
+                st.error(f'{value}')
+                
+        except AuthCreateError as ce:
+            st.error(f'{ce}')
+    
+    # Delete user
+    with tab_delete:
+        try:
+            if authenticator.delete_user('Confirm deletion'):
+                st.success('User deleted successfully')
         except Exception as e:
             st.error(e)
             st.stop()
-    
-    # Delete user
-    with st.expander('Delete user'):
-        authenticator.delete_user('Confirm deletion')
 
 
 
