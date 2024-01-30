@@ -5,6 +5,7 @@ from sqlmodel import Session, SQLModel, create_engine, select
 # Custom imports
 from db import smitdb_secrets as secrets
 from db.db_exceptions import (DbExceptionLogger,
+                              DbEngineError,
                               DbReadError,
                               DbCreateError,
                               DbUpdateError,
@@ -77,14 +78,19 @@ class SmitDb:
             password= db_pwd,
         )
 
-        self.engine = create_engine(url) #, echo=True)
-        
         # Use logger from SmitBackend
         self.backend = api
-        msg  = f'Db engine {self.__class__.__name__} connected to '
-        msg += f'schema {self.db_schema.__name__} '
-        msg +=  f'with api configuration {self.backend.__class__.__name__}.'
-        self.backend.logger.debug(msg)
+        msg  = f'Db engine: "{self.__class__.__name__}" connected to '
+        msg += f'schema: "{self.db_schema.__name__}" '
+        msg +=  f'with api configuration: "{self.backend.__class__.__name__}".'
+        
+        try:
+            self.engine = create_engine(url) #, echo=True)
+            self.backend.logger.debug(msg)
+        except Exception as e:
+            self._log_exception(e)
+            raise DbEngineError(f'Could not create engine for {self.__class__.__name__}') from e    
+        
         
     def _log_exception(self, e: Exception) -> None:
         formatted_error_message = DbExceptionLogger().logging_input(e)

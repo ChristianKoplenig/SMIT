@@ -19,7 +19,22 @@ class DbExceptionLogger:
         method_name = e.__traceback__.tb_frame.f_code.co_name
         error_message = f'Method: "{method_name}()" raised: "{error_type}" for input: "{e.args[0]}" at line: {line_number}'
         return error_message
+
+class DbEngineError(Exception):
+    """
+    Exceptions raised for the database connection.
+
+    Attributes
+    ----------
+    message: str
+        The custom error message to display.
+    """
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
     
+    def __str__(self) -> str:
+        return f"Database Error: {self.message}"
 class DbReadError(Exception):
     """
     Exceptions raised for the database connection.
