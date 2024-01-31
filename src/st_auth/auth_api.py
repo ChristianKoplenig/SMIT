@@ -15,7 +15,6 @@ from st_auth.auth_exceptions import (AuthExceptionLogger,
                                      AuthValidateError,
                                      AuthFormError)
 
-
 class AuthApi:
     """
     Class for retrieving data from the authentication table.
@@ -72,8 +71,10 @@ class AuthApi:
             users: list = []
             users = self.auth_connection.read_column('username')
             return users
-        except db_exc.DbReadError as e:
-            raise e
+        
+        except db_exc.DbReadError as dbe:
+            raise dbe
+        
         except Exception as e:
             self._log_exception(e)
             raise AuthReadError('Read all users from authentication database table failed.') from e
@@ -92,6 +93,7 @@ class AuthApi:
             model: dict = {}
             model = AuthenticationSchema.model_dump(user)
             return model
+        
         except Exception as e:
             self._log_exception(e)
             raise AuthCreateError(f'Creation of user model dictionary for user: "{user}" failed.') from e
@@ -132,12 +134,16 @@ class AuthApi:
             model_db: dict = self.single_user_model(row_db)
             validated_schema: AuthenticationSchema = AuthenticationSchema().model_validate(model_db)
             return validated_schema.model_dump()
-        except db_exc.DbReadError as e:
-            raise e
-        except ValidationError as e:
-            return self._format_validation_error(e)
-        except AuthCreateError as e:
-            raise e
+        
+        except db_exc.DbReadError as dbe:
+            raise dbe
+        
+        except ValidationError as ve:
+            raise AuthValidateError(ve) from ve
+        
+        except AuthCreateError as ae:
+            raise ae
+        
         except Exception as e:
             self._log_exception(e)
             raise AuthReadError(f'Failed to retrieve "{username}" from database.') from e
@@ -156,10 +162,13 @@ class AuthApi:
             new_user_model: AuthenticationSchema = AuthenticationSchema.model_validate(new_user)
             self.auth_connection.create_instance(new_user_model)
             return True
-        except ValidationError as e:
-            return self._format_validation_error(e)
-        except db_exc.DbCreateError as e:
-            raise e
+        
+        except ValidationError as ve:
+            raise AuthValidateError(ve) from ve
+        
+        except db_exc.DbCreateError as dbe:
+            raise dbe
+        
         except Exception as e:
             self._log_exception(e)
             raise AuthWriteError(f'Failed to write user: "{new_user}"') from e
@@ -183,12 +192,16 @@ class AuthApi:
             old_value = uid_data[column]
             self.auth_connection.update_where(update_column, old_value, new_value)
             return True
-        except db_exc.DbReadError as e:
-            raise e
-        except AuthCreateError as e:
-            raise e
-        except db_exc.DbUpdateError as e:
-            raise e
+        
+        except db_exc.DbReadError as dbe:
+            raise dbe
+        
+        except AuthCreateError as ae:
+            raise ae
+        
+        except db_exc.DbUpdateError as dbe:
+            raise dbe
+        
         except Exception as e:
             self._log_exception(e)
             raise AuthUpdateError(f'Failed to update "{column}" for user id: {uid}') from e
@@ -206,8 +219,10 @@ class AuthApi:
         try:
             self.auth_connection.delete_where('username', username)
             return True
-        except db_exc.DbDeleteError as e:
-            raise e
+        
+        except db_exc.DbDeleteError as dbe:
+            raise dbe
+        
         except Exception as e:
             self._log_exception(e)
             raise AuthDeleteError(f'Failed to delete user: "{username}" from database') from e
@@ -222,8 +237,10 @@ class AuthApi:
         """
         try:
             return self.config_connection.read_column('preauth_mails')
-        except db_exc.DbReadError as e:
-            raise e
+        
+        except db_exc.DbReadError as dbe:
+            raise dbe
+        
         except Exception as e:
             self._log_exception(e)
             raise AuthReadError('Failed to retrieve preauthorized emails from database.') from e
@@ -238,8 +255,9 @@ class AuthApi:
         """
         try:
             self.config_connection.delete_where('preauth_mails', email)
-        except db_exc.DbDeleteError as e:
-            raise e
+        except db_exc.DbDeleteError as dbe:
+            raise dbe
+        
         except Exception as e:
             self._log_exception(e)
             raise AuthDeleteError(f'Failed to delete "{email}" from preauthorized list') from e

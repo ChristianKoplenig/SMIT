@@ -9,7 +9,8 @@ from db.db_exceptions import (DbExceptionLogger,
                               DbReadError,
                               DbCreateError,
                               DbUpdateError,
-                              DbDeleteError)
+                              DbDeleteError,
+                              DatabaseError)
 
 # Imports for type hints
 if TYPE_CHECKING:
@@ -217,7 +218,7 @@ class SmitDb:
             return True
         except Exception as e:
             self._log_exception(e)
-            raise DbUpdateError(f'Changing "{column}: {value}" to: "{new_value}" failed') from e
+            raise DbUpdateError(f'In column: "{column}" select value: "{value}" update with: "{new_value}" failed') from e
         
     def delete_where(self, column: str, value: str) -> None:
         """

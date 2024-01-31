@@ -1,4 +1,3 @@
-from cgi import print_directory
 import bcrypt
 import streamlit as st
 # Import python modules
