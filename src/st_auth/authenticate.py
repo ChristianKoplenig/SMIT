@@ -1,5 +1,6 @@
 import bcrypt
 import streamlit as st
+from db.db_exceptions import DbReadError, DbUpdateError
 # Import python modules
 from db.schemas import AuthenticationSchema
 from st_auth.cookie_manager import CookieManager
@@ -328,11 +329,12 @@ class Authenticate:
 
                 st.session_state[key] = value
         
-        # Add new user to authentication table
-        if self.api.write_user(new_credentials):
-            st.info(f'User {new_credentials["username"]} successfully registered')
-
-        self.cookie_manager.create_cookie()
+        # Register new user
+        try:
+            self.api.write_user(new_credentials)
+            self.cookie_manager.create_cookie()
+        except Exception as e:
+            raise e
     # done
     def register_user(self, form_name: str, location: str='main') -> None:
         """
@@ -363,36 +365,43 @@ class Authenticate:
         
         if register_user_form.form_submit_button('Register'):
             
-            if new_values['password'] == new_values['password_repeat']:
-                # Delete password verification field
+            if new_values['password'] != new_values['password_repeat']:
+                raise AuthFormError('Passwords do not match')
+            elif new_values['username'] in self._db_get_usernames():
+                raise AuthFormError('Username already in database')
+            else:
                 del new_values['password_repeat']
-                
-                # Validate entered user credentials
-                validated_credentials: dict[str, any] = self.api.validate_user_dict(new_values)
-                if not 'validation_errors' in validated_credentials:                    
-                    # If preauthorization is false, register user
-                    if not self.preauthorized:                        
-                        self._register_credentials(validated_credentials)
-                        
-                        st.session_state['register_btn_clicked'] = False
+            
+                try:    
+                    # Validate entered user credentials
+                    validated_credentials: dict[str, any] = self.api.validate_user_dict(new_values)
                     
+                    if not self.preauthorized:
+                        try:                        
+                            self._register_credentials(validated_credentials)
+                            return True
+                        
+                        except Exception as e:
+                            raise e
+
                     # Validate entered email against self.preauthorized
                     else:
                         if validated_credentials['email'] in self.preauthorized:
-                            self._register_credentials(validated_credentials)
-                            st.session_state['register_btn_clicked'] = False
-                            self.preauthorized.remove(validated_credentials['email'])
-                            self.api.delete_preauth_mail(validated_credentials['email'])
+                            try:
+                                self._register_credentials(validated_credentials)
+                                self.preauthorized.remove(validated_credentials['email'])
+                                self.api.delete_preauth_mail(validated_credentials['email'])
+                                return True
+                            except Exception as e:
+                                raise e
                         else:
-                            st.error('Email not in preauthorized list')
-                            st.stop()
-                else:
-                    for key, value in validated_credentials['validation_errors'].items():
-                        st.error(f'Field: {key} generated Error: {value}')
-                    st.stop()
-            else:
-                st.error('Passwords do not match')
-                st.stop()
+                            raise AuthFormError('Email not preauthorized')
+
+                except AuthValidateError as ve:
+                    raise ve
+                
+                except Exception as e:
+                    raise e
     # done
     def update_user_details(self, form_name: str, location: str='main') -> bool:
         """
@@ -418,7 +427,11 @@ class Authenticate:
         elif location == 'sidebar':
             update_user_details_form = st.sidebar.form('Update user details')
         
-        credentials: dict = self.api.get_user(self.username)
+        try:
+            credentials: dict = self.api.get_user(self.username)
+        except DbReadError as dbe:
+            raise dbe
+            
         new_values: dict = {}
         
         update_user_details_form.subheader(form_name)
@@ -454,7 +467,10 @@ class Authenticate:
                     if len(value) > 0:
 
                         ## try/except for database update
-                        self.api.update_by_id(st.session_state['id'], key, value)
+                        try:
+                            self.api.update_by_id(st.session_state['id'], key, value)
+                        except DbUpdateError as dbe:
+                            raise dbe
                 
                 return True
             
@@ -463,31 +479,6 @@ class Authenticate:
             
             except AuthCreateError as ce:
                 raise ce
-            
-            
-            
-            
-            
-            
-            
-            # except Exception as e:
-            #     # print(f' authenticator: {e}')
-            #     # raise
-            #     pass
-            
-            #if not 'validation_errors' in unsafe_validated_credentials:
-            
-
-            
-            # Success message
-            # st.write('__Updated credentials__')
-            # for key, value in new_values.items():
-            #     if len(value) > 0:
-            #         st.success(f'Updated: {key} to: {value}')
-            # # else:
-            #     for key, value in unsafe_validated_credentials['validation_errors'].items():
-            #         st.error(f'{value}')
-            #     return False
     # done
     def delete_user(self, form_name: str, location: str='main') -> bool:
         """Delete user from session state and authentication table.
@@ -509,12 +500,8 @@ class Authenticate:
         # Form logic    
         if delete_user_form.form_submit_button('Delete user'):
             if self.username == form_input:
-                # Delete user from database
                 self._clear_userdata()
                 self.api.delete_user(self.username)
-                # st.write('User deleted from database')
-                # st.write('User logged out')
                 return True
             else:
-                # st.error('Username does not match')
                 raise AuthFormError('Username does not match')

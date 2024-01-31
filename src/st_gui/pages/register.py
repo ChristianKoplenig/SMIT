@@ -1,4 +1,5 @@
 import streamlit as st
+from db.db_exceptions import DbReadError, DbUpdateError
 from st_auth.auth_exceptions import AuthCreateError, AuthValidateError, AuthFormError
 from pydantic import ValidationError
 
@@ -21,15 +22,21 @@ if st.session_state['login_btn_clicked'] and not st.session_state['register_btn_
             
 # Register user form
 if st.session_state['register_btn_clicked'] and not st.session_state['login_btn_clicked']:
-    try:
-        authenticator.register_user('Register new user')
-            #switch_page('home')
-    except Exception as e:
-        st.error(e)
-        st.stop()
-        
+    if not st.session_state['authentication_status']:
+        try:
+            if authenticator.register_user('Register new user'):
+                st.session_state['register_btn_clicked'] = False
+                st.info('New user successfully registered')
+
+        except AuthValidateError as ve:
+            for key, value in ve.error_dict.items():
+                st.error(f'{value}')
+
+        except Exception as e:
+            st.error(e)
+
 # Login/Register button logic     
-if st.session_state['authentication_status'] is None:
+if not st.session_state['authentication_status']:
     st.write("# Please login or register")
     
     if st.button('Login', key='btn_login_register'):
@@ -66,18 +73,17 @@ if st.session_state['authentication_status']:
         except AuthValidateError as ve:
             for key, value in ve.error_dict.items():
                 st.error(f'{value}')
-                
-        except AuthCreateError as ce:
-            st.error(f'{ce}')
+        
+        except Exception as e:
+            st.error(e)
     
     # Delete user
     with tab_delete:
         try:
             if authenticator.delete_user('Confirm deletion'):
-                st.success('User deleted successfully')
+                pass
         except Exception as e:
             st.error(e)
-            st.stop()
 
 
 

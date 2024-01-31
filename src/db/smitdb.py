@@ -190,7 +190,7 @@ class SmitDb:
                 return row
         except Exception as e:
             self._log_exception(e)
-            raise DbReadError(f'Selecting "{column}": "{value}" failed') from e
+            raise DbReadError(f'Selecting column: "{column}" and value: "{value}" failed') from e
         
     def update_where(self, column: str, value: str, new_value: str) -> bool:
         """
