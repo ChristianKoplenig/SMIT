@@ -1,10 +1,10 @@
 import streamlit as st
+from pydantic import ValidationError
 
 # Database imports
 from db.schemas import AuthenticationSchema
 
 # Error handling
-from pydantic import ValidationError
 import db.db_exceptions as db_exc
 from st_auth.auth_exceptions import (AuthExceptionLogger,
                                      AuthCreateError,
@@ -12,8 +12,7 @@ from st_auth.auth_exceptions import (AuthExceptionLogger,
                                      AuthWriteError,
                                      AuthReadError,
                                      AuthDeleteError,
-                                     AuthValidateError,
-                                     AuthFormError)
+                                     AuthValidateError)
 
 class AuthApi:
     """

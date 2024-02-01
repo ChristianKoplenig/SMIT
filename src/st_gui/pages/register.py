@@ -15,16 +15,19 @@ authenticator = stauth.Authenticate(
 if st.session_state['login_btn_clicked'] and not st.session_state['register_btn_clicked']:
     if not st.session_state['authentication_status']:
         try:
-            authenticator.login('Login', 'main')
+            if authenticator.login('Login', 'main'):
+                st.session_state['authentication_status'] = True
+            else:
+                st.session_state['authentication_status'] = False
         except Exception as e:
             st.error(e)
-            st.stop()
             
 # Register user form
 if st.session_state['register_btn_clicked'] and not st.session_state['login_btn_clicked']:
     if not st.session_state['authentication_status']:
         try:
             if authenticator.register_user('Register new user'):
+                st.session_state['authentication_status'] = True
                 st.session_state['register_btn_clicked'] = False
                 st.info('New user successfully registered')
 
@@ -52,9 +55,12 @@ if not st.session_state['authentication_status']:
 ## Logged in functionality
 if st.session_state['authentication_status']:
     # Logout button
-    authenticator.logout('Logout', 'main', key='btn_logout_register')
+    if authenticator.logout('Logout', 'main', key='btn_logout_register'):
+        st.session_state['authentication_status'] = None
     
-    tab_reset, tab_update, tab_delete = st.tabs(['Reset password', 'Update user details', 'Delete user'])
+    (tab_reset,
+     tab_update,
+     tab_delete) = st.tabs(['Reset password', 'Update user details', 'Delete user'])
     # Reset password
     with tab_reset:
         try:
@@ -62,18 +68,15 @@ if st.session_state['authentication_status']:
                 st.success('Password modified successfully')
         except Exception as e:
             st.error(e)
-            st.stop()
-    
+            
     # Update user details
     with tab_update:
         try:
             if authenticator.update_user_details('Update user details'):
                 st.success('User details modified successfully')
-        
         except AuthValidateError as ve:
             for key, value in ve.error_dict.items():
                 st.error(f'{value}')
-        
         except Exception as e:
             st.error(e)
     
@@ -81,7 +84,7 @@ if st.session_state['authentication_status']:
     with tab_delete:
         try:
             if authenticator.delete_user('Confirm deletion'):
-                pass
+                st.success('User deleted successfully')
         except Exception as e:
             st.error(e)
 

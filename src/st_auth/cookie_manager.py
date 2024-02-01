@@ -112,8 +112,8 @@ class CookieManager:
             self._log_exception(e)
             raise AuthCookieError('Decoding reauthentication cookie failed.') from e
 
-    # todo: return value bool implement
-    def check_cookie(self) -> None:
+    
+    def check_cookie(self) -> str:
         """Check if cookie exists and log in.
         
         Retrieves the reauthentication cookie,
@@ -143,14 +143,14 @@ class CookieManager:
                             user_model = self.api.get_user(token['username'])
                             for key, value in user_model.items():
                                 st.session_state[key] = value
-                    
-                            st.session_state['authentication_status'] = True
                         return token['username']
                     else:
                         raise AuthCookieError('Reauthentication cookie expired.')
+        except AuthCookieError as ae:
+            raise ae
         except Exception as e:
             self._log_exception(e)
-            raise AuthCookieError('Retrieving reauthentication cookie failed.') from e
+            raise e
 
                             
     def delete_cookie(self) -> bool:

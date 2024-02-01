@@ -1,11 +1,16 @@
 import bcrypt
 import streamlit as st
-from db.db_exceptions import DbReadError, DbUpdateError
 # Import python modules
 from db.schemas import AuthenticationSchema
 from st_auth.cookie_manager import CookieManager
-
-from st_auth.auth_exceptions import AuthFormError, AuthValidateError, AuthCreateError
+# Exception handling
+from st_auth.auth_exceptions import (AuthFormError,
+                                     AuthReadError,
+                                     AuthValidateError,
+                                     AuthCreateError)
+from db.db_exceptions import (DbReadError,
+                              DbUpdateError,
+                              DatabaseError)
 
 class Authenticate:
     """
@@ -22,8 +27,6 @@ class Authenticate:
 
         Parameters
         ----------
-        credentials: dict
-            The dictionary of all attributes defined in the authentication schema, grouped by user id.
         cookie_name: str
             The name of the JWT cookie stored on the client's browser for passwordless reauthentication.
         key: str
@@ -32,8 +35,6 @@ class Authenticate:
             The number of days before the cookie expires on the client's browser.
         preauthorized: list
             The list of emails of unregistered users authorized to register.
-        validator: Validator
-            A Validator object that checks the validity of the username, name, and email fields.
         """
         
         # Connect to api
@@ -59,7 +60,7 @@ class Authenticate:
         # Cookie management initialization
         self.cookie_manager = CookieManager(cookie_name, key)
 
-    # done                        
+                       
     def _db_get_usernames(self) -> list:
         """ 
         Return list with all usernames from authentications table.
@@ -67,21 +68,24 @@ class Authenticate:
         Returns:
             list: All usernames from the authentications table.
         """
-        all_users: list = self.api.read_all_users()
-        return all_users
-    # done
+        try:
+            all_users: list = self.api.read_all_users()
+            return all_users
+        except Exception as e:
+            raise e
+
     def _clear_userdata(self) -> None:
         """
         Delete cookie and session state for logged in user.
         """
-        self.cookie_manager.delete_cookie()
-        
-        # Use database schema to clear session state variabels    
-        for key in AuthenticationSchema.model_fields.keys():
-            st.session_state[key] = None
-            
-        st.session_state['authentication_status'] = None
-    # done
+        try:
+            self.cookie_manager.delete_cookie()
+            # Clear all session state variables    
+            for field in AuthenticationSchema.model_fields:
+                st.session_state[field] = None
+        except Exception as e:
+            raise e
+
     def _generate_extra_fields_inputform(self, new_values: dict, form: str) -> None:
         """
         Add extra fields from AuthDbSchema to input form.
@@ -97,7 +101,7 @@ class Authenticate:
             form (str): Name of the form from which the method will be called.
         """
         for each in AuthenticationSchema.model_fields:
-            # Filter fields that are needed for authentication verfication and for database
+            # Except user management and auto generated fields
             if (not each == 'username') and \
                 (not each == 'password') and \
                 (not each == 'id') and \
@@ -107,7 +111,7 @@ class Authenticate:
                     new_values[each] = form.text_input(each, type='password')
                 else:
                     new_values[each] = form.text_input(each)  
-    # done                
+                 
     def _hash_pwd(self, password: str) -> str:
         """
         Hashes the plain text password.
@@ -120,64 +124,90 @@ class Authenticate:
             str: The hashed password.
         """
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    # done
+
     def _check_pw(self) -> bool:
         """Validate `self.password` against database.
 
         Returns:
             bool: Password check state.
         """
-        db_user_row = self.api.get_user(self.username)
-        self_bytes = self.password.encode()
-        db_bytes = db_user_row['password'].encode()
+        try:
+            db_user_row = self.api.get_user(self.username)
+            self_bytes = self.password.encode()
+            db_bytes = db_user_row['password'].encode()
 
-        if not bcrypt.hashpw(self_bytes, db_bytes) == db_bytes:
-            return False
-        else:
-            return True
-    # done
-    def _check_credentials(self) -> None:
+            if not bcrypt.hashpw(self_bytes, db_bytes) == db_bytes:
+                return False
+            else:
+                return True
+        except AuthReadError as ae:
+            raise ae
+        except Exception as e:
+            raise DatabaseError(e, 'Raised by Authenticator._check_pwd()') from e
+ 
+    def _check_credentials(self) -> bool:
         """
         Get userdata from database and add to session state.
+
+        This method checks the credentials provided by the user against the database.
+        It verifies if the username exists in the database and if the password matches.
+        If the credentials are valid, it retrieves the user data from the API and adds
+        it to the session state.
+
+        Returns:
+            bool: True if the credentials are valid and the user data is added to the
+            session state, False otherwise.
+
+        Raises:
+            AuthFormError: If the username is not found in the database or if the
+            password does not match.
+            Exception: If an error occurs while retrieving the user data from the API.
         """
-        if self.username in self._db_get_usernames():
-            if self._check_pw():
-                # Add authentication schema attributes to session state
+        if not self.username in self._db_get_usernames():
+            raise AuthFormError('Username not in database')
+        if not self._check_pw():
+            raise AuthFormError('Password does not match')
+        else:
+            try:    
                 user_model = self.api.get_user(self.username)
                 for key, value in user_model.items():
                     st.session_state[key] = value
-                
-                st.session_state['authentication_status'] = True
-            else:
-                st.session_state['authentication_status'] = False
-                st.error('Password does not match')
-                st.stop()
-        else:
-            st.session_state['authentication_status'] = False
-            st.error('Username not in database')
-            st.stop()
-    # done
-    def login(self, form_name: str, location: str='main') -> None:
+                return True
+            except Exception as e:
+                raise DatabaseError(e, 'Raised by Authenticator._check_credentials()') from e
+
+    def login(self, form_name: str, location: str='main') -> bool:
         """Create login widget, call user validation.
 
         Args:
             form_name: str
                 The rendered name of the login form.
-            location: str
-                The location of the login form i.e. main or sidebar.
+            location: str, optional
+                The location of the login form i.e. main or sidebar. Default is 'main'.
+
+        Returns:
+            bool:
+                True if the login is successful, False otherwise.
+
+        Raises:
+            ValueError:
+                If the location is not 'main' or 'sidebar'.
+            AuthFormError:
+                If there is an error within the authentication form.
+            Exception:
+                Pass through any other error during the login process.
         """
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
-        if not st.session_state['authentication_status']:
-            # Check if cookie exist and use for login
+        if location == 'main':
+            login_form = st.form('Login')
+        elif location == 'sidebar':
+            login_form = st.sidebar.form('Login')
+        
+        try:
             self.username = self.cookie_manager.check_cookie()
             
-            if not st.session_state['authentication_status']:
-                if location == 'main':
-                    login_form = st.form('Login')
-                elif location == 'sidebar':
-                    login_form = st.sidebar.form('Login')
-
+            if not self.username:
                 login_form.subheader(form_name)
                 self.username: str = login_form.text_input('Username').lower()
                 self.password: str = login_form.text_input('Password', type='password')
@@ -185,13 +215,19 @@ class Authenticate:
                 if login_form.form_submit_button('Login'):
                     try:
                         self._check_credentials()
-                        # If no cookie is found, create cookie for the logged in user
                         self.cookie_manager.create_cookie()
+                        return True
+                    except AuthFormError as ae:
+                        raise ae
                     except Exception as e:
-                        st.error(e)
-                        st.stop()
-    # done
-    def logout(self, button_name: str, location: str='main', key: str=None):
+                        raise e
+            else:
+                # Login in with cookie
+                return True
+        except Exception as e:
+            raise e
+
+    def logout(self, button_name: str, location: str='main', key: str=None)-> bool:
         """
         Create button and clear session state on logout.
 
@@ -208,11 +244,13 @@ class Authenticate:
         if location == 'main':
             if st.button(button_name, key):
                 self._clear_userdata()
+                return True
 
         elif location == 'sidebar':
             if st.sidebar.button(button_name, key):
                 self._clear_userdata()
-    # done
+                return True
+
     def _update_password(self, reset_pwd: dict) -> bool:
         """
         Updates credentials dictionary with user's reset hashed password.
@@ -225,46 +263,42 @@ class Authenticate:
         self.password = reset_pwd['old']
         
         if self._check_pw():
-            
             credentials['password'] = reset_pwd['new']
             
-            unsafe_validated_credentials = self.api.validate_user_dict(credentials)
-            
-            if not 'validation_errors' in unsafe_validated_credentials:
+            try:
+                self.api.validate_user_dict(credentials)
                 # Hash password
                 credentials['password'] = self._hash_pwd(credentials['password'])
-                
                 # Update session state
                 st.session_state['password'] = credentials['password']
-                
                 # Update database
-                self.api.update_by_id(st.session_state['id'], 'password', credentials['password'])
-                
+                try:
+                    self.api.update_by_id(st.session_state['id'], 'password', credentials['password'])
+                except Exception as e:
+                    raise DatabaseError(e, 'Raised by Authenticator._update_password()') from e
                 return True
-            else:
-                for each in unsafe_validated_credentials['validation_errors'].items():
-                    st.error(f'{each}')
-                return False
+            except AuthValidateError as ve:
+                raise ve
+            except Exception as e:
+                raise e
         else:
-            st.error('Old password for logged in user is not correct')
-            return False
-    # done
+            raise AuthFormError('Old password for logged in user is not correct')
+
     def reset_password(self, form_name: str, location: str='main') -> bool:
         """
-        Creates a password reset widget.
+        Create password reset widget.
 
         Parameters
         ----------
-        username: str
-            The username of the user to reset the password for.
         form_name: str
             The rendered name of the password reset form.
-        location: str
-            The location of the password reset form i.e. main or sidebar.
+        location: str, optional
+            The location of the password reset form i.e. main or sidebar. Default is 'main'.
+
         Returns
         -------
-        str
-            The status of resetting the password.
+        bool
+            The status of resetting the password process.
         """
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
@@ -274,29 +308,29 @@ class Authenticate:
             reset_password_form = st.sidebar.form('Reset password')
         
         reset_password_form.subheader(form_name)
-        old_password = reset_password_form.text_input('Current password', type='password')
-        new_password = reset_password_form.text_input('New password', type='password')
-        new_password_repeat = reset_password_form.text_input('Repeat password', type='password')
+        old_password: str = reset_password_form.text_input('Current password', type='password')
+        new_password: str = reset_password_form.text_input('New password', type='password')
+        new_password_repeat: str = reset_password_form.text_input('Repeat password', type='password')
 
         if reset_password_form.form_submit_button('Reset'):
-            if len(new_password) > 0:
-                if new_password == new_password_repeat:
-                    if old_password != new_password:
-                        reset_pwd: dict = {
-                            'old': old_password,
-                            'new': new_password
-                        }
-                        if self._update_password(reset_pwd):
-                            return True
-                        else:
-                            return False
-                    else:
-                        st.error('New and current password is the same')
+            if len(new_password) <= 3:
+                raise AuthFormError('New password > 3')
+            
+            if new_password != new_password_repeat:
+                raise AuthFormError('New passwords do not match')
+            
+            if old_password != new_password:
+                reset_pwd: dict = {
+                    'old': old_password,
+                    'new': new_password
+                }
+                if self._update_password(reset_pwd):
+                    return True
                 else:
-                    st.error('New passwords do not match')
+                    return False
             else:
-                st.error('Provide new password')
-    # done
+                raise AuthFormError('New and current password is the same')
+
     def _register_credentials(self, new_credentials: dict) -> None:
         """
         Assign new credentials to session state and database.
@@ -307,36 +341,35 @@ class Authenticate:
             new_credentials: dict
                 Input from register user form.
         """
-        # Hash passwords
-        for each in new_credentials:
-            if 'password' in each:
-                new_credentials[each] = self._hash_pwd(new_credentials[each])
-        
-        # Add credentials to session state
-        st.session_state['username'] = new_credentials['username']
-        st.session_state['password'] = new_credentials['password']
-        st.session_state['authentication_status'] = True
-        
-        self.username = new_credentials['username']
-        self.password = new_credentials['password']
-        
-        for key, value in new_credentials.items():
-            # Filter fields that are needed for authentication verfication and for database
-            if (not key == 'username') and \
-                (not key == 'password') and \
-                (not key == 'id') and \
-                (not key == 'created_on'):
-
-                st.session_state[key] = value
-        
-        # Register new user
         try:
+            # Hash passwords
+            for each in new_credentials:
+                if 'password' in each:
+                    new_credentials[each] = self._hash_pwd(new_credentials[each])
+
+            # Add credentials to session state
+            st.session_state['username'] = new_credentials['username']
+            st.session_state['password'] = new_credentials['password']
+
+            self.username = new_credentials['username']
+            self.password = new_credentials['password']
+
+            for key, value in new_credentials.items():
+                # Except authentication and database fields
+                if (not key == 'username') and \
+                    (not key == 'password') and \
+                    (not key == 'id') and \
+                    (not key == 'created_on'):
+
+                    st.session_state[key] = value
+
+            # Register new user
             self.api.write_user(new_credentials)
             self.cookie_manager.create_cookie()
         except Exception as e:
-            raise e
-    # done
-    def register_user(self, form_name: str, location: str='main') -> None:
+            raise DatabaseError(e, 'Raised by Authenticator._register_credentials()') from e
+
+    def register_user(self, form_name: str, location: str='main') -> bool:
         """
         Create new user widget.
         
@@ -380,10 +413,8 @@ class Authenticate:
                         try:                        
                             self._register_credentials(validated_credentials)
                             return True
-                        
                         except Exception as e:
                             raise e
-
                     # Validate entered email against self.preauthorized
                     else:
                         if validated_credentials['email'] in self.preauthorized:
@@ -395,30 +426,56 @@ class Authenticate:
                             except Exception as e:
                                 raise e
                         else:
-                            raise AuthFormError('Email not preauthorized')
-
+                            raise AuthFormError('Email is not preauthorized')
                 except AuthValidateError as ve:
                     raise ve
-                
                 except Exception as e:
                     raise e
-    # done
+
     def update_user_details(self, form_name: str, location: str='main') -> bool:
         """
         Creates a update user details widget.
 
         Parameters
         ----------
-        username: str
-            The username of the user to update user details for.
         form_name: str
             The rendered name of the update user details form.
-        location: str
-            The location of the update user details form i.e. main or sidebar.
+        location: str, optional
+            The location of the update user details form i.e. main or sidebar. Default is 'main'.
+
         Returns
         -------
-        str
-            The status of updating user details.
+        bool
+            True on success.
+
+        Raises
+        ------
+        ValueError
+            If the location is not 'main' or 'sidebar'.
+        DatabaseError
+            If there is an error reading or updating the database.
+        AuthValidateError
+            If there is an error validating the user credentials.
+        AuthCreateError
+            If there is an error creating the user.
+
+        Notes
+        -----
+        This method creates a form for updating user details. It takes the form name and location as parameters.
+        The form is rendered either in the main area or in the sidebar, depending on the location parameter.
+        The user can input new values for the username and other fields, and click the 'Update' button to update the user details.
+        The method validates the user credentials and updates the database with the new values.
+        If any errors occur during the process, the corresponding exceptions are raised.
+
+        Example
+        -------
+        To update user details in the main area:
+
+        >>> update_user_details('Update user details', 'main')
+
+        To update user details in the sidebar:
+
+        >>> update_user_details('Update user details', 'sidebar')
         """
         if location not in ['main', 'sidebar']:
             raise ValueError("Location must be one of 'main' or 'sidebar'")
@@ -430,7 +487,7 @@ class Authenticate:
         try:
             credentials: dict = self.api.get_user(self.username)
         except DbReadError as dbe:
-            raise dbe
+            raise DatabaseError(dbe, 'Raised by Authenticator.update_user_details()') from dbe
             
         new_values: dict = {}
         
@@ -440,46 +497,38 @@ class Authenticate:
         self._generate_extra_fields_inputform(new_values, update_user_details_form)   
 
         if update_user_details_form.form_submit_button('Update'):
-            # Write new values to credentials, validate credentials
+            # Write new values to credentials
+            # All credential fields must be filled for vailidation
             for key, value in new_values.items():
                 if len(value) > 0:
                     credentials[key] = value
             
-            # Validate with plain text passwords        
             try:
-                # unsafe_validated_credentials = self.api.validate_user_dict(credentials)
+                # Validate with plain text passwords        
                 self.api.validate_user_dict(credentials)
                 
-                
-                ######### do stuf if no exception
-                #Hash passwords if keys with `password` are updated
                 for key, value in new_values.items():
                     if len(value) > 0:
                         if 'password' in key:
                             credentials[key] = self._hash_pwd(value)             
 
-                # Update session state
                 for key, value in credentials.items():
                     st.session_state[key] = value
 
                 # Update database
                 for key, value in new_values.items():
                     if len(value) > 0:
-
-                        ## try/except for database update
                         try:
                             self.api.update_by_id(st.session_state['id'], key, value)
                         except DbUpdateError as dbe:
-                            raise dbe
+                            raise DatabaseError(dbe, 'Raised by Authenticator.update_user_details()') from dbe
                 
                 return True
-            
             except AuthValidateError as ve:
                 raise ve
-            
             except AuthCreateError as ce:
                 raise ce
-    # done
+
     def delete_user(self, form_name: str, location: str='main') -> bool:
         """Delete user from session state and authentication table.
         
