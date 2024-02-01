@@ -522,6 +522,10 @@ class Authenticate:
                             self.api.update_by_id(st.session_state['id'], key, value)
                         except DbUpdateError as dbe:
                             raise DatabaseError(dbe, 'Raised by Authenticator.update_user_details()') from dbe
+                        
+                # Cookie management
+                self.cookie_manager.delete_cookie() # Delete old cookie
+                self.cookie_manager.create_cookie()
                 
                 return True
             except AuthValidateError as ve:
@@ -550,7 +554,10 @@ class Authenticate:
         if delete_user_form.form_submit_button('Delete user'):
             if self.username == form_input:
                 self._clear_userdata()
-                self.api.delete_user(self.username)
+                try:
+                    self.api.delete_user(self.username)
+                except Exception as e:
+                    raise DatabaseError(e, 'Raised by Authenticator.delete_user()') from e
                 return True
             else:
                 raise AuthFormError('Username does not match')
