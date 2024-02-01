@@ -3,14 +3,14 @@ from pydantic import ValidationError
 from sqlalchemy.engine import URL
 from sqlmodel import Session, SQLModel, create_engine, select
 # Custom imports
-from db import smitdb_secrets as secrets
+from db import smitdb_secrets as db_secrets
 from db.db_exceptions import (DbExceptionLogger,
                               DbEngineError,
                               DbReadError,
                               DbCreateError,
                               DbUpdateError,
-                              DbDeleteError,
-                              DatabaseError)
+                              DbDeleteError)
+from st_auth.auth_exceptions import AuthValidateError
 
 # Imports for type hints
 if TYPE_CHECKING:
@@ -51,7 +51,7 @@ class SmitDb:
         Reads the SMIT database and returns all SMIT users.
     """
 
-    def __init__(self, schema: SQLModel, api: 'SmitApi') -> None:
+    def __init__(self, schema: SQLModel, api: 'SmitApi', secrets = db_secrets) -> None:
         """
         Create engine object for database.
         DB credentials are stored in secrets.py.
@@ -114,7 +114,7 @@ class SmitDb:
 
         Example:
             new_entry = SQLModelSchema.model_validate(entry)
-            db_connection.add_schema(new_entry)
+            db_connection.create_instance(new_entry)
             
         Args:
             schema (SQLModel): The model instance representing the new entry.
@@ -321,9 +321,7 @@ class SmitDb:
             self.backend.logger.info('Created user %s in authentication table', user.username)
         
         except ValidationError as e:
-            for error in e.errors():
-                for key, value in error.items():
-                    print(f'{key}: {value}')
+            raise AuthValidateError from e
            
     # def select_username(self, value: str) -> tuple:
     #     """

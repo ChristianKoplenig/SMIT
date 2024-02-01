@@ -63,6 +63,7 @@ markers = [
     "osinterface: Move files, generate pandas dataframe",
     "persistence: Check dates variable",
     "scraping: Webdriver setup",
+    "database: Test database connection",
 ]
 
 [tool.tox]
@@ -82,7 +83,7 @@ legacy_tox_ini = """
     commands_pre =
         poetry install
     commands =
-        poetry run pytest --basetemp={envtmpdir} -v -m "smoke" #combine markers with or/and syntax
+        poetry run pytest --basetemp={envtmpdir} -v -m "database" #combine markers with or/and syntax
 
     [testenv:flake8]
     basepython = python3.11

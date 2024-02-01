@@ -5,7 +5,7 @@ import re
 from sqlmodel import Field, SQLModel
 from typing_extensions import Annotated, Doc
 
-from pydantic import StringConstraints, ValidationInfo, field_validator
+from pydantic import ConfigDict, StringConstraints, ValidationInfo, field_validator
 
 class AuthenticationSchema(SQLModel, table=True):
     """
@@ -103,8 +103,9 @@ class ConfigSchema(SQLModel, table=True):
                                      description="Preauthorized email addresses")
     
     # Needed for Column(JSON)
-    class Config:
-        arbitrary_types_allowed = True
+    # Config: ConfigDict = {
+    #     'arbitrary_types_allowed' : True
+    # }
     
     @field_validator('preauth_mails')
     @classmethod

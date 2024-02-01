@@ -5,6 +5,7 @@ user_data.tomldebug.log
 config/user_data.toml
 .streamlit/secrets.toml
 src/db/smitdb_secrets.py
+*/db_test_secrets*
 
 # application specific
 csv_raw/
