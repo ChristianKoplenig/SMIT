@@ -244,7 +244,7 @@ class SmitDb:
         except Exception as e:
             self._log_exception(e)
             raise DbDeleteError(f'Deleting row for "{column}": "{value}" failed') from e
-                     
+                   
     # Auth table specific methods
     def init_auth(self) -> None:
         """
