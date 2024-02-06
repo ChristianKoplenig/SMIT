@@ -159,11 +159,11 @@ def valid_users() -> dict[dict[str, str]]:
     user2: dict[str, str] = {
         'username': 'dummy_user2',
         'password': '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
-        'email': 'dummy@dummymail.com',
-        'sng_username': 'dummy_sng_login',
-        'sng_password': 'dummy_sng_password',
-        'daymeter': '199996',
-        'nightmeter': '199997'
+        'email': 'dummy2@dummymail.com',
+        'sng_username': 'dummy2_sng_login',
+        'sng_password': 'dummy2_sng_password',
+        'daymeter': '199994',
+        'nightmeter': '199995'
     }
     
     good_users: dict[str, dict[str, str]] = {

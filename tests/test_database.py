@@ -1,15 +1,14 @@
-
-
 import pytest
 from sqlalchemy import inspect
 from sqlmodel import select
 
 from pydantic import ValidationError
-
+from db.schemas import AuthenticationSchema
+from db.db_exceptions import DbReadError, DbUpdateError, DbDeleteError
 
 
 @pytest.mark.smoke
-#@pytest.mark.database
+@pytest.mark.database
 def test_create_table(db_instance_empty, session) -> None:
     """Verify test database setup.
 
@@ -35,15 +34,14 @@ def test_create_table(db_instance_empty, session) -> None:
     assert len(result) == 0
 
 @pytest.mark.smoke
-#@pytest.mark.database
+@pytest.mark.database
 def test_create_instance(db_instance_empty, session, valid_users) -> None:
-    """
-    Test case for creating an instance and adding it to the database.
+    """Create and read validate user instance.
 
     Args:
-        db_instance_empty: An instance of the empty database.
-        session: The database session.
-        valid_users: A dictionary of valid user data.
+        db_instance_empty (TestSmitDb): Test instance of the SmitDb class with an empty database.
+        session (Session): SQLAlchemy session object for database operations.
+        valid_users (Dict): Fixture dictionary of valid user data.
 
     Asserts:
         Exactly one instance is added to the database.
@@ -67,9 +65,9 @@ def test_model_validation(db_instance_empty, session, invalid_users) -> None:
     """Test validation and database insertion workflow.
 
     Args:
-        db_instance_empty: An instance of the empty database.
-        session: The database session.
-        invalid_users: A dictionary of invalid user data.
+        db_instance_empty (TestSmitDb): Test instance of the SmitDb class with an empty database.
+        session (Session): SQLAlchemy session object for database operations.
+        invalid_users (Dict): Fixture dictionary of valid user data.
 
     Asserts:
         - Raises a `ValidationError` for each invalid user.
@@ -85,5 +83,188 @@ def test_model_validation(db_instance_empty, session, invalid_users) -> None:
 
     # Verify that no instance is added to the database
     with session:
-        result = session.exec(select(db_instance_empty)).all()
+        result = session.exec(select(db_instance_empty.db_schema)).all()
         assert len(result) == 0
+
+@pytest.mark.smoke
+@pytest.mark.database
+def test_read_all(db_instance_empty, session, valid_users) -> None:
+    """Test read all columns from the database.
+
+    Args:
+        db_instance_empty (TestSmitDb): Test instance of the SmitDb class with an empty database.
+        session (Session): SQLAlchemy session object for database operations.
+        valid_users (Dict): Fixture dictionary of valid user data.
+
+    Asserts:
+        - Two instances are added to the database.
+        - The username for each added instance.
+        - Additional columns for each instance.
+    """
+    # Create an instance of the model
+    instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
+    instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
+    
+    with session:
+        # Add instance to the database
+        db_instance_empty.create_instance(instance)
+        db_instance_empty.create_instance(instance2)
+
+        # Verify that the instances is added to the database
+        result = db_instance_empty.read_all()
+        assert len(result) == 2
+        assert result[0].username == 'dummy_user'
+        assert result[1].username == 'dummy_user2'
+        assert result[0].sng_username == 'dummy_sng_login'
+        assert result[1].daymeter == 199994
+
+@pytest.mark.smoke
+@pytest.mark.database
+def test_read_column(db_instance_empty, session, valid_users) -> None:
+    """Test read column from the database.
+
+    Args:
+        db_instance_empty (TestSmitDb): Test instance of the SmitDb class with an empty database.
+        session (Session): SQLAlchemy session object for database operations.
+        valid_users (Dict): Fixture dictionary of valid user data.
+
+    Asserts:
+        - read_column() returns list.
+        - Two instances are added to the database.
+        - The username for each instance.
+        - Raise DbReadError for invalid input.
+    """
+    # Create an instance of the model
+    instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
+    instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
+    
+    with session:
+        # Add instance to the database
+        db_instance_empty.create_instance(instance)
+        db_instance_empty.create_instance(instance2)
+
+        # Verify that the instances is added to the database
+        result = db_instance_empty.read_column('username')
+        assert isinstance(result, list)
+        assert len(result) == 2
+        assert result[0] == 'dummy_user'
+        assert result[1] == 'dummy_user2'
+        
+        # Exception testing
+        with pytest.raises(DbReadError):
+            db_instance_empty.read_column('invalid_column')
+
+@pytest.mark.smoke
+@pytest.mark.database
+def test_select_where(db_instance_empty, session, valid_users) -> None:
+    """Test select where clause from the database.
+
+    Args:
+        db_instance_empty (TestSmitDb): Test instance of the SmitDb class with an empty database.
+        session (Session): SQLAlchemy session object for database operations.
+        valid_users (Dict): Fixture dictionary of valid user data.
+
+    Asserts:
+        - select_where() returns authenthication schema instance.
+        - One extra field for the selected instance.
+        - Raise DbReadError for invalid input.
+    """
+    # Create an instance of the model
+    instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
+    instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
+    
+    with session:
+        # Add instance to the database
+        db_instance_empty.create_instance(instance)
+        db_instance_empty.create_instance(instance2)
+
+        # Verify that the instances is added to the database
+        result = db_instance_empty.select_where('username', 'dummy_user')
+        assert isinstance(result, AuthenticationSchema)
+        assert result.sng_username == 'dummy_sng_login'
+
+        # Exception testing
+        with pytest.raises(DbReadError):
+            db_instance_empty.select_where('invalid_column', 'dummy_user')
+            db_instance_empty.select_where('username', 'nonexistent_user')
+
+@pytest.mark.smoke
+@pytest.mark.database
+def test_update_where(db_instance_empty, session, valid_users) -> None:
+    """Test update where clause from the database.
+
+    Args:
+        db_instance_empty (TestSmitDb): Test instance of the SmitDb class with an empty database.
+        session (Session): SQLAlchemy session object for database operations.
+        valid_users (Dict): Fixture dictionary of valid user data.
+
+    Asserts:
+        - update_where() returns True on success.
+        - Updated field value.
+        - Raise DbUpdateError for invalid input.
+        - No database update on error.
+    """
+    # Create an instance of the model
+    instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
+    instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
+    
+    with session:
+        # Add instance to the database
+        db_instance_empty.create_instance(instance)
+        db_instance_empty.create_instance(instance2)
+
+        # Verify that the instances is added to the database
+        db_instance_empty.update_where('username', 'dummy_user', 'updated_username')
+        result = db_instance_empty.select_where('sng_username', 'dummy_sng_login')
+        assert result.username == 'updated_username'
+        assert True
+
+        # Exception testing
+        with pytest.raises(DbUpdateError):
+            db_instance_empty.update_where('invalid_column', 'dummy_user', 'updated_username')
+            db_instance_empty.update_where('username', 'nonexistent_user', 'updated_username')
+            db_instance_empty.update_where('username', 'updated_username', 'dummy_user2') # Duplicate username
+            
+        # Verify that invalid update does not change the database
+        new_result = db_instance_empty.select_where('sng_username', 'dummy_sng_login')
+        assert new_result.username == 'updated_username'
+            
+@pytest.mark.smoke
+@pytest.mark.database
+def test_delete_where(db_instance_empty, session, valid_users) -> None:
+    """Test delete where clause from the database.
+
+    Args:
+        db_instance_empty (TestSmitDb): Test instance of the SmitDb class with an empty database.
+        session (Session): SQLAlchemy session object for database operations.
+        valid_users (Dict): Fixture dictionary of valid user data.
+
+    Asserts:
+        - delete_where() returns True on success.
+        - Raise DbDeleteError for invalid input.
+        - No deletion on error.
+    """
+    # Create an instance of the model
+    instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
+    instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
+    
+    with session:
+        # Add instance to the database
+        db_instance_empty.create_instance(instance)
+        db_instance_empty.create_instance(instance2)
+
+        # Verify that the instances is deleted from the database
+        db_instance_empty.delete_where('username', 'dummy_user')
+        result = db_instance_empty.read_all()
+        assert len(result) == 1
+        assert result[0].username == 'dummy_user2'
+        
+        # Exception testing
+        with pytest.raises(DbDeleteError):
+            db_instance_empty.delete_where('invalid_column', 'dummy_user2')
+            db_instance_empty.delete_where('username', 'dummy_user')
+            
+        # Verify that invalid delete does not change the database
+        new_result = db_instance_empty.read_all()
+        assert len(new_result) == 1
+        assert new_result[0].username == 'dummy_user2'
