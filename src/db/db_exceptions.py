@@ -57,7 +57,6 @@ class DatabaseError(Exception):
     def __str__(self) -> str:
         return f"{self.proccessed_message}"
 
-
 class DbEngineError(Exception):
     """
     Exceptions raised for the database connection.
