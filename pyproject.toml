@@ -48,12 +48,14 @@ tox = "^4.11.3"
 tox-poetry-installer = "^1.0.0b1"
 
 [tool.pyright]
+include = ["src"]
 exclude = ["tests",
     "**/__pycache__",
     ".pytest_cache",
     ".tox",
     ".venv",
-    ".vscode"]
+    ".dummy",
+    "/opt"]
 
 [tool.pytest.ini_options]
 markers = [ 
