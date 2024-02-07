@@ -6,7 +6,7 @@ import jwt
 
 from smit.smit_api import SmitApi
 
-from st_auth.auth_exceptions import AuthExceptionLogger, AuthCookieError
+from authentication.auth_exceptions import AuthExceptionLogger, AuthCookieError
 
 class CookieManager:
     """Cookie management for Streamlit application.

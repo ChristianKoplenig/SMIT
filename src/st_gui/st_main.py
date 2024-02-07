@@ -8,7 +8,7 @@ from db.schemas import AuthenticationSchema, ConfigSchema
 
 # Api import
 from smit.smit_api import SmitApi
-from st_auth.auth_api import AuthApi
+from authentication.auth_api import AuthApi
 
 #show_pages_from_config()
 

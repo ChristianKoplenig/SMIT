@@ -11,7 +11,7 @@ packages = [
     {include = "smit", from = "src"},
     {include = "st_gui", from  = "src"},
     {include = "db", from = "src"},
-    {include = "st_auth", from = "src"},
+    {include = "authentication", from = "src"},
 ]
 
 [tool.poetry.dependencies]
@@ -87,7 +87,7 @@ legacy_tox_ini = """
     commands_pre =
         poetry install
     commands =
-        poetry run pytest --basetemp={envtmpdir} -v -m "db_engine" #combine markers with or/and syntax
+        poetry run pytest --basetemp={envtmpdir} -v -m "smoke" #combine markers with or/and syntax
 
     [testenv:flake8]
     basepython = python3.11

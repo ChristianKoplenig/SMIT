@@ -1,10 +1,10 @@
 import streamlit as st
 from db.db_exceptions import DbReadError, DbUpdateError
-from st_auth.auth_exceptions import AuthCreateError, AuthValidateError, AuthFormError
+from authentication.auth_exceptions import AuthCreateError, AuthValidateError, AuthFormError
 from pydantic import ValidationError
 
 # Custom modules
-import st_auth.authenticate as stauth
+import authentication.authenticate as stauth
 
 authenticator = stauth.Authenticate(
     #preauthorization=True,

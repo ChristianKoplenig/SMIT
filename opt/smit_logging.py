@@ -1,20 +1,21 @@
-"""Provide SMIT backend functionality. 
+"""Provide logging functionality.
 """
 import os
 import logging
 
-class SmitApi:
-    """SMIT Backend functionality.
+class SmitLogger:
+    """SMIT logging functionality.
     """
     def __init__(self) -> None:
 
         # Logging, Path hardcoded because of init order
         logfilepath = './log/app.log'
         self._setup_logger(logfilepath)
-        msg  = f'Class {self.__class__.__name__} of the '
-        msg += f'module {self.__class__.__module__} '
-        msg +=  'successfully initialized.'
-        self.logger.debug(msg)
+
+        # Create init log entry
+        self.log_module_init(self)
+
+
         
     def _setup_logger(self, filepath) -> None:
         """Configuration for logging.
@@ -54,6 +55,32 @@ class SmitApi:
             self.logger.addHandler(file_handler)
             self.logger.addHandler(console_handler)
             
+    def log_module_init(self, init_self) -> None:
+        """Generate log entry for module init.
+
+        This method generates a log message indicating that the class
+        of the module has been successfully initialized.
+
+        Returns:
+            None
+        """
+        msg = f'Class {init_self.__class__.__name__} of the '
+        msg += f'module {init_self.__module__} '
+        msg += 'successfully initialized.'
+        self.logger.debug(msg)
+
+    def debug(self, msg: str, init_self) -> None:
+        """Generate log entry with DEBUG level.
+
+        Args:
+            msg (str): The message to be logged.
+
+        Returns:
+            None
+        """
+        
+        self.logger.debug(f'Class: {self.__class__.__name__}, Message: {msg}')
+        
     # #### Check if this is needed?
     # # Return Logger
     # def get_logger(self) -> logging.Logger:
@@ -66,3 +93,7 @@ class SmitApi:
     #     """
     #     return self.logger
 
+    def __repr__(self) -> str:
+        return f"Module '{self.__class__.__module__}.{self.__class__.__name__}'"
+
+#SmitLogger()

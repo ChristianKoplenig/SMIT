@@ -6,7 +6,7 @@ from db.schemas import AuthenticationSchema
 
 # Error handling
 import db.db_exceptions as db_exc
-from st_auth.auth_exceptions import (AuthExceptionLogger,
+from authentication.auth_exceptions import (AuthExceptionLogger,
                                      AuthCreateError,
                                      AuthUpdateError,
                                      AuthWriteError,
