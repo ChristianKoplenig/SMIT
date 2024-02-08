@@ -4,7 +4,7 @@ import streamlit as st
 import extra_streamlit_components as stx
 import jwt
 
-from smit.smit_api import SmitApi
+from smit.smit_api import CoreApi
 
 from authentication.auth_exceptions import AuthExceptionLogger, AuthCookieError
 
@@ -46,7 +46,7 @@ class CookieManager:
         self.exp_date = self._set_exp_date()
         
         # Use logger from SmitApi class
-        self.logger = SmitApi().logger
+        self.logger = CoreApi().logger
         
         msg  = f'Class {self.__class__.__name__} of the '
         msg += f'module {self.__class__.__module__} '

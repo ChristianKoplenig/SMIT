@@ -7,7 +7,7 @@ from db.smitdb import SmitDb
 from db.schemas import AuthenticationSchema, ConfigSchema
 
 # Api import
-from smit.smit_api import SmitApi
+from smit.smit_api import CoreApi
 from authentication.auth_api import AuthApi
 
 #show_pages_from_config()
@@ -24,7 +24,7 @@ st.session_state['register_btn_clicked'] = False
 def smit_init() -> None:
     """Init backend api.
     """
-    st.session_state.smit_api = SmitApi()
+    st.session_state.smit_api = CoreApi()
     st.session_state.smit_api.logger.info('Smit api added to session state')
 
 # Add table connections to session state

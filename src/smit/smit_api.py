@@ -3,7 +3,7 @@
 import os
 import logging
 
-class SmitApi:
+class CoreApi:
     """SMIT Backend functionality.
     """
     def __init__(self) -> None:

@@ -1,7 +1,7 @@
 import pytest
 from sqlmodel import Session, select
 
-from smit.smit_api import SmitApi
+from smit.smit_api import CoreApi
 from db.smitdb import SmitDb
 from db.schemas import AuthenticationSchema
 
@@ -19,7 +19,7 @@ class TestSmitDb(SmitDb):
     
     def __init__(self) -> None:
         super().__init__(schema=AuthenticationSchema,
-                         api=SmitApi(),
+                         api=CoreApi(),
                          secrets=test_secrets)
         
     def delete_all_entries(self, session: Session) -> None:

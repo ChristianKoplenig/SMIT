@@ -12,8 +12,23 @@ packages = [
     {include = "st_gui", from  = "src"},
     {include = "db", from = "src"},
     {include = "authentication", from = "src"},
+    {include = "api", from = "src"},
 ]
 
+# Code checks, linting...
+[tool.pyright]
+include = ["src"]
+exclude = ["**/__pycache__",
+    ".pytest_cache",
+    ".tox",
+    ".venv",
+    ".dummy",
+    "/opt"]
+
+[tool.ruff.lint]
+select = ["E", "F"]
+
+# Dependencies
 [tool.poetry.dependencies]
 python = "^3.11"
 matplotlib = "^3.8.0"
@@ -47,17 +62,13 @@ pytest = "^7.4.2"
 tox = "^4.11.3"
 tox-poetry-installer = "^1.0.0b1"
 pytest-mock = "^3.12.0"
+ruff = "^0.2.1"
 
-[tool.pyright]
-include = ["src"]
-exclude = ["tests",
-    "**/__pycache__",
-    ".pytest_cache",
-    ".tox",
-    ".venv",
-    ".dummy",
-    "/opt"]
+[tool.poetry.group.fastapi.dependencies]
+fastapi = "^0.109.2"
+uvicorn = {extras = ["standard"], version = "^0.27.0.post1"}
 
+# Testing
 [tool.pytest.ini_options]
 markers = [ 
     "smoke: Validate all core methods",
@@ -87,14 +98,14 @@ legacy_tox_ini = """
     commands_pre =
         poetry install
     commands =
-        poetry run pytest --basetemp={envtmpdir} -v -m "smoke" #combine markers with or/and syntax
+        poetry run pytest --basetemp={envtmpdir} -v -m "database" #combine markers with or/and syntax
 
     [testenv:flake8]
     basepython = python3.11
     deps = flake8
     commands = flake8 --ignore=E201,E202,E203,E221,E222,E241 src
 """
-
+# Build
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

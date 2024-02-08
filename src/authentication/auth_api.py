@@ -1,8 +1,13 @@
+from hmac import new
 import streamlit as st
 from pydantic import ValidationError
 
 # Database imports
-from db.schemas import AuthenticationSchema
+from db.schemas import AuthenticationSchema, ConfigSchema
+from db.smitdb import SmitDb
+
+# Backend
+from smit.smit_api import CoreApi
 
 # Error handling
 import db.db_exceptions as db_exc
@@ -30,13 +35,16 @@ class AuthApi:
             Retrieves a user from the database based on the provided username.
     """
     def __init__(self):
-        self.auth_connection = st.session_state.auth_connection
-        self.config_connection = st.session_state.config_connection
+        # Backend
+        self.logger = CoreApi().logger
+        self.auth_connection = SmitDb(AuthenticationSchema, self)
+        self.config_connection = SmitDb(ConfigSchema, self)
 
+        # Logging
         msg  = f'Class {self.__class__.__name__} of the '
         msg += f'module {self.__class__.__module__} '
         msg +=  'successfully initialized.'
-        st.session_state.smit_api.logger.debug(msg)
+        self.logger.debug(msg)
 
     def _log_exception(self, e: Exception) -> None:
             """
@@ -160,7 +168,7 @@ class AuthApi:
         try:
             new_user_model: AuthenticationSchema = AuthenticationSchema.model_validate(new_user)
             self.auth_connection.create_instance(new_user_model)
-            return True
+            return new_user_model
         
         except ValidationError as ve:
             raise AuthValidateError(ve) from ve
@@ -262,22 +270,8 @@ class AuthApi:
             raise AuthDeleteError(f'Failed to delete "{email}" from preauthorized list') from e
 
     
-################# old ############################
-    # def create_user_models(self, users: dict) -> dict:
-    #     """
-    #     Return dictionary with validated user models from AuthDbSchema.
+############# Debugging #############
+# au = AuthApi().get_user('qqqqq')
 
-    #     Args:
-    #         users (dict): A dictionary containing user data grouped by user id from auth table.
-
-    #     Returns:
-    #         dict: A dictionary containing user models, where the keys are user IDs and the values are the corresponding models.
-    #     """
-    #     models: dict = {}
-    #     if 'uid' in users:
-    #         for uid in users['uid'].values():
-    #             models[uid['id']] = AuthDbSchema.model_validate(uid)
-    #     return models
-
-
-
+# for key, value in au.items():
+#     print(f'{key}: {value}')
