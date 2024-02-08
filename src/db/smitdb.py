@@ -13,7 +13,7 @@ from db import smitdb_secrets as db_secrets
 
 # Imports for type hints
 if TYPE_CHECKING:
-    from smit.smit_api import SmitApi
+    from smit.smit_api import CoreApi
 
 class SmitDb:
     """
@@ -50,7 +50,7 @@ class SmitDb:
         Reads the SMIT database and returns all SMIT users.
     """
     
-    def __init__(self, schema: SQLModel, api: 'SmitApi', secrets = db_secrets) -> None:
+    def __init__(self, schema: SQLModel, api: 'CoreApi', secrets = db_secrets) -> None:
         """Create engine object for database.
         
         DB credentials are stored in secrets.py.
@@ -114,7 +114,7 @@ class SmitDb:
             self._log_exception(e)
             raise e
         
-    def create_instance(self, schema: SQLModel) -> None:
+    def create_instance(self, schema: SQLModel, session: Session = None) -> None:
         """Use SQLModel schema to add a new entry to the database.
 
         Example:
@@ -124,16 +124,20 @@ class SmitDb:
         Args:
             schema (SQLModel): The model instance representing the new entry.
         """
+        if not session:
+            session = Session(self.engine)
+            
         try:
-            with Session(self.engine) as session:
+            with session:
                 session.add(schema)
                 session.commit()
                 self.backend.logger.info('Added instance of %s to database', schema.__class__.__name__)
+                #return schema
         except Exception as e:
             self._log_exception(e)
             raise DbCreateError(f'Could not add instance of {schema.__class__.__name__} to database') from e
             
-    def read_all(self) -> tuple:
+    def read_all(self, session: Session = None) -> tuple:
         """Read all data from the connected database table.
         
         Example:
@@ -143,15 +147,17 @@ class SmitDb:
         Returns:
             tuple: Each row as tuple with columns as attributes.
         """
+        if not session:
+            session = Session(self.engine)
         try:
-            with Session(self.engine) as session:
+            with session:
                 read_all: tuple = session.exec(select(self.db_schema)).all()
                 return read_all
         except Exception as e:
             self._log_exception(e)
             raise DbReadError(f'Reading data for schema {self.db_schema.__name__} failed') from e
         
-    def read_column(self, column: str) -> list:
+    def read_column(self, column: str, session: Session = None) -> list:
         """Read all data in the given column.
 
         Args:
@@ -163,8 +169,10 @@ class SmitDb:
         Raises:
             ReadError: If reading data for the column fails.
         """
+        if not session:
+            session = Session(self.engine)
         try:
-            with Session(self.engine) as session:
+            with session:
                 statement = select(getattr(self.db_schema, column))
                 all_entries: list = session.exec(statement).all()
                 return all_entries
@@ -172,7 +180,7 @@ class SmitDb:
             self._log_exception(e)
             raise DbReadError(f'Reading column: "{column}" from schema: "{self.db_schema}" failed') from e
         
-    def select_where(self, column: str, value: str) -> tuple:
+    def select_where(self, column: str, value: str, session: Session = None) -> tuple:
         """Select row for value found in column.
 
         Args:
@@ -182,8 +190,10 @@ class SmitDb:
         Returns:
             Selected row as tuple.
         """
+        if not session:
+            session = Session(self.engine)
         try:
-            with Session(self.engine) as session:
+            with session:
                 statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
                 results = session.exec(statement)
                 row = results.one()
@@ -194,7 +204,7 @@ class SmitDb:
             self._log_exception(e)
             raise DbReadError(f'Selecting column: "{column}" and value: "{value}" failed') from e
         
-    def update_where(self, column: str, value: str, new_value: str) -> bool:
+    def update_where(self, column: str, value: str, new_value: str, session: Session = None) -> bool:
         """Update row for value found in column.
 
         Args:
@@ -205,8 +215,10 @@ class SmitDb:
         Returns:
             bool: True if update was successful, False otherwise.
         """
+        if not session:
+            session = Session(self.engine)
         try:
-            with Session(self.engine) as session:
+            with session:
                 statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
                 results = session.exec(statement)
                 row = results.one()
@@ -221,7 +233,7 @@ class SmitDb:
             self._log_exception(e)
             raise DbUpdateError(f'In column: "{column}" select value: "{value}" update with: "{new_value}" failed') from e
         
-    def delete_where(self, column: str, value: str) -> None:
+    def delete_where(self, column: str, value: str, session: Session = None) -> None:
         """Delete row for value found in column.
 
         Args:
@@ -231,8 +243,10 @@ class SmitDb:
         Returns:
             None
         """
+        if not session:
+            session = Session(self.engine)
         try:
-            with Session(self.engine) as session:
+            with session:
                 statement = select(self.db_schema).where(getattr(self.db_schema, column) == value)
                 results = session.exec(statement)
                 row = results.one()

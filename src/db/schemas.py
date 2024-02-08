@@ -32,7 +32,7 @@ class AuthenticationSchema(SQLModel, table=True):
                         StringConstraints(strip_whitespace=True, 
                             to_lower=True, 
                             pattern=r'^[A-Za-z0-9_]+$'),
-                        Doc("Authentication username."),
+                        Doc("AAAAuthentication username."),
                         ] = Field(index=True,
                                   description="Authentication username.",
                                   unique=True)    
