@@ -175,7 +175,7 @@ class SmitDb:
 
     def read_column(
         self, column: str, session: Optional[Session] = None
-    ) -> Sequence[SQLModel]:
+    ) -> Sequence[str]:
         """Read all data in the given column.
 
         Args:

@@ -36,7 +36,10 @@ class AuthenticationSchema(SQLModel, table=True):
     username: Annotated[
         str,
         StringConstraints(
-            strip_whitespace=True, to_lower=True, pattern=r"^[A-Za-z0-9_]+$"
+            strip_whitespace=True,
+            to_lower=True,
+            pattern=r"^[A-Za-z0-9_]+$",
+            min_length=5,
         ),
         Field(index=True, description="Authentication username.", unique=True),
     ]
