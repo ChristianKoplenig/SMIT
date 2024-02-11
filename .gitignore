@@ -13,6 +13,7 @@ csv_workdir/
 .dummy/
 log/dates.pkl
 .flask/
+.ruff_cache/
 
 # documentation
 docs/SMIT

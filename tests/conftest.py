@@ -1,11 +1,15 @@
+from typing import Any, Generator
+
 import pytest
 from sqlmodel import Session, select
 
-from smit.smit_api import CoreApi
-from db.smitdb import SmitDb
+# Custom imports
 from db.schemas import AuthenticationSchema
+from db.smitdb import SmitDb
+from smit.smit_api import CoreApi
 
 from . import db_test_secrets as test_secrets
+
 
 class TestSmitDb(SmitDb):
     """Connect to test database.
@@ -50,7 +54,7 @@ def db_instance(scope="session"):
   
   
 @pytest.fixture  
-def session(db_instance, scope="session"):  
+def session(db_instance: TestSmitDb, scope="session") -> Generator[Session, Any, None]:
     """  
     Yield a SqlModel Session with TestSmitDb connection.  
     """  
@@ -59,7 +63,7 @@ def session(db_instance, scope="session"):
     session.close()  
 
 @pytest.fixture  
-def db_instance_empty(db_instance, session, scope="function"):  
+def db_instance_empty(db_instance: TestSmitDb, session: Session, scope="function"):  
     """  
     Yield clean authentication table.  
     """  
@@ -72,14 +76,14 @@ def db_instance_empty(db_instance, session, scope="function"):
     db_instance.delete_all_entries(session=session)
 
 @pytest.fixture
-def invalid_users() -> list[dict[str, str]]:
+def invalid_users() -> Generator[dict[str, dict[str, str]], None, None]:
     """
     Generate a dictionairy of invalid user data.
     
     Returns a dict with key:value pairs from `AuthenticationSchema` class.
             
-    Returns:
-        list[dict[str, str]]: A list of dictionaries, each representing an invalid user.
+    Yields:
+        dict[str, dict[str, str]]: A dictionary representing an invalid user.
     """
     no_username: dict[str, str] = {
             'username': '',
@@ -137,14 +141,14 @@ def invalid_users() -> list[dict[str, str]]:
     yield fail_users
 
 @pytest.fixture
-def valid_users() -> dict[dict[str, str]]:
+def valid_users() -> Generator[dict[str, dict[str, str]], None, None]:
     """
     Generate a dictionary of valid user data.
     
     Returns a dict with key:value pairs from `AuthenticationSchema` class.
     
     Returns:
-        dict[dict[str, str]]: A dictionary containing valid user information.
+        dict[str, str]: A dictionary containing valid user information.
     """
     user1: dict[str, str] = {
         'username': 'dummy_user',

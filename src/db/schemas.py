@@ -1,11 +1,11 @@
-from typing import Optional
-from datetime import datetime
 import re
+from datetime import datetime
+from typing import Annotated, Any, Optional
 
+from pydantic import StringConstraints, ValidationInfo, field_validator
+from sqlalchemy import UniqueConstraint
 from sqlmodel import Field, SQLModel
-from typing_extensions import Annotated, Doc
 
-from pydantic import ConfigDict, StringConstraints, ValidationInfo, field_validator
 
 class AuthenticationSchema(SQLModel, table=True):
     """
@@ -21,50 +21,79 @@ class AuthenticationSchema(SQLModel, table=True):
         daymeter (str, optional): The day meter value.
         nightmeter (str, optional): The night meter value.
     """
-    __tablename__ = 'auth_dev'
+
+    __tablename__: Any = "auth_dev"
+    __table_args__: tuple[UniqueConstraint] = (UniqueConstraint("username"),)
 
     # Generated on commit
-    id: Optional[int] = Field(default=None, primary_key=True)
-    created_on: Optional[datetime] = Field(default_factory=datetime.now, description="User creation date")
-    
+    id: Annotated[Optional[int], Field(default=None, primary_key=True)]
+    created_on: Annotated[
+        Optional[datetime],
+        Field(default_factory=datetime.now, description="User creation date"),
+    ]
+
     # Authentication fields
-    username: Annotated[str, 
-                        StringConstraints(strip_whitespace=True, 
-                            to_lower=True, 
-                            pattern=r'^[A-Za-z0-9_]+$'),
-                        Doc("AAAAuthentication username."),
-                        ] = Field(index=True,
-                                  description="Authentication username.",
-                                  unique=True)    
-    
-    password: str = Field(description="Hash of Authentication password")
-    
+    username: Annotated[
+        str,
+        StringConstraints(
+            strip_whitespace=True, to_lower=True, pattern=r"^[A-Za-z0-9_]+$"
+        ),
+        Field(index=True, description="Authentication username.", unique=True),
+    ]
+
+    password: Annotated[str, Field(description="Hash of Authentication password")]
+
     # Additional fields
-    # Define according to individual needs 
+    # Define according to individual needs
     # Fields containing the string 'password' will be hashed automatically
-    email: Optional[str] = Field(default=None, description="Mail address for pwd recovery")
-    sng_username: Optional[str] = Field(index=True, 
-                                      description="Electricity provider username.") 
-    sng_password: Optional[str] = Field(default=None, description="Elictricity provider password")
-    daymeter: Optional[int] = Field(default=None, description="Day meter endpoint number")
-    nightmeter: Optional[int] = Field(default=None, description="Night meter endpoint number")
-    
+    email: Annotated[
+        Optional[str],
+        StringConstraints(
+            pattern=r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        ),
+        Field(
+            default=None,
+            description="Mail address for pwd recovery",
+        ),
+    ]
+
+    sng_username: Annotated[
+        Optional[str],
+        StringConstraints(pattern=r"^[A-Za-z0-9_]+$"),
+        Field(index=True, description="Electricity provider username."),
+    ]
+    sng_password: Annotated[
+        Optional[str], Field(default=None, description="Elictricity provider password")
+    ]
+    daymeter: Annotated[
+        Optional[int],
+        Field(default=None,
+              description="Day meter endpoint number",
+              regex=r"^\d{6}$")
+    ]
+    nightmeter: Annotated[
+        Optional[int],
+        Field(default=None,
+              description="Day meter endpoint number",
+              regex=r"^\d{6}$"),
+    ]
+
     # Validation
-    @field_validator('username', 'sng_username')
+    @field_validator("username", "sng_username")
     @classmethod
     def validate_usernames(cls, v: str, info: ValidationInfo) -> str:
         if len(v) < 5:
             raise ValueError(f"{info.field_name} must be at least 5 characters long")
         return v
 
-    @field_validator('password', 'sng_password')
+    @field_validator("password", "sng_password")
     @classmethod
     def validate_passwords(cls, v: str, info: ValidationInfo) -> str:
         if len(v) < 5:
             raise ValueError(f"{info.field_name} must be at least 5 characters long")
         return v
-    
-    @field_validator('email')
+
+    @field_validator("email")
     @classmethod
     def validate_email(cls, v: str, info: ValidationInfo) -> str:
         pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
@@ -72,13 +101,14 @@ class AuthenticationSchema(SQLModel, table=True):
             raise ValueError(f"{info.field_name} must be a valid email address")
         return v
 
-    @field_validator('daymeter', 'nightmeter')
+    @field_validator("daymeter", "nightmeter")
     @classmethod
     def validate_meter(cls, v: str, info: ValidationInfo) -> str:
         if len(str(v)) != 6:
             raise ValueError(f"{info.field_name} number must be 6 characters long")
         return v
-    
+
+
 class ConfigSchema(SQLModel, table=True):
     """
     Represents the authentication configuration schema.
@@ -89,25 +119,36 @@ class ConfigSchema(SQLModel, table=True):
         preauth_mails (Optional[list]): The list of preauthorized email addresses.
 
     Methods:
-        validate_preauth(cls, v: str, info: ValidationInfo) -> str: 
+        validate_preauth(cls, v: str, info: ValidationInfo) -> str:
             Validates the email addresses for .
 
     """
 
-    __tablename__ = 'auth_config'
-    
-    id: Optional[int] = Field(default=None, primary_key=True)
-    created_on: Optional[datetime] = Field(default_factory=datetime.now, description="User creation date")
-    
-    preauth_mails: Optional[str] = Field(default=None,
-                                     description="Preauthorized email addresses")
-    
+    __tablename__: Any = "auth_config"
+
+    id: Annotated[Optional[int], Field(default=None, primary_key=True)]
+    created_on: Annotated[
+        Optional[datetime],
+        Field(default_factory=datetime.now, description="User creation date"),
+    ]
+
+    preauth_mails: Annotated[
+        Optional[str],
+        StringConstraints(
+            pattern=r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        ),
+        Field(
+            default=None,
+            description="Mail address for identification of preauthorized users",
+        ),
+    ]
+
     # Needed for Column(JSON)
     # Config: ConfigDict = {
     #     'arbitrary_types_allowed' : True
     # }
-    
-    @field_validator('preauth_mails')
+
+    @field_validator("preauth_mails")
     @classmethod
     def validate_preauth(cls, v: str, info: ValidationInfo) -> str:
         pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
