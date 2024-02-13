@@ -5,7 +5,7 @@ from db.db_exceptions import DbCreateError, DbEngineError
 from sqlmodel import Session
 
 from db.smitdb import SmitDb
-from db.schemas import AuthenticationSchema
+from db.models import AuthenticationSchema
 from smit.smit_api import CoreApi
 
 from . import db_test_secrets as secrets

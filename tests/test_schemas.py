@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 @pytest.mark.smoke
 @pytest.mark.schema
 def test_invalid_users(
-    invalid_users: dict[str, dict[str, str]], db_instance_empty: TestSmitDb
+    invalid_users: dict[str, dict[str, str]],
+    db_instance_empty: TestSmitDb
 ) -> None:
     for user in invalid_users:
         with pytest.raises(ValueError):
@@ -24,7 +25,8 @@ def test_invalid_users(
 @pytest.mark.smoke
 @pytest.mark.schema
 def test_valid_users(
-    valid_users: dict[str, dict[str, str]], db_instance_empty: TestSmitDb
+    valid_users: dict[str, dict[str, str]],
+    db_instance_empty: TestSmitDb
 ) -> None:
     for user in valid_users:
         db_instance_empty.db_schema.model_validate(valid_users[user])
@@ -34,13 +36,13 @@ def test_valid_users(
 def test_unique_constraint(
     valid_users: dict[str, dict[str, str]],
     db_instance_empty: TestSmitDb,
-    session,
+    test_session,
 ) -> None:
     user1: SQLModel = db_instance_empty.db_schema.model_validate(valid_users["dummy_user"])
     user2: SQLModel = db_instance_empty.db_schema.model_validate(valid_users["dummy_user"])
 
-    with session:
+    with test_session:
         with pytest.raises(IntegrityError):
-            session.add(user1)
-            session.add(user2)
-            session.commit()
+            test_session.add(user1)
+            test_session.add(user2)
+            test_session.commit()

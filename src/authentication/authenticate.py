@@ -1,7 +1,7 @@
 import bcrypt
 import streamlit as st
 # Import python modules
-from db.schemas import AuthenticationSchema
+from db.models import AuthenticationSchema
 from smit.cookie_manager import CookieManager
 # Exception handling
 from authentication.auth_exceptions import (AuthFormError,

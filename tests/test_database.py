@@ -3,13 +3,13 @@ from sqlalchemy import inspect
 from sqlmodel import select
 
 from pydantic import ValidationError
-from db.schemas import AuthenticationSchema
+from db.models import AuthenticationSchema
 from db.db_exceptions import DbReadError, DbUpdateError, DbDeleteError
 
 
 @pytest.mark.smoke
 @pytest.mark.database
-def test_create_table(db_instance_empty, session) -> None:
+def test_create_table(db_instance_empty, test_session) -> None:
     """Verify test database setup.
 
     Check creation of authentication table.
@@ -30,12 +30,12 @@ def test_create_table(db_instance_empty, session) -> None:
     
     # Read all entries from the database
     statement = select(db_instance_empty.db_schema)
-    result = session.exec(statement).all()
+    result = test_session.exec(statement).all()
     assert len(result) == 0
 
 @pytest.mark.smoke
 @pytest.mark.database
-def test_create_instance(db_instance_empty, session, valid_users) -> None:
+def test_create_instance(db_instance_empty, test_session, valid_users) -> None:
     """Create and read validate user instance.
 
     Args:
@@ -55,13 +55,13 @@ def test_create_instance(db_instance_empty, session, valid_users) -> None:
     db_instance_empty.create_instance(instance)
     
     # Verify that the instance is added to the database
-    result = session.exec(select(db_instance_empty.db_schema)).all()
+    result = test_session.exec(select(db_instance_empty.db_schema)).all()
     assert len(result) == 1
     assert result[0].username == 'dummy_user'
 
 @pytest.mark.smoke
 @pytest.mark.database
-def test_model_validation(db_instance_empty, session, invalid_users) -> None:
+def test_model_validation(db_instance_empty, test_session, invalid_users) -> None:
     """Test validation and database insertion workflow.
 
     Args:
@@ -82,13 +82,13 @@ def test_model_validation(db_instance_empty, session, invalid_users) -> None:
         assert exc_info.type.__name__ == 'ValidationError'
 
     # Verify that no instance is added to the database
-    with session:
-        result = session.exec(select(db_instance_empty.db_schema)).all()
+    with test_session:
+        result = test_session.exec(select(db_instance_empty.db_schema)).all()
         assert len(result) == 0
 
 @pytest.mark.smoke
 @pytest.mark.database
-def test_read_all(db_instance_empty, session, valid_users) -> None:
+def test_read_all(db_instance_empty, test_session, valid_users) -> None:
     """Test read all columns from the database.
 
     Args:
@@ -105,7 +105,7 @@ def test_read_all(db_instance_empty, session, valid_users) -> None:
     instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
     instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
     
-    with session:
+    with test_session:
         # Add instance to the database
         db_instance_empty.create_instance(instance)
         db_instance_empty.create_instance(instance2)
@@ -120,7 +120,7 @@ def test_read_all(db_instance_empty, session, valid_users) -> None:
 
 @pytest.mark.smoke
 @pytest.mark.database
-def test_read_column(db_instance_empty, session, valid_users) -> None:
+def test_read_column(db_instance_empty, test_session, valid_users) -> None:
     """Test read column from the database.
 
     Args:
@@ -138,7 +138,7 @@ def test_read_column(db_instance_empty, session, valid_users) -> None:
     instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
     instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
     
-    with session:
+    with test_session:
         # Add instance to the database
         db_instance_empty.create_instance(instance)
         db_instance_empty.create_instance(instance2)
@@ -156,7 +156,7 @@ def test_read_column(db_instance_empty, session, valid_users) -> None:
 
 @pytest.mark.smoke
 @pytest.mark.database
-def test_select_where(db_instance_empty, session, valid_users) -> None:
+def test_select_where(db_instance_empty, test_session, valid_users) -> None:
     """Test select where clause from the database.
 
     Args:
@@ -173,7 +173,7 @@ def test_select_where(db_instance_empty, session, valid_users) -> None:
     instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
     instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
     
-    with session:
+    with test_session:
         # Add instance to the database
         db_instance_empty.create_instance(instance)
         db_instance_empty.create_instance(instance2)
@@ -190,7 +190,7 @@ def test_select_where(db_instance_empty, session, valid_users) -> None:
 
 @pytest.mark.smoke
 @pytest.mark.database
-def test_update_where(db_instance_empty, session, valid_users) -> None:
+def test_update_where(db_instance_empty, test_session, valid_users) -> None:
     """Test update where clause from the database.
 
     Args:
@@ -208,7 +208,7 @@ def test_update_where(db_instance_empty, session, valid_users) -> None:
     instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
     instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
     
-    with session:
+    with test_session:
         # Add instance to the database
         db_instance_empty.create_instance(instance)
         db_instance_empty.create_instance(instance2)
@@ -231,7 +231,7 @@ def test_update_where(db_instance_empty, session, valid_users) -> None:
             
 @pytest.mark.smoke
 @pytest.mark.database
-def test_delete_where(db_instance_empty, session, valid_users) -> None:
+def test_delete_where(db_instance_empty, test_session, valid_users) -> None:
     """Test delete where clause from the database.
 
     Args:
@@ -248,7 +248,7 @@ def test_delete_where(db_instance_empty, session, valid_users) -> None:
     instance = db_instance_empty.db_schema.model_validate(valid_users['dummy_user'])
     instance2 = db_instance_empty.db_schema.model_validate(valid_users['dummy_user2'])
     
-    with session:
+    with test_session:
         # Add instance to the database
         db_instance_empty.create_instance(instance)
         db_instance_empty.create_instance(instance2)

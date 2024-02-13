@@ -1,15 +1,18 @@
 from typing import Any, Generator
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
 # Custom imports
-from db.schemas import AuthenticationSchema
+from db.models import AuthenticationSchema
 from db.smitdb import SmitDb
 from smit.smit_api import CoreApi
 
-from . import db_test_secrets as test_secrets
+from api.main import app
+from db.database import get_db
 
+from . import db_test_secrets as test_secrets
 
 class TestSmitDb(SmitDb):
     """Connect to test database.
@@ -44,41 +47,61 @@ class TestSmitDb(SmitDb):
             session.commit()
             self.backend.logger.debug('Deleted row %s', each)
 
-@pytest.fixture  
-def db_instance(scope="session"):  
-    """  
-    Create connection to smit test database.  
+@pytest.fixture(scope="session")  
+def db_instance() -> Generator[TestSmitDb, Any, None]:  
+    """Create connection to smit test database.  
     """  
     db = TestSmitDb()
     yield db  
-  
-  
-@pytest.fixture  
-def session(db_instance: TestSmitDb, scope="session") -> Generator[Session, Any, None]:
-    """  
-    Yield a SqlModel Session with TestSmitDb connection.  
+
+@pytest.fixture(scope="session")
+def test_session(db_instance: TestSmitDb) -> Generator[Session, Any, None]:
+    """Yield a SqlModel Session with TestSmitDb connection.  
     """  
     session = Session(db_instance.engine)  
     yield session  
     session.close()  
 
-@pytest.fixture  
-def db_instance_empty(db_instance: TestSmitDb, session: Session, scope="function"):  
-    """  
-    Yield clean authentication table.  
+@pytest.fixture(scope="function")  
+def db_instance_empty(db_instance: TestSmitDb,
+                      test_session: Session) -> Generator[TestSmitDb, Any, None]:  
+    """Yield clean authentication table.  
     """  
     # Clear DB before test function  
     db_instance.create_table()
-    db_instance.delete_all_entries(session=session)  
+    db_instance.delete_all_entries(session=test_session)  
     yield db_instance  
-  
     # Clear DB after test function  
-    db_instance.delete_all_entries(session=session)
+    db_instance.delete_all_entries(session=test_session)
+
+@pytest.fixture
+def test_app(test_session: Session) -> Generator[TestClient, Any, None]:
+    """Yield TestClient instance with get_db override.
+
+    Use test database for testing.
+
+    Args:
+        test_session (Session): The test session database session.
+
+    Yields:
+        TestClient: TestClient instance for fastapi testing.
+
+    """
+    session: Session = test_session
+
+    def override_get_db() -> Generator[Session, Any, None]:
+        try:
+            yield session
+        finally:
+            session.close()
+
+    app.dependency_overrides[get_db] = override_get_db
+    client = TestClient(app)
+    yield client
 
 @pytest.fixture
 def invalid_users() -> Generator[dict[str, dict[str, str]], None, None]:
-    """
-    Generate a dictionairy of invalid user data.
+    """Generate a dictionairy of invalid user data.
     
     Returns a dict with key:value pairs from `AuthenticationSchema` class.
             
@@ -142,8 +165,7 @@ def invalid_users() -> Generator[dict[str, dict[str, str]], None, None]:
 
 @pytest.fixture
 def valid_users() -> Generator[dict[str, dict[str, str]], None, None]:
-    """
-    Generate a dictionary of valid user data.
+    """Generate a dictionary of valid user data.
     
     Returns a dict with key:value pairs from `AuthenticationSchema` class.
     

@@ -3,7 +3,7 @@ import streamlit as st
 from pydantic import ValidationError
 
 # Database imports
-from db.schemas import AuthenticationSchema, ConfigSchema
+from db.models import AuthenticationSchema, ConfigSchema
 from db.smitdb import SmitDb
 
 # Backend

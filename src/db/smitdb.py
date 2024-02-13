@@ -74,13 +74,13 @@ class SmitDb:
         db_user = secrets.username
         db_pwd = secrets.password
         db_host = secrets.host
-        db_database = secrets.database
+        self.db_database = secrets.database
 
         url = URL.create(
             drivername="postgresql+psycopg",
             username=db_user,
             host=db_host,
-            database=db_database,
+            database=self.db_database,
             password=db_pwd,
         )
 
@@ -115,13 +115,15 @@ class SmitDb:
         """Create (if not exist) all tables from SQLModel classes."""
         try:
             SQLModel.metadata.create_all(self.engine)
-            self.backend.logger.debug("Created table %s", self.db_schema.__name__)
+            self.backend.logger.debug("Created table %s at database: %s",
+                                      self.db_schema.__name__,
+                                      self.db_database)
         except Exception as e:
             self._log_exception(e)
             raise e
 
     def create_instance(
-        self, schema: Type[SQLModel], session: Optional[Session] = None
+        self, schema: SQLModel, session: Optional[Session] = None
     ) -> None:
         """Use SQLModel schema to add a new entry to the database.
 
@@ -140,7 +142,9 @@ class SmitDb:
                 session.add(schema)
                 session.commit()
                 self.backend.logger.info(
-                    "Added instance of %s to database", schema.__class__.__name__
+                    "Added instance of %s to database: %s",
+                    schema.__class__.__name__,
+                    self.db_database
                 )
                 # return schema
         except Exception as e:

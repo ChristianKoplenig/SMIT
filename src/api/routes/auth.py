@@ -1,48 +1,58 @@
+
 from typing import Annotated, Any, AsyncGenerator, Sequence, List
 from pydantic import ValidationError, StringConstraints
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Query, Path, Body, Depends
-from sqlmodel import SQLModel, Session, Field
+from fastapi import FastAPI, HTTPException, Query, Path, Body, Depends, APIRouter
+from sqlmodel import SQLModel, Session, Field, select
 
 from db.smitdb import SmitDb
-from db.schemas import AuthenticationSchema
+from db.models import AuthenticationSchema
 from smit.smit_api import CoreApi
 
 from authentication.auth_exceptions import AuthValidateError
 
-async def create_auth_connection() -> AsyncGenerator[SmitDb, None]:
-
-    db = SmitDb(AuthenticationSchema, CoreApi())
-
-    yield db
+import db.models as models
+from db.database import get_db
 
 
+router = APIRouter()
 
-def create_db_and_tables():
-    """
-    Creates the database and necessary tables for the authentication module.
-    """
-    SmitDb(AuthenticationSchema, CoreApi()).create_table()
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     """
-#     Context manager for the lifespan of the FastAPI app.
-#     """
-    
-#     #yield create_db_and_tables()
-#     db = create_auth_connection()
+
+
+# async def create_auth_connection() -> AsyncGenerator[SmitDb, None]:
+
+#     db = SmitDb(AuthenticationSchema, CoreApi())
 
 #     yield db
 
-async def create_session(db = Depends(create_auth_connection)) -> AsyncGenerator[Session, None]:
-    """
-    Create a session for the database.
-    """
 
-    with Session(db.engine) as session:
-        yield session
+
+# def create_db_and_tables():
+#     """
+#     Creates the database and necessary tables for the authentication module.
+#     """
+#     SmitDb(AuthenticationSchema, CoreApi()).create_table()
+
+# # @asynccontextmanager
+# # async def lifespan(app: FastAPI):
+# #     """
+# #     Context manager for the lifespan of the FastAPI app.
+# #     """
+    
+# #     #yield create_db_and_tables()
+# #     db = create_auth_connection()
+
+# #     yield db
+
+# async def create_session(db = Depends(create_auth_connection)) -> AsyncGenerator[Session, None]:
+#     """
+#     Create a session for the database.
+#     """
+
+#     with Session(db.engine) as session:
+#         yield session
 
 class AllUsernames(SQLModel):
     """Validation schema for username list.
@@ -58,18 +68,15 @@ class AllUsernames(SQLModel):
             pattern=r"^[A-Za-z0-9_]+$",
             min_length=5,
         ),
-        Field(index=True, description="Authentication username.", unique=True),
+        #Field(index=True, description="Authentication username.", unique=True),
     ]
 
-app = FastAPI()#lifespan=lifespan)
+#app = FastAPI()#lifespan=lifespan)
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
-@app.get("/usernames/", response_model=List[AllUsernames])
+@router.get("/users")
 async def get_all_usernames(
-    session: Session = Depends(create_session),
+    db: Session = Depends(get_db),
 ) -> Any:  # -> Sequence[str]:
     """
     Return a list of all usernames.
@@ -87,19 +94,34 @@ async def get_all_usernames(
     - HTTPException: 404 - On database validation error.
 
     """
-    userlist: List[str] = []
+    # userlist: List[str] = []
 
-    users: Sequence[str] = SmitDb(AuthenticationSchema, CoreApi()).read_column(
-        session=session, column="username"
+    # users: Sequence[str] = SmitDb(AuthenticationSchema, CoreApi()).read_column(
+    #     session=session, column="username"
+    
+    # for user in users:
+    #     for username in user:
+    #         try:
+    #             userlist.append(AllUsernames(username=username).username)
+    #         except ValidationError as e:
+    #             formatted_error = AuthValidateError(e)
+    #             raise HTTPException(status_code=404, detail=formatted_error.error_dict)
+
+    users = (
+        db.exec(select(models.AuthenticationSchema)).all()
     )
-    for user in users:
-        for username in user:
-            try:
-                userlist.append(AllUsernames(username=username).username)
-            except ValidationError as e:
-                formatted_error = AuthValidateError(e)
-                raise HTTPException(status_code=404, detail=formatted_error.error_dict)
+    #return {"Status": "Success", "Results": len(users), "Users": users}
     return users
+    # return users
+
+
+
+
+
+
+
+
+
 
 
 # @app.get("/users/{user_id}/items/{item_id}")

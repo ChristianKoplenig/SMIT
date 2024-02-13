@@ -4,7 +4,7 @@ import streamlit as st
 
 # Database import
 from db.smitdb import SmitDb
-from db.schemas import AuthenticationSchema, ConfigSchema
+from db.models import AuthenticationSchema, ConfigSchema
 
 # Api import
 from smit.smit_api import CoreApi

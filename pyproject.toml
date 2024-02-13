@@ -75,6 +75,7 @@ markers = [
     "database: Test database connection and CRUD operations",
     "db_engine: Test database engine",
     "schema: Test SqlModel schemas",
+    "api: Test FastAPI endpoints",
 ]
 
 [tool.tox]
@@ -94,7 +95,7 @@ legacy_tox_ini = """
     commands_pre =
         poetry install
     commands =
-        poetry run pytest --basetemp={envtmpdir} -v -m "schema" #combine markers with or/and syntax
+        poetry run pytest --basetemp={envtmpdir} -v -m "smoke" #combine markers with or/and syntax
 
     [testenv:flake8]
     basepython = python3.11
