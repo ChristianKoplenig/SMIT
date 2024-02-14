@@ -4,9 +4,9 @@ from db.db_exceptions import DbCreateError, DbEngineError
 
 from sqlmodel import Session
 
-from db.smitdb import SmitDb
-from db.models import AuthenticationSchema
-from smit.smit_api import CoreApi
+from db.crud import SmitDb
+from db.models import AuthModel
+from utils.logger import Logger
 
 from . import db_test_secrets as secrets
   
@@ -24,11 +24,11 @@ def test_db_engine_connection(mocker):
 
     """
     # Simulate Engine Error  
-    mocker.patch("db.smitdb.create_engine", side_effect=DbEngineError('Mocked Error'))  
+    mocker.patch("db.connection.get_db", side_effect=DbEngineError('Mocked Error'))  
   
     # Test DB Connection  
     with pytest.raises(DbEngineError):  
-        db = SmitDb(AuthenticationSchema, CoreApi(), secrets)
+        db = SmitDb(AuthModel, secrets)
   
 # @pytest.mark.smoke
 # #@pytest.mark.db_engine  
@@ -47,7 +47,7 @@ def test_db_engine_connection(mocker):
 #         DbCreateError: If the session fails to create the instance.
 
 #     """
-#     #db = SmitDb(AuthenticationSchema, CoreApi(), secrets) 
+#     #db = SmitDb(AuthModel, CoreApi(), secrets) 
 #     db = db_instance_empty
   
 #     # Correctly instantiate an OperationalError for mocking  

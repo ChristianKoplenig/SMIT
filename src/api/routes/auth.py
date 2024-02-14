@@ -1,24 +1,17 @@
-
-from typing import Annotated, Any, AsyncGenerator, Sequence, List
-from pydantic import ValidationError, StringConstraints
-
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Query, Path, Body, Depends, APIRouter
-from sqlmodel import SQLModel, Session, Field, select
-
-from db.smitdb import SmitDb
-from db.models import AuthenticationSchema
-from smit.smit_api import CoreApi
-
-from authentication.auth_exceptions import AuthValidateError
+from typing import Annotated, Any, AsyncGenerator, List, Sequence
 
 import db.models as models
-from db.database import get_db
-
+from authentication.auth_exceptions import AuthValidateError
+from db.connection import get_db
+from db.models import AuthModel
+from db.crud import SmitDb
+from fastapi import APIRouter, Body, Depends, FastAPI, HTTPException, Path, Query
+from pydantic import StringConstraints, ValidationError
+from utils.logger import Logger
+from sqlmodel import Field, Session, SQLModel, select
 
 router = APIRouter()
-
-
 
 
 # async def create_auth_connection() -> AsyncGenerator[SmitDb, None]:
@@ -26,7 +19,6 @@ router = APIRouter()
 #     db = SmitDb(AuthenticationSchema, CoreApi())
 
 #     yield db
-
 
 
 # def create_db_and_tables():
@@ -40,7 +32,7 @@ router = APIRouter()
 # #     """
 # #     Context manager for the lifespan of the FastAPI app.
 # #     """
-    
+
 # #     #yield create_db_and_tables()
 # #     db = create_auth_connection()
 
@@ -54,12 +46,14 @@ router = APIRouter()
 #     with Session(db.engine) as session:
 #         yield session
 
+
 class AllUsernames(SQLModel):
     """Validation schema for username list.
 
     Attributes:
         username (str): Validated username.
     """
+
     username: Annotated[
         str,
         StringConstraints(
@@ -68,10 +62,11 @@ class AllUsernames(SQLModel):
             pattern=r"^[A-Za-z0-9_]+$",
             min_length=5,
         ),
-        #Field(index=True, description="Authentication username.", unique=True),
+        # Field(index=True, description="Authentication username.", unique=True),
     ]
 
-#app = FastAPI()#lifespan=lifespan)
+
+# app = FastAPI()#lifespan=lifespan)
 
 
 @router.get("/users")
@@ -98,7 +93,7 @@ async def get_all_usernames(
 
     # users: Sequence[str] = SmitDb(AuthenticationSchema, CoreApi()).read_column(
     #     session=session, column="username"
-    
+
     # for user in users:
     #     for username in user:
     #         try:
@@ -107,21 +102,10 @@ async def get_all_usernames(
     #             formatted_error = AuthValidateError(e)
     #             raise HTTPException(status_code=404, detail=formatted_error.error_dict)
 
-    users = (
-        db.exec(select(models.AuthenticationSchema)).all()
-    )
-    #return {"Status": "Success", "Results": len(users), "Users": users}
+    users = db.exec(select(models.AuthModel)).all()
+    # return {"Status": "Success", "Results": len(users), "Users": users}
     return users
     # return users
-
-
-
-
-
-
-
-
-
 
 
 # @app.get("/users/{user_id}/items/{item_id}")
@@ -295,7 +279,7 @@ async def get_all_usernames(
 
 # @app.put('/items/{item_id}')
 # async def update_item(
-#     item_id: Annotated[int, Path(title="Id from path parameter", ge=0, le=1000)], 
+#     item_id: Annotated[int, Path(title="Id from path parameter", ge=0, le=1000)],
 #     importance: Annotated[int, Body(gt=6)],
 #     item: Annotated[Item, None],
 #     q: str | None = None,
@@ -308,9 +292,9 @@ async def get_all_usernames(
 #     return result
 
 # @app.get('/items/')
-# async def read_items(q: Annotated[str | None, 
+# async def read_items(q: Annotated[str | None,
 #                                   Query(min_length=3,
-#                                         max_length=50, 
+#                                         max_length=50,
 #                                         pattern='^fixedquery$')] = None):
 #     results: dict[str, Any] = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
 #     if q:

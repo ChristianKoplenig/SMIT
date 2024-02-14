@@ -3,7 +3,7 @@ from sqlalchemy import inspect
 from sqlmodel import select
 
 from pydantic import ValidationError
-from db.models import AuthenticationSchema
+from db.models import AuthModel
 from db.db_exceptions import DbReadError, DbUpdateError, DbDeleteError
 
 
@@ -180,7 +180,7 @@ def test_select_where(db_instance_empty, test_session, valid_users) -> None:
 
         # Verify that the instances is added to the database
         result = db_instance_empty.select_where('username', 'dummy_user')
-        assert isinstance(result, AuthenticationSchema)
+        assert isinstance(result, AuthModel)
         assert result.sng_username == 'dummy_sng_login'
 
         # Exception testing

@@ -1,23 +1,20 @@
-from typing import TYPE_CHECKING, Any, Optional, Sequence, Type
+from typing import Any, Optional, Sequence, Type
+
 from sqlalchemy.engine import URL
 from sqlmodel import Session, SQLModel, create_engine, select
 
+from db import smitdb_secrets as db_secrets
+from utils.logger import Logger
+
 # Custom imports
 from db.db_exceptions import (
-    DbExceptionLogger,
-    DbEngineError,
-    DbReadError,
     DbCreateError,
-    DbUpdateError,
     DbDeleteError,
+    DbEngineError,
+    DbExceptionLogger,
+    DbReadError,
+    DbUpdateError,
 )
-
-from db import smitdb_secrets as db_secrets
-
-# Imports for type hints
-if TYPE_CHECKING:
-    from smit.smit_api import CoreApi
-
 
 class SmitDb:
     """
@@ -55,7 +52,9 @@ class SmitDb:
     """
 
     def __init__(
-        self, schema: Type[SQLModel], api: "CoreApi", secrets: Any = db_secrets
+        self,
+        schema: Type[SQLModel],
+        secrets: Any = db_secrets
     ) -> None:
         """Create engine object for database.
 
@@ -70,6 +69,7 @@ class SmitDb:
             Backend Api class instance.
         """
         self.db_schema: Type[SQLModel] = schema
+        self.logger = Logger().logger
 
         db_user = secrets.username
         db_pwd = secrets.password
@@ -84,15 +84,9 @@ class SmitDb:
             password=db_pwd,
         )
 
-        # Use logger from SmitBackend
-        self.backend = api
-        msg = f'Db engine: "{self.__class__.__name__}" connected to '
-        msg += f'schema: "{self.db_schema.__name__}" '
-        msg += f'with api configuration: "{self.backend.__class__.__name__}".'
-
         try:
             self.engine = create_engine(url)  # , echo=True)
-            self.backend.logger.debug(msg)
+            Logger().log_module_init()
         except Exception as e:
             self._log_exception(e)
             raise DbEngineError(
@@ -109,15 +103,17 @@ class SmitDb:
             None
         """
         formatted_error_message = DbExceptionLogger().logging_input(e)
-        self.backend.logger.error(formatted_error_message)
+        self.logger.error(formatted_error_message)
 
     def create_table(self) -> None:
         """Create (if not exist) all tables from SQLModel classes."""
         try:
             SQLModel.metadata.create_all(self.engine)
-            self.backend.logger.debug("Created table %s at database: %s",
-                                      self.db_schema.__name__,
-                                      self.db_database)
+            self.logger.debug(
+                "Created table %s at database: %s",
+                self.db_schema.__name__,
+                self.db_database,
+            )
         except Exception as e:
             self._log_exception(e)
             raise e
@@ -141,10 +137,10 @@ class SmitDb:
             with session:
                 session.add(schema)
                 session.commit()
-                self.backend.logger.info(
+                self.logger.info(
                     "Added instance of %s to database: %s",
                     schema.__class__.__name__,
-                    self.db_database
+                    self.db_database,
                 )
                 # return schema
         except Exception as e:
@@ -226,7 +222,7 @@ class SmitDb:
                 results = session.exec(statement)
                 row: SQLModel = results.one()
 
-                self.backend.logger.debug(
+                self.logger.debug(
                     "Selected row where %s matches %s", column, value
                 )
                 return row
@@ -263,7 +259,7 @@ class SmitDb:
                 session.add(row)
                 session.commit()
 
-                self.backend.logger.debug(
+                self.logger.debug(
                     "Updated %s from: %s to: %s", column, value, new_value
                 )
             return True
@@ -298,7 +294,7 @@ class SmitDb:
                 session.delete(row)
                 session.commit()
 
-                self.backend.logger.debug(
+                self.logger.debug(
                     "Deleted row where %s matches %s", column, value
                 )
         except Exception as e:
@@ -307,11 +303,12 @@ class SmitDb:
 
 
 ############ Debugging ############
-# from db.schemas import AuthenticationSchema
-# from smit.smit_api import SmitApi
+# from smit.logger import Logger
 
-# conn = SmitDb(AuthenticationSchema, SmitApi())
+# from db.models import AuthModel
+
+# conn = SmitDb(AuthModel)
 # try:
-#     conn.update_where('userna', 'dummy_user',  'sdf')
+#     conn.update_where("userna", "dummy_user", "sdf")
 # except Exception as exc:
 #     print(exc)

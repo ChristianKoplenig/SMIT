@@ -5,12 +5,12 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
 # Custom imports
-from db.models import AuthenticationSchema
-from db.smitdb import SmitDb
-from smit.smit_api import CoreApi
+from db.models import AuthModel
+from db.crud import SmitDb
+from utils.logger import Logger
 
 from api.main import app
-from db.database import get_db
+from db.connection import get_db
 
 from . import db_test_secrets as test_secrets
 
@@ -25,8 +25,7 @@ class TestSmitDb(SmitDb):
     __test__ = False
     
     def __init__(self) -> None:
-        super().__init__(schema=AuthenticationSchema,
-                         api=CoreApi(),
+        super().__init__(schema=AuthModel,
                          secrets=test_secrets)
         
     def delete_all_entries(self, session: Session) -> None:
@@ -39,13 +38,13 @@ class TestSmitDb(SmitDb):
         Returns:
             None
         """
-        statement = select(AuthenticationSchema)
+        statement = select(AuthModel)
         results = session.exec(statement)
         
         for each in results:
             session.delete(each)
             session.commit()
-            self.backend.logger.debug('Deleted row %s', each)
+            self.logger.debug('Deleted row %s', each)
 
 @pytest.fixture(scope="session")  
 def db_instance() -> Generator[TestSmitDb, Any, None]:  
@@ -103,7 +102,7 @@ def test_app(test_session: Session) -> Generator[TestClient, Any, None]:
 def invalid_users() -> Generator[dict[str, dict[str, str]], None, None]:
     """Generate a dictionairy of invalid user data.
     
-    Returns a dict with key:value pairs from `AuthenticationSchema` class.
+    Returns a dict with key:value pairs from `AuthModel` class.
             
     Yields:
         dict[str, dict[str, str]]: A dictionary representing an invalid user.
@@ -167,7 +166,7 @@ def invalid_users() -> Generator[dict[str, dict[str, str]], None, None]:
 def valid_users() -> Generator[dict[str, dict[str, str]], None, None]:
     """Generate a dictionary of valid user data.
     
-    Returns a dict with key:value pairs from `AuthenticationSchema` class.
+    Returns a dict with key:value pairs from `AuthModel` class.
     
     Returns:
         dict[str, str]: A dictionary containing valid user information.

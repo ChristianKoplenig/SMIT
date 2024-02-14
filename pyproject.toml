@@ -8,15 +8,16 @@ readme = "README.md"
 repository = "https://github.com/ChristianKoplenig/SMIT"
 documentation = "https://filedn.eu/liu4e7QL6NoXLInqRT2UAQu/SMIT/index.html"
 packages = [
-    { include = "smit", from = "src" },
-    { include = "st_gui", from = "src" },
+    { include = "utils", from = "src" },
     { include = "db", from = "src" },
     { include = "authentication", from = "src" },
     { include = "api", from = "src" },
+    { include = "tests" },
 ]
 
 # Code checks, linting...
 [tool.pyright]
+pythonVersion = "3.11"
 include = ["src"]
 exclude = ["**/__pycache__", ".pytest_cache", ".tox", ".venv", ".dummy", "/opt"]
 
@@ -65,6 +66,7 @@ uvicorn = { extras = ["standard"], version = "^0.27.0.post1" }
 
 # Testing
 [tool.pytest.ini_options]
+addopts = "--ignore=opt/"
 markers = [
     "smoke: Validate all core methods",
     "application: Test setup of application class",

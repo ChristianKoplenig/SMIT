@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 
-from db.database import engine
+from db.connection import engine
 from api.routes import auth
 
 

@@ -3,7 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api.main import app
-from db.database import get_db
+from db.connection import get_db
 
 # For type hinting
 from sqlmodel import Session, SQLModel
