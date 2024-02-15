@@ -1,8 +1,11 @@
 from typing import Any, Generator
-
 import pytest
+
 from fastapi.testclient import TestClient
-from sqlmodel import Session, select
+from sqlmodel import Session, select, create_engine, SQLModel
+from sqlmodel.sql.expression import SelectOfScalar
+from sqlalchemy.engine import URL, ScalarResult
+
 
 # Custom imports
 from db.models import AuthModel
@@ -12,7 +15,7 @@ from utils.logger import Logger
 from api.main import app
 from db.connection import get_db
 
-from . import db_test_secrets as test_secrets
+from . import db_test_secrets as secrets
 
 class TestSmitDb(SmitDb):
     """Connect to test database.
@@ -24,9 +27,22 @@ class TestSmitDb(SmitDb):
     """
     __test__ = False
     
-    def __init__(self) -> None:
-        super().__init__(schema=AuthModel,
-                         secrets=test_secrets)
+    def __init__(self):# , secrets=test_secrets) -> None:
+        super().__init__(schema=AuthModel,)
+        
+        db_user = secrets.username
+        db_pwd = secrets.password
+        db_host = secrets.host
+        self.db_database = secrets.database
+
+        url = URL.create(
+            drivername="postgresql+psycopg",
+            username=db_user,
+            host=db_host,
+            database=self.db_database,
+            password=db_pwd)
+        
+        self.engine = create_engine(url)
         
     def delete_all_entries(self, session: Session) -> None:
         """
@@ -38,13 +54,13 @@ class TestSmitDb(SmitDb):
         Returns:
             None
         """
-        statement = select(AuthModel)
-        results = session.exec(statement)
+        statement: SelectOfScalar[SQLModel] = select(self.db_schema)
+        results: ScalarResult[SQLModel] = session.exec(statement)
         
         for each in results:
             session.delete(each)
             session.commit()
-            self.logger.debug('Deleted row %s', each)
+            self.logger.debug('Deleted row %s', each.username)
 
 @pytest.fixture(scope="session")  
 def db_instance() -> Generator[TestSmitDb, Any, None]:  
@@ -58,7 +74,9 @@ def test_session(db_instance: TestSmitDb) -> Generator[Session, Any, None]:
     """Yield a SqlModel Session with TestSmitDb connection.  
     """  
     session = Session(db_instance.engine)  
+    Logger().logger.debug("Opening database test_session")
     yield session  
+    Logger().logger.debug("Closing database test_session")
     session.close()  
 
 @pytest.fixture(scope="function")  
@@ -69,8 +87,9 @@ def db_instance_empty(db_instance: TestSmitDb,
     # Clear DB before test function  
     db_instance.create_table()
     db_instance.delete_all_entries(session=test_session)  
+    
     yield db_instance  
-    # Clear DB after test function  
+
     db_instance.delete_all_entries(session=test_session)
 
 @pytest.fixture
@@ -90,8 +109,10 @@ def test_app(test_session: Session) -> Generator[TestClient, Any, None]:
 
     def override_get_db() -> Generator[Session, Any, None]:
         try:
+            Logger().logger.debug("Opening override session")
             yield session
         finally:
+            Logger().logger.debug("Closing override session")
             session.close()
 
     app.dependency_overrides[get_db] = override_get_db

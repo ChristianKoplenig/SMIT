@@ -19,6 +19,12 @@ class ClassnameFilter(logging.Filter):
                     record.classname = class_name
                     record.lineno = frame.f_lineno
                     break
+            if frame_self is None:
+                frame_info = inspect.getframeinfo(frame)
+                file = os.path.basename(filename)
+                record.classname = f'{file}:{frame_info.function}' # type: ignore
+                record.lineno = frame.f_lineno
+                break
             frame = frame.f_back
         return True
 

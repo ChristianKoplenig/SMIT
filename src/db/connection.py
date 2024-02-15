@@ -1,6 +1,11 @@
-from typing import Generator
-from sqlalchemy.engine import URL
+from typing import Generator, Any
+import contextlib
+
 from sqlmodel import create_engine, Session
+from sqlalchemy.engine import URL
+from sqlalchemy.engine.base import Engine
+
+from utils.logger import Logger
 
 from db import smitdb_secrets as secrets
 
@@ -19,23 +24,44 @@ url = URL.create(
     password=db_pwd,
 )
 
-# Create the engine
-engine = create_engine(url) #, echo=True)
+# Create the engine for smit database at fly.io
+engine: Engine = create_engine(url) #, echo=True)
 
 def local_session() -> Session:
     """Return SqlModel session"""
     return Session(engine)
 
-def get_db() -> Generator[Session, None, None]:
-    """
-    Returns a database session.
+def get_db() -> Generator[Session, Any, None]:
+    """Return database session for fastapi.
+
+    Connect to smit database at fly.io.
 
     Yields:
-        SessionLocal: The database session.
+        SessionLocal: Develop connection to fly.io postgres database.
 
     """
-    db = local_session()
+    db: Session = local_session()
     try:
+        Logger().logger.debug("Opening database session")
         yield db
     finally:
+        Logger().logger.debug("Closing database session")
         db.close()
+
+@contextlib.contextmanager
+def db_session() -> Generator[Session, None, None]:
+    """Return database session for sqlalchemy connection.
+
+    Connect to smit database at fly.io.
+
+    Yields:
+        SessionLocal: Develop connection to fly.io postgres database.
+
+    """
+    session: Session = local_session()
+    try:
+        Logger().logger.debug("Opening sqlalchemy session")
+        yield session
+    finally:
+        Logger().logger.debug("Closing sqlalchemy session")
+        session.close()
