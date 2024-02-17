@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 
 from db.connection import engine
-from api.routes import auth
+from api.routes import auth, debug
 
 
 SQLModel.metadata.create_all(bind=engine)
@@ -23,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, tags=["Authentication"], prefix="/auth")
+app.include_router(debug.router, tags=["Debug"], prefix="/debug")
 
 
 @app.get("/api/healthchecker")

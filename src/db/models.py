@@ -18,8 +18,8 @@ class AuthModel(SQLModel, table=True):
         email (str, optional): The email address of the user.
         sng_username (str, optional): The username for energy provider login.
         sng_password (str, optional): The password for energy provider login.
-        daymeter (str, optional): The day meter value.
-        nightmeter (str, optional): The night meter value.
+        daymeter (int, optional): The day meter value.
+        nightmeter (int, optional): The night meter value.
     """
 
     __tablename__: Any = "auth_dev"

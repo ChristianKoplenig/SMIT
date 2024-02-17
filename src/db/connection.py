@@ -51,12 +51,12 @@ def get_db() -> Generator[Session, Any, None]:
         Logger().logger.debug("Opening database session")
         yield db
 
-    except DatabaseError as e:
-        Logger().logger.error(f"Error in database connection: {e}")
-        raise e from e
-    except Exception as e:
-        Logger().logger.error(f"Error in database connection: {e}")
-        raise InvalidRequestError(f"Error in database connection: {e}") from e
+    # except DatabaseError as e:
+    #     Logger().logger.error(f"Error in database connection: {e}")
+    #     raise e from e
+    # except Exception as e:
+    #     Logger().logger.error(f"Error in database connection: {e}")
+    #     raise InvalidRequestError(f"Error in database connection: {e}") from e
 
     finally:
         Logger().logger.debug("Closing database session")

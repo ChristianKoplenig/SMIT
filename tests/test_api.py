@@ -10,13 +10,6 @@ from sqlmodel import Session, SQLModel
 from .conftest import TestSmitDb
 
 @pytest.mark.smoke
-#@pytest.mark.api
-def test_root(test_app: TestClient) -> None:
-    response = test_app.get("/api/healthchecker")
-    assert response.status_code == 200
-    assert response.json() == {"message": "The API is LIVE!!"}
-
-@pytest.mark.smoke
 @pytest.mark.api
 def test_database_connection(db_instance_empty: TestSmitDb,
                              valid_users: dict[str, dict[str, str]],

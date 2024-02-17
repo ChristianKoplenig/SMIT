@@ -60,20 +60,20 @@ class UserBaseSchema(BaseModel):
         Optional[str],
         "Elictricity provider password"
     ]
-    daymeter: Annotated[
-        Optional[int],
-        StringConstraints(pattern=r"^\d{6}$"),
-        "Day meter endpoint number", 
-    ]
-    nightmeter: Annotated[
-        Optional[int],
-        StringConstraints(pattern=r"^\d{6}$"),
-        "Day meter endpoint number", 
-    ]
+    # daymeter: Annotated[
+    #     Optional[int],
+    #     StringConstraints(pattern=r"^\d{6}$"),
+    #     "Day meter endpoint number", 
+    # ]
+    # nightmeter: Annotated[
+    #     Optional[int],
+    #     StringConstraints(pattern=r"^\d{6}$"),
+    #     "Day meter endpoint number", 
+    # ]
 
     class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
+        from_attributes = True
+        populate_by_name = True
         arbitrary_types_allowed = True
 
     # Validation
@@ -99,9 +99,9 @@ class UserBaseSchema(BaseModel):
             raise ValueError(f"{info.field_name} must be a valid email address")
         return v
 
-    @field_validator("daymeter", "nightmeter")
-    @classmethod
-    def validate_meter(cls, v: str, info: ValidationInfo) -> str:
-        if len(str(v)) != 6:
-            raise ValueError(f"{info.field_name} number must be 6 characters long")
-        return v
+    # @field_validator("daymeter", "nightmeter")
+    # @classmethod
+    # def validate_meter(cls, v: str, info: ValidationInfo) -> str:
+    #     if len(str(v)) != 6:
+    #         raise ValueError(f"{info.field_name} number must be 6 characters long")
+    #     return v
