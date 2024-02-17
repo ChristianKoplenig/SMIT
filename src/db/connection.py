@@ -6,6 +6,8 @@ from sqlalchemy.engine import URL
 from sqlalchemy.engine.base import Engine
 
 from utils.logger import Logger
+from sqlalchemy.exc import InvalidRequestError
+from db.db_exceptions import DatabaseError
 
 from db import smitdb_secrets as secrets
 
@@ -29,7 +31,11 @@ engine: Engine = create_engine(url) #, echo=True)
 
 def local_session() -> Session:
     """Return SqlModel session"""
-    return Session(engine)
+    try:
+        return Session(engine)
+    except Exception as e:
+        Logger().logger.error(f"Error creating local session: {e}")
+        raise DatabaseError(e, "Error creating local session") from e
 
 def get_db() -> Generator[Session, Any, None]:
     """Return database session for fastapi.
@@ -44,8 +50,17 @@ def get_db() -> Generator[Session, Any, None]:
     try:
         Logger().logger.debug("Opening database session")
         yield db
+
+    except DatabaseError as e:
+        Logger().logger.error(f"Error in database connection: {e}")
+        raise e from e
+    except Exception as e:
+        Logger().logger.error(f"Error in database connection: {e}")
+        raise InvalidRequestError(f"Error in database connection: {e}") from e
+
     finally:
         Logger().logger.debug("Closing database session")
+        db.rollback()
         db.close()
 
 @contextlib.contextmanager
@@ -62,6 +77,15 @@ def db_session() -> Generator[Session, None, None]:
     try:
         Logger().logger.debug("Opening sqlalchemy session")
         yield session
+
+    except DatabaseError as e:
+        Logger().logger.error(f"Error in database connection: {e}")
+        raise e from e
+    except Exception as e:
+        Logger().logger.error(f"Error in database connection: {e}")
+        raise InvalidRequestError(f"Error in database connection: {e}") from e
+
     finally:
         Logger().logger.debug("Closing sqlalchemy session")
+        session.rollback()
         session.close()

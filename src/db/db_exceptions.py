@@ -39,7 +39,7 @@ class DatabaseError(Exception):
         self.error_details: str = self._create_error_message(e)
 
         self.proccessed_message: str = (
-            f"{self.error_details}; Provided message: {self.message}"
+            f"{self.error_details}; Custom message: {self.message}"
         )
 
         super().__init__(self.message)
@@ -54,9 +54,12 @@ class DatabaseError(Exception):
 
         error_type: str = type(e).__name__
         method_name: str = e.__traceback__.tb_frame.f_code.co_name  # type: ignore
-        error_argument: str = e.args[0]
+        try:
+            error_argument: str = e.args[0]
+        except Exception:
+            error_argument = "No argument provided"
 
-        return f"Database Error in method: {method_name}(); Raised: {error_type} for input: {error_argument}"
+        return f"Database Error in method: {method_name}(); Raised: {error_type} with error argument: {error_argument}"
 
     def __str__(self) -> str:
         return f"{self.proccessed_message}"
