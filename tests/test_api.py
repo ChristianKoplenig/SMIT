@@ -9,7 +9,7 @@ from db.connection import get_db
 from sqlmodel import Session, SQLModel
 from .conftest import TestSmitDb
 
-@pytest.mark.smoke
+#@pytest.mark.smoke
 @pytest.mark.api
 def test_database_connection(db_instance_empty: TestSmitDb,
                              valid_users: dict[str, dict[str, str]],
