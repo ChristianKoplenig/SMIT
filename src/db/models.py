@@ -23,7 +23,6 @@ class AuthModel(SQLModel, table=True):
     """
 
     __tablename__: Any = "auth_dev"
-    __table_args__: tuple[UniqueConstraint] = (UniqueConstraint("username"),)
 
     # Generated on commit
     id: Annotated[Optional[int], Field(default=None, primary_key=True)]
@@ -59,7 +58,6 @@ class AuthModel(SQLModel, table=True):
             description="Mail address for pwd recovery",
         ),
     ]
-
     sng_username: Annotated[
         Optional[str],
         StringConstraints(pattern=r"^[A-Za-z0-9_]+$"),

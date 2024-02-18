@@ -1,38 +1,19 @@
-from typing import Annotated, Any
+from typing import Any
 from fastapi import APIRouter, Depends
-from sqlmodel import Session, SQLModel, select
-from pydantic import StringConstraints
-
-import db.models as models
+from sqlmodel import Session, select
 from db.connection import get_db
+
+from sqlmodel.sql.expression import SelectOfScalar
+
 from api import schemas
 
 router = APIRouter()
 
-class AllUsernames(SQLModel):
-    """Validation schema for username list.
 
-    Attributes:
-        username (str): Validated username.
-    """
-
-    username: Annotated[
-        str,
-        StringConstraints(
-            strip_whitespace=True,
-            to_lower=True,
-            pattern=r"^[A-Za-z0-9_]+$",
-            min_length=5,
-        ),
-    ]
-
-@router.get("/user",
-            response_model=schemas.UserBaseSchema
-            )
+@router.get("/user", response_model=schemas.UserResponseSchema)
 async def get_user(
-    #user: models.AuthModel,
     db: Session = Depends(get_db),
-) -> Any:#schemas.UserBaseSchema:
+) -> Any: #schemas.UserResponseSchema:
     """
     Return a list of all usernames.
 
@@ -50,14 +31,13 @@ async def get_user(
 
     """
     try:
-        statement = select(
-            models.AuthModel).where(
-                models.AuthModel.username == "dummy_user")
-        user: models.AuthModel = db.exec(statement).one()
-        #response = models.AuthModel.model_dump_json(user)
+        statement: SelectOfScalar[schemas.UserModel] = select(schemas.UserModel).where(
+            schemas.UserModel.username == "dummy_user"
+        )
+        user: schemas.UserModel = db.exec(statement).one()
+        return user
+
     except Exception as e:
         raise e
+    
 
-    return user #response
-    #return schemas.UserBaseSchema.model_validate(response)  # response
-    #return db.exec(statement).one()

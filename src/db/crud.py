@@ -3,6 +3,7 @@ from functools import wraps
 
 from sqlmodel import Session, SQLModel, select
 from sqlmodel.sql.expression import SelectOfScalar
+from sqlalchemy.engine.base import Engine
 from sqlalchemy.engine.result import ScalarResult
 
 from utils.logger import Logger
@@ -101,7 +102,7 @@ class SmitDb:
         formatted_error_message = DbExceptionLogger().logging_input(e)
         self.logger.error(formatted_error_message)
 
-    def create_table(self) -> None:
+    def create_table(self, engine: Engine = engine) -> None:
         """Setup database tables.
         
         Use SQLModel metadata to create all tables from SQLModel classes.

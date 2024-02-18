@@ -1,4 +1,4 @@
-from typing import Any, Generator
+from typing import Any, Generator, Type
 import pytest
 
 from fastapi.testclient import TestClient
@@ -9,6 +9,7 @@ from sqlalchemy.engine import URL, ScalarResult
 
 # Custom imports
 from db.models import AuthModel
+from api.schemas import UserModel
 from db.crud import SmitDb
 from utils.logger import Logger
 
@@ -16,7 +17,6 @@ from api.main import app
 from db.connection import get_db
 
 from . import db_test_secrets as secrets
-
 class TestSmitDb(SmitDb):
     """Connect to test database.
     
@@ -27,8 +27,8 @@ class TestSmitDb(SmitDb):
     """
     __test__ = False
     
-    def __init__(self):# , secrets=test_secrets) -> None:
-        super().__init__(schema=AuthModel,)
+    def __init__(self, schema: Type[SQLModel]= AuthModel):
+        super().__init__(schema=schema)
         
         db_user = secrets.username
         db_pwd = secrets.password
@@ -62,6 +62,7 @@ class TestSmitDb(SmitDb):
             session.commit()
             self.logger.debug('Deleted row %s', each.username)
 
+### Setup for database module testing ###
 @pytest.fixture(scope="session")  
 def db_instance() -> Generator[TestSmitDb, Any, None]:  
     """Create connection to smit test database.  
@@ -77,7 +78,7 @@ def test_session(db_instance: TestSmitDb) -> Generator[Session, Any, None]:
     Logger().logger.debug("Opening database test_session")
     yield session  
     Logger().logger.debug("Closing database test_session")
-    session.close()  
+    session.close()
 
 @pytest.fixture(scope="function")  
 def db_instance_empty(db_instance: TestSmitDb,
@@ -85,15 +86,44 @@ def db_instance_empty(db_instance: TestSmitDb,
     """Yield clean authentication table.  
     """  
     # Clear DB before test function  
-    db_instance.create_table()
+    db_instance.create_table(db_instance.engine)
     db_instance.delete_all_entries(session=test_session)  
     
     yield db_instance  
 
     db_instance.delete_all_entries(session=test_session)
 
+### Setup for fastapi module testing ###
+@pytest.fixture(scope="session")
+def api_instance() -> Generator[TestSmitDb, Any, None]:
+    """Create connection to smit test database."""
+    db = TestSmitDb(schema=UserModel)
+    yield db
+
+@pytest.fixture(scope="session")
+def api_test_session(api_instance: TestSmitDb) -> Generator[Session, Any, None]:
+    """Yield a SqlModel Session with TestSmitDb connection."""
+    session = Session(api_instance.engine)
+    Logger().logger.debug("Opening database api_test_session")
+    yield session
+    Logger().logger.debug("Closing database api_test_session")
+    session.close()
+
+@pytest.fixture(scope="function")
+def api_instance_empty(
+    api_instance: TestSmitDb, api_test_session: Session
+) -> Generator[TestSmitDb, Any, None]:
+    """Yield clean authentication table."""
+    # Clear DB before test function
+    api_instance.create_table(api_instance.engine)
+    api_instance.delete_all_entries(session=api_test_session)
+
+    yield api_instance
+
+    api_instance.delete_all_entries(session=api_test_session)
+
 @pytest.fixture
-def test_app(test_session: Session) -> Generator[TestClient, Any, None]:
+def test_app(api_test_session: Session) -> Generator[TestClient, Any, None]:
     """Yield TestClient instance with get_db override.
 
     Use test database for testing.
@@ -105,7 +135,7 @@ def test_app(test_session: Session) -> Generator[TestClient, Any, None]:
         TestClient: TestClient instance for fastapi testing.
 
     """
-    session: Session = test_session
+    session: Session = api_test_session
 
     def override_get_db() -> Generator[Session, Any, None]:
         try:
@@ -123,7 +153,7 @@ def test_app(test_session: Session) -> Generator[TestClient, Any, None]:
 def invalid_users() -> Generator[dict[str, dict[str, str]], None, None]:
     """Generate a dictionairy of invalid user data.
     
-    Returns a dict with key:value pairs from `AuthModel` class.
+    Returns a dict with key:value pairs holding invalid user data.
             
     Yields:
         dict[str, dict[str, str]]: A dictionary representing an invalid user.
@@ -137,6 +167,15 @@ def invalid_users() -> Generator[dict[str, dict[str, str]], None, None]:
             'daymeter': '199996',
             'nightmeter': '199997'
         }
+    short_username: dict[str, str] = {
+        "username": "abc",
+        "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
+        "email": "dummy@dummymail.com",
+        "sng_username": "dummy_sng_login",
+        "sng_password": "dummy_sng_password",
+        "daymeter": "199996",
+        "nightmeter": "199997",
+    }
     empty_pwd: dict[str, str] ={
             'username': 'dummy_user',
             'password': '',
@@ -173,13 +212,23 @@ def invalid_users() -> Generator[dict[str, dict[str, str]], None, None]:
             'daymeter': '199997',
             'nightmeter': '199996'
         }
-       
+    sng_user_short: dict[str, str] = {
+        "username": "dummy_user",
+        "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
+        "email": "dummy@dummymail.com",
+        "sng_username": "sng",
+        "sng_password": "dummy_sng_password",
+        "daymeter": "199997",
+        "nightmeter": "199996",
+    }
     fail_users: dict[str, dict[str, str]] = {
         'no_username': no_username,
+        'short_username': short_username,
         'empty_password': empty_pwd,
         'mail_invalid': mail_invalid,
         'meter_string': meter_string,
-        'meter_short': meter_short
+        'meter_short': meter_short,
+        'sng_user_short': sng_user_short
     }
     yield fail_users
 
