@@ -7,7 +7,7 @@ from sqlalchemy.engine.base import Engine
 
 from utils.logger import Logger
 from sqlalchemy.exc import InvalidRequestError
-from db.db_exceptions import DatabaseError
+from db.db_exceptions import DatabaseError, DbReadError
 
 from db import smitdb_secrets as secrets
 
@@ -37,6 +37,7 @@ def local_session() -> Session:
         Logger().logger.error(f"Error creating local session: {e}")
         raise DatabaseError(e, "Error creating local session") from e
 
+# Connection for fastapi module
 def get_db() -> Generator[Session, Any, None]:
     """Return database session for fastapi.
 
@@ -51,18 +52,19 @@ def get_db() -> Generator[Session, Any, None]:
         Logger().logger.debug("Opening database session")
         yield db
 
-    # except DatabaseError as e:
-    #     Logger().logger.error(f"Error in database connection: {e}")
-    #     raise e from e
-    # except Exception as e:
-    #     Logger().logger.error(f"Error in database connection: {e}")
-    #     raise InvalidRequestError(f"Error in database connection: {e}") from e
+    except DatabaseError as e:
+        Logger().logger.error(f"Error in database connection: {e}")
+        raise e from e
+    except Exception as e:
+        Logger().logger.error(f"Error in database connection: {e}")
+        raise InvalidRequestError(f"Error in database connection: {e}") from e
 
     finally:
         Logger().logger.debug("Closing database session")
         db.rollback()
         db.close()
 
+# Connection for database module
 @contextlib.contextmanager
 def db_session() -> Generator[Session, None, None]:
     """Return database session for sqlalchemy connection.
@@ -78,9 +80,9 @@ def db_session() -> Generator[Session, None, None]:
         Logger().logger.debug("Opening sqlalchemy session")
         yield session
 
-    except DatabaseError as e:
-        Logger().logger.error(f"Error in database connection: {e}")
-        raise e from e
+    except DbReadError as de:
+        Logger().logger.error(f"Error in database connection: {de}")
+        raise de from de
     except Exception as e:
         Logger().logger.error(f"Error in database connection: {e}")
         raise InvalidRequestError(f"Error in database connection: {e}") from e
