@@ -41,9 +41,9 @@ class Logger(ClassnameFilter):
 
     Methods:
     --------
-    __init__(): Initializes the Logger object.
-    _setup_logger(filepath): Configures the logger with file handler and console handler.
-    log_module_init(): Logs a debug message on successful module initialization.
+    _setup_logger(filepath): Configures logger, setup file/console handler.
+    log_module_init(): Log module initialization.
+    log_exception(e): Log exception details.
 
     """
 
@@ -75,7 +75,7 @@ class Logger(ClassnameFilter):
         # Create log file on init
         os.makedirs("./log", exist_ok=True)
 
-        self.logger = logging.getLogger(__name__)
+        self.logger: logging.Logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
         # Log message format
@@ -112,7 +112,20 @@ class Logger(ClassnameFilter):
             module = frame.f_locals.get("self").__class__.__module__ # type: ignore
 
         # Message on successful module initialization
-        msg = f"Class {classname} of the "
+        msg: str = f"Class {classname} of the "
         msg += f"module {module} "
         msg += "successfully initialized."
         self.logger.debug(msg)
+
+    def log_exception(self, e: Exception) -> None:
+        """Log the details of the given exception.
+
+        Use in except block to log the details of the exception.
+
+        Args:
+            e (Exception): The exception to be logged.
+        """
+        error_type: str = type(e).__name__
+        method_name: str = e.__traceback__.tb_frame.f_code.co_name  # type: ignore
+        error_message: str = f'Method: "{method_name}()" raised: "{error_type}"'
+        self.logger.error(error_message)

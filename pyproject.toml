@@ -96,7 +96,7 @@ legacy_tox_ini = """
     commands_pre =
         poetry install
     commands =
-        poetry run pytest --basetemp={envtmpdir} -v -m "smoke" #combine markers with or/and syntax
+        poetry run pytest --basetemp={envtmpdir} -v -m "api" #combine markers with or/and syntax
 
     [testenv:flake8]
     basepython = python3.11
