@@ -19,8 +19,8 @@ class AuthExceptionLogger:
             str: The formatted error message.
         """
         error_type = type(e).__name__
-        line_number = e.__traceback__.tb_lineno
-        method_name = e.__traceback__.tb_frame.f_code.co_name
+        line_number = e.__traceback__.tb_lineno # type: ignore
+        method_name = e.__traceback__.tb_frame.f_code.co_name # type: ignore
         error_message = f'Method: "{method_name}()" raised: "{error_type}" for input: "{e.args[0]}" at line: {line_number}'
         return error_message
     
