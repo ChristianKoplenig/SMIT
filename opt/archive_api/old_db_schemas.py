@@ -1,10 +1,11 @@
 import re
 from datetime import datetime
-from typing import Annotated, Any, Optional
+from typing import Any, Optional
 
-from pydantic import StringConstraints, ValidationInfo, field_validator
+from pydantic import ConfigDict, StringConstraints, ValidationInfo, field_validator
 from sqlalchemy import UniqueConstraint
 from sqlmodel import Field, SQLModel
+from typing import Annotated
 
 
 class AuthenticationSchema(SQLModel, table=True):
@@ -36,10 +37,7 @@ class AuthenticationSchema(SQLModel, table=True):
     username: Annotated[
         str,
         StringConstraints(
-            strip_whitespace=True,
-            to_lower=True,
-            pattern=r"^[A-Za-z0-9_]+$",
-            min_length=5,
+            strip_whitespace=True, to_lower=True, pattern=r"^[A-Za-z0-9_]+$"
         ),
         Field(index=True, description="Authentication username.", unique=True),
     ]
@@ -69,16 +67,13 @@ class AuthenticationSchema(SQLModel, table=True):
         Optional[str], Field(default=None, description="Elictricity provider password")
     ]
     daymeter: Annotated[
-        Optional[int],
-        Field(default=None,
-              description="Day meter endpoint number",
-              regex=r"^\d{6}$")
+        Optional[int], Field(default=None,
+                             description="Day meter endpoint number",
+                             min_length=6,
+                             max_length=6)
     ]
     nightmeter: Annotated[
-        Optional[int],
-        Field(default=None,
-              description="Day meter endpoint number",
-              regex=r"^\d{6}$"),
+        Optional[int], Field(default=None, description="Night meter endpoint number")
     ]
 
     # Validation
