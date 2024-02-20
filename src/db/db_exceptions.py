@@ -1,8 +1,7 @@
+# TODO: Check usage and switch to Logger() integration
 class DbExceptionLogger:
+    """Manage database exceptions.
     """
-    Manage database exceptions.
-    """
-
     @staticmethod
     def logging_input(e: Exception) -> str:
         """Format general Exception.
@@ -20,13 +19,12 @@ class DbExceptionLogger:
         error_message = f'Method: "{method_name}()" raised: "{error_type}" for input: "{e_arguments}" at line: {line_number}'
         return error_message
 
-
 class DatabaseError(Exception):
-    """Generate error message from traceback.
+    """Generate database error message.
 
     Args:
         e (Exception): The exception to be logged.
-        message (str): The custom error message to display.
+        message (str): The custom error message to append.
 
     Returns:
         str: The formatted error message.
@@ -39,17 +37,16 @@ class DatabaseError(Exception):
         self.error_details: str = self._create_error_message(e)
 
         self.proccessed_message: str = (
-            f"{self.error_details}; Custom message: {self.message}"
+            f"{self.error_details}; \n Application message: {self.message}"
         )
 
         super().__init__(self.message)
 
     def _create_error_message(self, e: Exception) -> str:
-        """
-        Creates the error message.
+        """Create the error message from traceback.
 
         Returns:
-            str: The error message.
+            str: Error message containing trace information.
         """
 
         error_type: str = type(e).__name__
@@ -59,7 +56,7 @@ class DatabaseError(Exception):
         except Exception:
             error_argument = "No argument provided"
 
-        return f"Database Error in method: {method_name}(); Raised: {error_type} with error argument: {error_argument}"
+        return f"Database Error in method: {method_name}(); \n Raised: {error_type} with error argument: {error_argument}"
 
     def __str__(self) -> str:
         return f"{self.proccessed_message}"

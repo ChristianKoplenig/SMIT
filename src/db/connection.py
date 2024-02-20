@@ -30,40 +30,39 @@ url = URL.create(
 engine: Engine = create_engine(url) #, echo=True)
 
 def local_session() -> Session:
-    """Return SqlModel session"""
+    """Return SqlModel session.
+
+    Use engine to create a session for the smit database at fly.io.
+
+    Returns:
+        Session: SqlModel session for smit database at fly.io.
+    """
     try:
         return Session(engine)
     except Exception as e:
-        Logger().logger.error(f"Error creating local session: {e}")
+        Logger().log_exception(e)
         raise DatabaseError(e, "Error creating local session") from e
 
 # Connection for fastapi module
 def get_db() -> Generator[Session, Any, None]:
     """Return database session for fastapi.
 
-    Connect to smit database at fly.io.
+    Use local_session() to connect to database.
 
     Yields:
-        SessionLocal: Develop connection to fly.io postgres database.
+        Session: SqlModel session for smit database at fly.io.
 
     """
     db: Session = local_session()
     try:
         Logger().logger.debug("Opening database session")
         yield db
-
-    except DatabaseError as e:
-        Logger().logger.error(f"Error in database connection: {e}")
-        raise e from e
-    except Exception as e:
-        Logger().logger.error(f"Error in database connection: {e}")
-        raise InvalidRequestError(f"Error in database connection: {e}") from e
-
     finally:
         Logger().logger.debug("Closing database session")
         db.rollback()
         db.close()
 
+#TODO: check if extra connection is needed
 # Connection for database module
 @contextlib.contextmanager
 def db_session() -> Generator[Session, None, None]:

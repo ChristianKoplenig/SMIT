@@ -3,10 +3,9 @@ from datetime import datetime
 from typing import Annotated, Any, Optional
 
 from pydantic import StringConstraints, ValidationInfo, field_validator
-from sqlalchemy import UniqueConstraint
 from sqlmodel import Field, SQLModel
 
-
+#TODO: Check if needed, switch to fastapi
 class AuthModel(SQLModel, table=True):
     """
     Table for user management.
@@ -105,7 +104,7 @@ class AuthModel(SQLModel, table=True):
             raise ValueError(f"{info.field_name} number must be 6 characters long")
         return v
 
-
+# TODO: switch to fastapi
 class ConfigSchema(SQLModel, table=True):
     """
     Represents the authentication configuration schema.

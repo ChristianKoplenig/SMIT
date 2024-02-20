@@ -89,7 +89,7 @@ class SmitDb:
                 return func(*args, **kwargs)
 
         return wrapper
-
+    # TODO: switch to Logger() method
     def _log_exception(self, e: Exception) -> None:
         """Format and log exceptions.
 
