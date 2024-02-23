@@ -18,7 +18,7 @@ Download and plot data from smart meters.
 - Debug logging with custom logger.
 - Customized exception handling.
 """
-tags_metadata = [
+tags_metadata: list[dict[str, str]] = [
     {
         'name': 'Debug',
         'description': 'Debugging routes for the API'
@@ -54,7 +54,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.include_router(auth.router, tags=["Authentication"], prefix="/auth")
+app.include_router(auth.router) #, tags=["Authentication"], prefix="/auth")
 app.include_router(debug.router, tags=["Debug"], prefix="/debug")
 
 
