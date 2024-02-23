@@ -49,7 +49,7 @@ async def get_users(
 async def create_test_users(
     db: Session = Depends(get_db),
 ) -> str:
-    """Create users from dependencies users dict."""
+    """Use `opt.users_mock` file to create users."""
 
     existing_users: List[str] = await get_users(db)
 
