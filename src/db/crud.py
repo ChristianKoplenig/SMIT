@@ -152,6 +152,7 @@ class SmitDb:
             with session:
                 session.add(schema)
                 session.commit()
+                session.refresh(schema)
                 self.logger.info(
                     "Added instance of %s to database: %s",
                     schema.__class__.__name__,

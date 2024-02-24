@@ -96,13 +96,21 @@ def db_instance_empty(db_instance: TestSmitDb,
 ### Setup for fastapi module testing ###
 @pytest.fixture(scope="session")
 def api_instance() -> Generator[TestSmitDb, Any, None]:
-    """Create connection to smit test database."""
+    """Setup SmitDb crud operations for testing.
+    
+    Mock SmitDb class to connect to test database.
+    Load SmitDb with API table schema.
+    Provide crud operations from SmitDb for testing.
+
+    Yields:
+        TestSmitDb: SmitDb class with testing connection.
+    """
     db = TestSmitDb(schema=UserModel)
     yield db
 
 @pytest.fixture(scope="session")
 def api_test_session(api_instance: TestSmitDb) -> Generator[Session, Any, None]:
-    """Yield a SqlModel Session with TestSmitDb connection."""
+    """Yield SmitDb testing session."""
     session = Session(api_instance.engine)
     Logger().logger.debug("Opening database api_test_session")
     yield session
@@ -113,7 +121,21 @@ def api_test_session(api_instance: TestSmitDb) -> Generator[Session, Any, None]:
 def api_instance_empty(
     api_instance: TestSmitDb, api_test_session: Session
 ) -> Generator[TestSmitDb, Any, None]:
-    """Yield clean authentication table."""
+    """Yield clean authentication table.
+
+    This function is a fixture that yields the SmitDb class 
+    in testing setup.
+    It clears the database before the test function is executed 
+    and deletes all entries after the test function is executed.
+
+    Args:
+        api_instance (TestSmitDb): Instance of SmitDb class in testing setup.
+        api_test_session (Session): The database session.
+
+    Yields:
+        TestSmitDb: A clean instance of the SmitDb testing class.
+
+    """
     # Clear DB before test function
     api_instance.create_table(api_instance.engine)
     api_instance.delete_all_entries(session=api_test_session)
@@ -233,7 +255,7 @@ def invalid_users() -> Generator[dict[str, dict[str, str]], None, None]:
     yield fail_users
 
 @pytest.fixture
-def valid_users() -> Generator[dict[str, dict[str, str]], None, None]:
+def valid_users() -> Generator[dict[str, dict[str, str | int]], None, None]:
     """Generate a dictionary of valid user data.
     
     Returns a dict with key:value pairs from `AuthModel` class.
@@ -241,27 +263,27 @@ def valid_users() -> Generator[dict[str, dict[str, str]], None, None]:
     Returns:
         dict[str, str]: A dictionary containing valid user information.
     """
-    user1: dict[str, str] = {
+    user1: dict[str, str | int] = {
         'username': 'dummy_user',
         'password': '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
         'email': 'dummy@dummymail.com',
         'sng_username': 'dummy_sng_login',
         'sng_password': 'dummy_sng_password',
-        'daymeter': '199996',
-        'nightmeter': '199997'
+        'daymeter': 199996,
+        'nightmeter': 199997
     }
     
-    user2: dict[str, str] = {
+    user2: dict[str, str | int] = {
         'username': 'dummy_user2',
         'password': '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
         'email': 'dummy2@dummymail.com',
         'sng_username': 'dummy2_sng_login',
         'sng_password': 'dummy2_sng_password',
-        'daymeter': '199994',
-        'nightmeter': '199995'
+        'daymeter': 199994,
+        'nightmeter': 199995
     }
     
-    good_users: dict[str, dict[str, str]] = {
+    good_users: dict[str, dict[str, str | int]] = {
         'dummy_user' : user1,
         'dummy_user2' : user2
     }

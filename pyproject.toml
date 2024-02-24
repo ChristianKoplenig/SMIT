@@ -68,15 +68,11 @@ uvicorn = { extras = ["standard"], version = "^0.27.0.post1" }
 addopts = "--ignore=opt/"
 markers = [
     "smoke: Validate all core methods",
-    "application: Test setup of application class",
-    "crypto: Test rsa implementation",
-    "osinterface: Move files, generate pandas dataframe",
-    "persistence: Check dates variable",
-    "scraping: Webdriver setup",
     "database: Test database connection and CRUD operations",
     "engine: Test database engine",
     "schema: Test SqlModel schemas",
     "api: Test FastAPI endpoints",
+    "authentication: Test FastAPI authentication framework"
 ]
 
 [tool.tox]
@@ -96,7 +92,7 @@ legacy_tox_ini = """
     commands_pre =
         poetry install
     commands =
-        poetry run pytest --basetemp={envtmpdir} -v -m "api" #combine markers with or/and syntax
+        poetry run pytest --basetemp={envtmpdir} -v -m "authentication" #combine markers with or/and syntax
 
     [testenv:flake8]
     basepython = python3.11
