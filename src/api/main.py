@@ -1,7 +1,10 @@
+from typing import Any, AsyncGenerator
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 
+from utils.logger import Logger
 from db.connection import engine
 from api.routes import auth, debug
 
@@ -22,10 +25,28 @@ tags_metadata: list[dict[str, str]] = [
     {
         'name': 'Debug',
         'description': 'Debugging routes for the API'
+    },
+    {
+        'name': 'Authentication',
+        'description': 'Routes for user authentication management.'
     }
 ]
 
-SQLModel.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
+    """Setup database tables.
+
+    Use SQLModel metadata to create all tables from SQLModel classes.
+
+    """
+    try:
+        SQLModel.metadata.create_all(engine)
+        Logger().logger.debug("SqlModel metadata created successfully.")
+    except Exception as e:
+        Logger().log_exception(e)
+        raise e
+    yield
+
 
 app = FastAPI(
     title="SMIT API",
@@ -39,7 +60,8 @@ app = FastAPI(
     license_info={
         'name': 'License: MIT',
         'identifier': 'MIT',
-    }
+    },
+    lifespan=lifespan
 )
 
 origins: list[str] = [

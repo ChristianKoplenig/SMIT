@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Annotated, Optional, Any
+from typing import Annotated, Optional, Any, Union
 from sqlmodel import SQLModel, Field
 from pydantic import StringConstraints 
+#from .schemas import ErrorResponses
 
 # Needed for field validators
 # import re
@@ -131,14 +132,66 @@ class UserModel(UserBase, table=True):
         Field(default_factory=datetime.now, description="User creation date"),
     ]
 
+class Response404(SQLModel):
+    """Schema for query return error.
+    """
+    error: Annotated[
+        str,
+        Field(
+            schema_extra={
+                "example": "User not found"
+            },
+            description='Error description'
+            )
+        ]
+    info: Annotated[
+        str,
+        Field(
+            schema_extra={
+                "example": "User 'username' not found in db"
+            },
+            description="Error details"),
+    ]
+
+class Response500(SQLModel):
+    """Error schema for database exceptions."""
+
+    error: Annotated[
+        str,
+        Field(
+            schema_extra={
+                "example": "Database Error"
+            },
+            description="Error description"
+        ),
+    ]
+    info: Annotated[
+        dict[str, str | Any],
+        Field(
+            schema_extra={
+                "example": "Database validation error"
+            },
+            description="Error details",
+        ),
+    ]
+
+
 class UserResponseSchema(UserBase):
     """Response schema for user data.
     
     Add id field from database to response.
     """
     id: Annotated[int, "User id"]
+    api_response: Annotated[
+        Optional[Union[Response404, Response500]],
+        Field(
+            default=None,
+            description="API response for error handling"
+        ),
+    ]
 
-class UserCreateSchema(UserBase):
+class UserInputSchema(UserBase):
     """Input schema for user creation.
     """
     pass
+
