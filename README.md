@@ -2,6 +2,37 @@
 **<p align='center'> Smart Meter Interface Tool </p>**   
 <p align='center'> Download and plot your power usage </p>
 
+## Release 0.3
+API implementation
+### Features
+- FastApi
+- OpenApi Docs
+- Pydantic
+- SqlModel
+- Pytest
+- Logger
+- Exception Handling
+### Roadmap
+- Authentication
+	- [ ] Login
+	- [ ] User Rights Management
+	- [ ] Pytest Setup
+- Setup Instructions
+	- [ ] Use GitHub Codespaces
+	- [ ] Docker
+	- [ ] Clone GitHub
+- Smit Data
+	- [ ] Static - Dummy
+	- [ ] Dynamic
+- Deploy
+	- [ ] Docker
+	- [ ] Github Codespaces
+	- [ ] Deploy to web
+- [ ] Frontend
+	- [ ] FastApi Templates
+	- [ ] Vue Js
+- [ ] Data Analysis
+
 ## Intention
 
 My main motivations for this application are to 
