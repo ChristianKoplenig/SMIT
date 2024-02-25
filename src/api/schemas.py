@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated, Optional, Any, Union
 from sqlmodel import SQLModel, Field
-from pydantic import StringConstraints 
+from pydantic import StringConstraints, ConfigDict 
 #from .schemas import ErrorResponses
 
 # Needed for field validators
@@ -87,6 +87,22 @@ class UserBase(SQLModel):
         ),
     ]
 
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "dummy_user",
+                    "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
+                    "email": "dummy@dummymail.com",
+                    "sng_username": "dummy_sng_login",
+                    "sng_password": "dummy_sng_password",
+                    "daymeter": 199996,
+                    "nightmeter": 199997,
+                }
+            ]
+        }
+    }
+
     # # Validation
     # @field_validator("username", "sng_username")
     # @classmethod
@@ -132,26 +148,69 @@ class UserModel(UserBase, table=True):
         Field(default_factory=datetime.now, description="User creation date"),
     ]
 
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "dummy_user",
+                    "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
+                    "email": "dummy@dummymail.com",
+                    "sng_username": "dummy_sng_login",
+                    "sng_password": "dummy_sng_password",
+                    "daymeter": 199996,
+                    "nightmeter": 199997,
+                    "id": 1,
+                    "created_on": "2023-09-25T10:15:00",
+                }
+            ]
+        }
+    }
+
+
+class DecodeToken(SQLModel):
+    """Schema for token decoding.
+    """
+    username: Annotated[str,
+                        Field(
+                            description="Username from token")]
+    #exp: Annotated[int, Field(description="Token expiration time")]
+
+    model_config: ConfigDict = {
+        'json_schema_extra': {
+            'examples': [
+                {
+                    'username': 'dummy_user',
+                }
+            ]
+        }
+    }
+
 class Response404(SQLModel):
     """Schema for query return error.
     """
     error: Annotated[
         str,
         Field(
-            schema_extra={
-                "example": "User not found"
-            },
             description='Error description'
             )
         ]
     info: Annotated[
         str,
         Field(
-            schema_extra={
-                "example": "User 'username' not found in db"
-            },
             description="Error details"),
     ]
+
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "error": "User not found",
+                    "info": "User `username` not found in db",
+                }
+            ]
+        }
+    }
+
 
 class Response500(SQLModel):
     """Error schema for database exceptions."""
@@ -159,21 +218,31 @@ class Response500(SQLModel):
     error: Annotated[
         str,
         Field(
-            schema_extra={
-                "example": "Database Error"
-            },
             description="Error description"
         ),
     ]
     info: Annotated[
         dict[str, str | Any],
         Field(
-            schema_extra={
-                "example": "Database validation error"
-            },
             description="Error details",
         ),
     ]
+
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "error": "Database validation error",
+                    "info": {
+                        "username": {
+                            "Input": "asd",
+                            "Message": "String should have at least 5 characters",
+                        },
+                    },
+                }
+            ]
+        }
+    }
 
 
 class UserResponseSchema(UserBase):
@@ -190,8 +259,42 @@ class UserResponseSchema(UserBase):
         ),
     ]
 
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "dummy_user",
+                    "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
+                    "email": "dummy@dummymail.com",
+                    "sng_username": "dummy_sng_login",
+                    "sng_password": "dummy_sng_password",
+                    "daymeter": 199996,
+                    "nightmeter": 199997,
+                    "id": 1,
+                    "api_response": "`null` for status code 200",
+                }
+            ]
+        }
+    }
+
+
 class UserInputSchema(UserBase):
     """Input schema for user creation.
     """
     pass
 
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "dummy_user",
+                    "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
+                    "email": "dummy@dummymail.com",
+                    "sng_username": "dummy_sng_login",
+                    "sng_password": "dummy_sng_password",
+                    "daymeter": 199996,
+                    "nightmeter": 199997,
+                }
+            ]
+        }
+    }
