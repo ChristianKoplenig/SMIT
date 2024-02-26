@@ -1,12 +1,14 @@
 from datetime import datetime
-from typing import Annotated, Optional, Any, Union
-from sqlmodel import SQLModel, Field
-from pydantic import StringConstraints, ConfigDict 
-#from .schemas import ErrorResponses
+from typing import Annotated, Any, Optional, Union
+
+from api.response_schemas import Response404, Response500
+from pydantic import ConfigDict, StringConstraints
+from sqlmodel import Field, SQLModel
 
 # Needed for field validators
 # import re
 # from pydantic import ValidationInfo, field_validator
+
 
 class UserBase(SQLModel):
     """Base model schema for user management.
@@ -31,6 +33,7 @@ class UserBase(SQLModel):
         - nightmeter (int, optional): The night meter value.
             - Must be six digits long
     """
+
     # Authentication fields
     username: Annotated[
         str,
@@ -59,22 +62,15 @@ class UserBase(SQLModel):
     sng_username: Annotated[
         Optional[str],
         StringConstraints(pattern=r"^[A-Za-z0-9_]+$"),
-        Field(
-            index=True,
-            description="Electricity provider username."),
+        Field(index=True, description="Electricity provider username."),
     ]
     sng_password: Annotated[
-        Optional[str], Field(
-            default=None,
-            description="Electricity provider password")
+        Optional[str], Field(default=None, description="Electricity provider password")
     ]
     daymeter: Annotated[
         Optional[int],
         Field(
-            default=None,
-            description="Day meter endpoint number",
-            ge=100000,
-            le=999999
+            default=None, description="Day meter endpoint number", ge=100000, le=999999
         ),
     ]
     nightmeter: Annotated[
@@ -83,7 +79,7 @@ class UserBase(SQLModel):
             default=None,
             description="Night meter endpoint number",
             ge=100000,
-            le=999999
+            le=999999,
         ),
     ]
 
@@ -132,11 +128,11 @@ class UserBase(SQLModel):
     #     if v and len(str(v)) != 6:
     #         raise ValueError(f"{info.field_name} number must be 6 characters long")
     #     return v
-    
+
 
 class UserModel(UserBase, table=True):
     """Table model for database connection.
-    
+
     Create id, and created_on fields on database commit.
     """
 
@@ -167,96 +163,16 @@ class UserModel(UserBase, table=True):
     }
 
 
-class DecodeToken(SQLModel):
-    """Schema for token decoding.
-    """
-    username: Annotated[str,
-                        Field(
-                            description="Username from token")]
-    #exp: Annotated[int, Field(description="Token expiration time")]
-
-    model_config: ConfigDict = {
-        'json_schema_extra': {
-            'examples': [
-                {
-                    'username': 'dummy_user',
-                }
-            ]
-        }
-    }
-
-class Response404(SQLModel):
-    """Schema for query return error.
-    """
-    error: Annotated[
-        str,
-        Field(
-            description='Error description'
-            )
-        ]
-    info: Annotated[
-        str,
-        Field(
-            description="Error details"),
-    ]
-
-    model_config: ConfigDict = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "error": "User not found",
-                    "info": "User `username` not found in db",
-                }
-            ]
-        }
-    }
-
-
-class Response500(SQLModel):
-    """Error schema for database exceptions."""
-
-    error: Annotated[
-        str,
-        Field(
-            description="Error description"
-        ),
-    ]
-    info: Annotated[
-        dict[str, str | Any],
-        Field(
-            description="Error details",
-        ),
-    ]
-
-    model_config: ConfigDict = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "error": "Database validation error",
-                    "info": {
-                        "username": {
-                            "Input": "asd",
-                            "Message": "String should have at least 5 characters",
-                        },
-                    },
-                }
-            ]
-        }
-    }
-
-
 class UserResponseSchema(UserBase):
     """Response schema for user data.
-    
+
     Add id field from database to response.
     """
+
     id: Annotated[int, "User id"]
     api_response: Annotated[
         Optional[Union[Response404, Response500]],
-        Field(
-            default=None,
-            description="API response for error handling"
-        ),
+        Field(default=None, description="API response for error handling"),
     ]
 
     model_config: ConfigDict = {
@@ -279,8 +195,8 @@ class UserResponseSchema(UserBase):
 
 
 class UserInputSchema(UserBase):
-    """Input schema for user creation.
-    """
+    """Input schema for user creation."""
+
     pass
 
     model_config: ConfigDict = {
@@ -298,3 +214,29 @@ class UserInputSchema(UserBase):
             ]
         }
     }
+
+
+class DecodeToken(SQLModel):
+    """Schema for token decoding."""
+
+    username: Annotated[str, Field(description="Username from token")]
+    # exp: Annotated[int, Field(description="Token expiration time")]
+
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "dummy_user",
+                }
+            ]
+        }
+    }
+
+
+class AuthToken(SQLModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(SQLModel):
+    username: str | None = None

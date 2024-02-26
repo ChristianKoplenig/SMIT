@@ -264,23 +264,23 @@ def valid_users() -> Generator[dict[str, dict[str, str | int]], None, None]:
         dict[str, str]: A dictionary containing valid user information.
     """
     user1: dict[str, str | int] = {
-        'username': 'dummy_user',
-        'password': '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
-        'email': 'dummy@dummymail.com',
-        'sng_username': 'dummy_sng_login',
-        'sng_password': 'dummy_sng_password',
-        'daymeter': 199996,
-        'nightmeter': 199997
+        "username": "dummy_user",
+        "password": "$argon2id$v=19$m=65536,t=3,p=4$NxWNf7Vxcwv3I25r6T9TZQ$aSw0+lmoZPsaildOr93ted9qR/UQ3moG5pokYb9HEZo",
+        "email": "dummy@dummymail.com",
+        "sng_username": "dummy_sng_login",
+        "sng_password": "dummy_sng_password",
+        "daymeter": 199996,
+        "nightmeter": 199997,
     }
     
     user2: dict[str, str | int] = {
-        'username': 'dummy_user2',
-        'password': '$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om',
-        'email': 'dummy2@dummymail.com',
-        'sng_username': 'dummy2_sng_login',
-        'sng_password': 'dummy2_sng_password',
-        'daymeter': 199994,
-        'nightmeter': 199995
+        "username": "dummy_user2",
+        "password": "$argon2id$v=19$m=65536,t=3,p=4$5pD+VDlNiib9xXyn8l4n9g$+L5Y8qWw4Y6EriSlIeYlXpIfUiHedtZkblDNEBv3jc8",
+        "email": "dummy2@dummymail.com",
+        "sng_username": "dummy2_sng_login",
+        "sng_password": "dummy2_sng_password",
+        "daymeter": 199994,
+        "nightmeter": 199995,
     }
     
     good_users: dict[str, dict[str, str | int]] = {

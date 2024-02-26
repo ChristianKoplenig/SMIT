@@ -8,7 +8,7 @@ def valid_users() -> List[dict[str, str]]:
     """
     user1: dict[str, str] = {
         "username": "dummy_user",
-        "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
+        "password": "$argon2id$v=19$m=65536,t=3,p=4$NxWNf7Vxcwv3I25r6T9TZQ$aSw0+lmoZPsaildOr93ted9qR/UQ3moG5pokYb9HEZo",
         "email": "dummy@dummymail.com",
         "sng_username": "dummy_sng_login",
         "sng_password": "dummy_sng_password",
@@ -17,7 +17,7 @@ def valid_users() -> List[dict[str, str]]:
     }
     user2: dict[str, str] = {
         "username": "dummy_user2",
-        "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
+        "password": "$argon2id$v=19$m=65536,t=3,p=4$5pD+VDlNiib9xXyn8l4n9g$+L5Y8qWw4Y6EriSlIeYlXpIfUiHedtZkblDNEBv3jc8",
         "email": "dummy2@dummymail.com",
         "sng_username": "dummy2_sng_login",
         "sng_password": "dummy2_sng_password",
@@ -26,7 +26,7 @@ def valid_users() -> List[dict[str, str]]:
     }
     user3: dict[str, str] = {
         "username": "aaaaa",
-        "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
+        "password": "$argon2id$v=19$m=65536,t=3,p=4$zst3ATBqGuOhZaCTrORTXg$r7yDUiaNbS4GdHiCL8aUaT/whJ3j1PIbryc8CGyD5N0",
         "email": "a@a.com",
         "sng_username": "aaaaa",
         "sng_password": "dummy2_sng_password",

@@ -1,12 +1,12 @@
-from typing import Any, AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any, AsyncGenerator
+
+from api.routes import auth, debug
+from db.connection import engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
-
 from utils.logger import Logger
-from db.connection import engine
-from api.routes import auth, debug
 
 description = """
 # Smart Meter Interface Tool
@@ -22,15 +22,13 @@ Download and plot data from smart meters.
 - Customized exception handling.
 """
 tags_metadata: list[dict[str, str]] = [
+    {"name": "Debug", "description": "Debugging routes for the API"},
     {
-        'name': 'Debug',
-        'description': 'Debugging routes for the API'
+        "name": "Authentication",
+        "description": "Routes for user authentication management.",
     },
-    {
-        'name': 'Authentication',
-        'description': 'Routes for user authentication management.'
-    }
 ]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
@@ -50,18 +48,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
 
 app = FastAPI(
     title="SMIT API",
-    version='0.1',
+    version="0.1",
     description=description,
     openapi_tags=tags_metadata,
     contact={
-        'name': 'Source code on GitHub Repository',
-        'url': 'https://github.com/ChristianKoplenig/SMIT'
+        "name": "Source code on GitHub Repository",
+        "url": "https://github.com/ChristianKoplenig/SMIT",
     },
     license_info={
-        'name': 'License: MIT',
-        'identifier': 'MIT',
+        "name": "License: MIT",
+        "identifier": "MIT",
     },
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 origins: list[str] = [
@@ -76,7 +74,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router) #, tags=["Authentication"], prefix="/auth")
+app.include_router(auth.router)
 app.include_router(debug.router, tags=["Debug"], prefix="/debug")
 
 
