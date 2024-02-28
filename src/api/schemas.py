@@ -216,11 +216,15 @@ class UserInputSchema(UserBase):
     }
 
 
-class DecodeToken(SQLModel):
+class AuthToken(SQLModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(SQLModel):
     """Schema for token decoding."""
 
     username: Annotated[str, Field(description="Username from token")]
-    # exp: Annotated[int, Field(description="Token expiration time")]
 
     model_config: ConfigDict = {
         "json_schema_extra": {
@@ -231,12 +235,3 @@ class DecodeToken(SQLModel):
             ]
         }
     }
-
-
-class AuthToken(SQLModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(SQLModel):
-    username: str | None = None
