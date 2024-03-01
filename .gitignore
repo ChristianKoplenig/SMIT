@@ -3,9 +3,11 @@ config/private_key.pem
 config/public_key.pem
 user_data.tomldebug.log
 config/user_data.toml
-.streamlit/secrets.toml
 src/db/smitdb_secrets.py
-*/db_test_secrets*
+*secrets.py
+.env
+
+*fly.toml
 
 # application specific
 csv_raw/
@@ -31,5 +33,3 @@ __pycache__/
 .mypy_cache
 .pytest_cache
 .vscode/
-# developement files
-testing.py

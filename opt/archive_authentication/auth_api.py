@@ -1,12 +1,12 @@
 from hmac import new
 
 # Error handling
-import db.db_exceptions as db_exc
+import exceptions.db_exceptions as db_exc
 import streamlit as st
 
 # Database imports
-from db.models import AuthModel, ConfigSchema
-from db.crud import SmitDb
+from api.internal.SqlAlchemy.models import AuthModel, ConfigSchema
+from api.internal.SqlAlchemy.crud import SmitDb
 from pydantic import ValidationError
 
 # Backend

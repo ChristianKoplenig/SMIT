@@ -1,9 +1,9 @@
 import bcrypt
 import streamlit as st
-from db.db_exceptions import DatabaseError, DbReadError, DbUpdateError
+from exceptions.db_exceptions import DatabaseError, DbReadError, DbUpdateError
 
 # Import python modules
-from db.models import AuthModel
+from api.internal.SqlAlchemy.models import AuthModel
 from utils.cookie_manager import CookieManager
 
 # Exception handling

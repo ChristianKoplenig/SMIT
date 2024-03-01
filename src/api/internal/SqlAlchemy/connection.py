@@ -7,15 +7,17 @@ from sqlalchemy.engine.base import Engine
 
 from utils.logger import Logger
 from sqlalchemy.exc import InvalidRequestError
-from db.db_exceptions import DatabaseError, DbReadError
-
-from db import smitdb_secrets as secrets
+from exceptions.db_exc import DatabaseError, DbReadError
 
 # Import secrets
-db_user = secrets.username
-db_pwd = secrets.password
-db_host = secrets.host
-db_database = secrets.database
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+db_user = os.getenv("DATABASE_SMIT_USERNAME")
+db_pwd = os.getenv("DATABASE_SMIT_PASSWORD")
+db_host = os.getenv("DATABASE_SMIT_HOST")
+db_database = os.getenv("DATABASE_SMIT_NAME")
 
 # Define database connection
 url = URL.create(
@@ -42,25 +44,6 @@ def local_session() -> Session:
     except Exception as e:
         Logger().log_exception(e)
         raise DatabaseError(e, "Error creating local session") from e
-
-# Connection for fastapi module
-def get_db() -> Generator[Session, Any, None]:
-    """Return database session for fastapi.
-
-    Use local_session() to connect to database.
-
-    Yields:
-        Session: SqlModel session for smit database at fly.io.
-
-    """
-    db: Session = local_session()
-    try:
-        Logger().logger.debug("Opening database session")
-        yield db
-    finally:
-        Logger().logger.debug("Closing database session")
-        db.rollback()
-        db.close()
 
 #TODO: check if extra connection is needed
 # Connection for database module

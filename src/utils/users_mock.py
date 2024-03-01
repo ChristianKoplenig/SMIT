@@ -1,3 +1,4 @@
+"""Mock users for setup and testing."""
 from typing import List
 
 def valid_users() -> List[dict[str, str]]:

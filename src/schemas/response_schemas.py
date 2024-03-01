@@ -1,3 +1,4 @@
+"""Schemas for response formatting."""
 from typing import Annotated, Any
 from sqlmodel import SQLModel, Field
 from pydantic import ConfigDict
@@ -22,7 +23,6 @@ class Response401(SQLModel):
             ]
         }
     }
-
 
 class Response404(SQLModel):
     """Schema for query return error."""

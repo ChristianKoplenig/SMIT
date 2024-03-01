@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
 
 from api.routes import auth, debug
-from db.connection import engine
+from database.connection import engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel

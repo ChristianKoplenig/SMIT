@@ -1,3 +1,4 @@
+"""Api exceptions formatting."""
 from typing import Any, TYPE_CHECKING
 import traceback
 

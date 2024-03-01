@@ -1,14 +1,14 @@
+"""Schemas for user management."""
 from datetime import datetime
 from typing import Annotated, Any, Optional, Union
 
-from api.response_schemas import Response404, Response500
+from schemas.response_schemas import Response404, Response500
 from pydantic import ConfigDict, StringConstraints
 from sqlmodel import Field, SQLModel
 
 # Needed for field validators
 # import re
 # from pydantic import ValidationInfo, field_validator
-
 
 class UserBase(SQLModel):
     """Base model schema for user management.
@@ -99,70 +99,6 @@ class UserBase(SQLModel):
         }
     }
 
-    # # Validation
-    # @field_validator("username", "sng_username")
-    # @classmethod
-    # def validate_usernames(cls, v: str, info: ValidationInfo) -> str:
-    #     if len(v) < 5:
-    #         raise ValueError(f"{info.field_name} must be at least 5 characters long")
-    #     return v
-
-    # @field_validator("password", "sng_password")
-    # @classmethod
-    # def validate_passwords(cls, v: str, info: ValidationInfo) -> str:
-    #     if len(v) < 5:
-    #         raise ValueError(f"{info.field_name} must be at least 5 characters long")
-    #     return v
-
-    # @field_validator("email")
-    # @classmethod
-    # def validate_email(cls, v: str, info: ValidationInfo) -> str:
-    #     pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-    #     if not re.match(pattern, v):
-    #         raise ValueError(f"{info.field_name} must be a valid email address")
-    #     return v
-
-    # @field_validator("daymeter", "nightmeter")
-    # @classmethod
-    # def validate_meter(cls, v: str, info: ValidationInfo) -> str:
-    #     if v and len(str(v)) != 6:
-    #         raise ValueError(f"{info.field_name} number must be 6 characters long")
-    #     return v
-
-
-class UserModel(UserBase, table=True):
-    """Table model for database connection.
-
-    Create id, and created_on fields on database commit.
-    """
-
-    __tablename__: Any = "auth_api"
-
-    id: Annotated[Optional[int], Field(default=None, primary_key=True)]
-    created_on: Annotated[
-        Optional[datetime],
-        Field(default_factory=datetime.now, description="User creation date"),
-    ]
-
-    model_config: ConfigDict = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "username": "dummy_user",
-                    "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
-                    "email": "dummy@dummymail.com",
-                    "sng_username": "dummy_sng_login",
-                    "sng_password": "dummy_sng_password",
-                    "daymeter": 199996,
-                    "nightmeter": 199997,
-                    "id": 1,
-                    "created_on": "2023-09-25T10:15:00",
-                }
-            ]
-        }
-    }
-
-
 class UserResponseSchema(UserBase):
     """Response schema for user data.
 
@@ -193,7 +129,6 @@ class UserResponseSchema(UserBase):
         }
     }
 
-
 class UserInputSchema(UserBase):
     """Input schema for user creation."""
 
@@ -216,22 +151,94 @@ class UserInputSchema(UserBase):
     }
 
 
-class AuthToken(SQLModel):
-    access_token: str
-    token_type: str
 
 
-class TokenData(SQLModel):
-    """Schema for token decoding."""
+##################################################
+class Username(SQLModel):
+    """Base schema for username fields."""
 
-    username: Annotated[str, Field(description="Username from token")]
+    # username_in_db: Annotated[
+    #     Optional[str | None],
+    #     StringConstraints(
+    #         strip_whitespace=True,
+    #         to_lower=True,
+    #         pattern=r"^[A-Za-z0-9_]+$",
+    #         min_length=5,
+    #     ),
+    #     Field(index=True, description="Authentication username.", unique=True),
+    # ]
 
-    model_config: ConfigDict = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "username": "dummy_user",
-                }
-            ]
-        }
-    }
+    username_input: Annotated[
+        Optional[str | None],
+        str,
+        StringConstraints(
+            pattern=r"^[A-Za-z0-9_]+$",
+            min_length=5,
+        ),
+        Field(description="Username unformatted", default=None),
+    ]
+
+
+class Password(SQLModel):
+    """Base schema for password fields."""
+
+    # password_in_db: Annotated[
+    #     Optional[str | None],
+    #     Field(description="Hash of Authentication password")
+    # ]
+
+    password_input: Annotated[
+        Optional[str | None], Field(description="Password unformatted", default=None)
+    ]
+
+
+class Email(SQLModel):
+    """Base schema for email fields."""
+
+    email: Annotated[
+        Optional[str],
+        StringConstraints(
+            pattern=r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        ),
+        Field(
+            default=None,
+            description="Mail address for pwd recovery",
+        ),
+    ]
+
+
+class LoginFormInput(Username, Password):
+    """Base schema for login form input fields."""
+
+    # class Config:
+    #     schema_extra = {
+    #         'exclude': {'username_in_db'}
+    #     }
+
+    # model_config: ConfigDict = {
+    #     'json_schema_extra': {
+    #         'exclude': ['username_in_db', 'password_in_db'],
+    #     },
+    # }
+    # pass
+    # username: Annotated[
+    #     Username.username_input.type,
+    #     'Username from input form'
+    # ]
+    # password: Annotated[
+    #     Password,
+    #     'Password from input form'
+    # ]
+    pass
+
+
+class LoginFormOutput(UserBase):
+    """Base schema for login form output fields."""
+
+    logged_in: Annotated[bool | None, "User logged in status"]
+
+
+class CreateUserInput(UserBase):
+    """Schema for creating a new user."""
+
+    pass

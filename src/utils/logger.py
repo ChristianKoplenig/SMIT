@@ -1,3 +1,4 @@
+"""Handle application logging."""
 import inspect
 import logging
 import os

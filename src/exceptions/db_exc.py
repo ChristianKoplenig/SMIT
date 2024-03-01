@@ -1,3 +1,4 @@
+"""Database exceptions formatting."""
 # TODO: Check usage and switch to Logger() integration
 class DbExceptionLogger:
     """Manage database exceptions.

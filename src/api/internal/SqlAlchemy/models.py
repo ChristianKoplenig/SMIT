@@ -5,7 +5,7 @@ from typing import Annotated, Any, Optional
 from pydantic import StringConstraints, ValidationInfo, field_validator
 from sqlmodel import Field, SQLModel
 
-#TODO: Check if needed, switch to fastapi
+#TODO: / NOT NEEDED / Check if needed, switch to fastapi
 class AuthModel(SQLModel, table=True):
     """
     Table for user management.
@@ -104,6 +104,7 @@ class AuthModel(SQLModel, table=True):
             raise ValueError(f"{info.field_name} number must be 6 characters long")
         return v
 
+# STRUCTURE -> schemas/db_models.py
 # TODO: switch to fastapi
 class ConfigSchema(SQLModel, table=True):
     """

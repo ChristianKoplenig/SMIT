@@ -5,8 +5,8 @@ from sqlmodel import select
 from sqlmodel.sql.expression import SelectOfScalar
 
 from pydantic import ValidationError
-from db.models import AuthModel
-from db.db_exceptions import DbReadError, DbUpdateError, DbDeleteError
+from api.internal.SqlAlchemy.models import AuthModel
+from exceptions.db_exc import DbReadError, DbUpdateError, DbDeleteError
 
 
 from .conftest import TestSmitDb

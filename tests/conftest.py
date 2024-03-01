@@ -1,5 +1,7 @@
 from typing import Any, Generator, Type
 import pytest
+from dotenv import load_dotenv
+import os
 
 from fastapi.testclient import TestClient
 from sqlmodel import Session, select, create_engine, SQLModel
@@ -8,15 +10,20 @@ from sqlalchemy.engine import URL, ScalarResult
 
 
 # Custom imports
-from db.models import AuthModel
-from api.schemas import UserModel
-from db.crud import SmitDb
+from api.internal.SqlAlchemy.models import AuthModel
+from database.db_models import UserModel
+from api.internal.SqlAlchemy.crud import SmitDb
 from utils.logger import Logger
 
 from api.main import app
-from db.connection import get_db
+from database.connection import get_db
 
-from . import db_test_secrets as secrets
+
+
+load_dotenv()
+
+
+
 class TestSmitDb(SmitDb):
     """Connect to test database.
     
@@ -30,10 +37,10 @@ class TestSmitDb(SmitDb):
     def __init__(self, schema: Type[SQLModel]= AuthModel):
         super().__init__(schema=schema)
         
-        db_user = secrets.username
-        db_pwd = secrets.password
-        db_host = secrets.host
-        self.db_database = secrets.database
+        db_user = os.getenv("DATABASE_SMIT_USERNAME")
+        db_pwd = os.getenv("DATABASE_SMIT_PASSWORD")
+        db_host = os.getenv("DATABASE_SMIT_HOST")
+        self.db_database = os.getenv("TEST_DATABASE_SMIT_NAME")
 
         url = URL.create(
             drivername="postgresql+psycopg",

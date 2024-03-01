@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from typing import Any, Callable, Optional, Sequence, Type
 from functools import wraps
 
@@ -7,10 +9,10 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.engine.result import ScalarResult
 
 from utils.logger import Logger
-from db.connection import db_session, engine
+from api.internal.SqlAlchemy.connection import db_session, engine
 
 # Exceptions
-from db.db_exceptions import (
+from exceptions.db_exc import (
     DbCreateError,
     DbDeleteError,
     DbEngineError,
@@ -19,10 +21,8 @@ from db.db_exceptions import (
     DbUpdateError,
 )
 
-from db import smitdb_secrets as db_secrets
-
 class SmitDb:
-    """CRUD operations for fastapi.
+    """CRUD operations using SqlAlchemy.
 
     Use SQLModel to provide CRUD operations.
 
@@ -58,7 +58,8 @@ class SmitDb:
     """
     def __init__(self,
                  schema: Type[SQLModel],
-                 secrets: Any = db_secrets) -> None:
+                 #secrets: Any
+                 ) -> None:
         """Create engine object for database.
 
         DB credentials are stored in secrets.py.
@@ -73,7 +74,10 @@ class SmitDb:
         """
         self.db_schema: Type[SQLModel] = schema
         self.logger = Logger().logger
-        self.db_database = secrets.database # Use for logging output
+
+        load_dotenv()
+        db_name = os.getenv("DATABASE_SMIT_NAME")
+        self.db_database = db_name # Use for logging output
 
         Logger().log_module_init()
 
@@ -382,7 +386,7 @@ class SmitDb:
 
 # #Create 2 dummy users
 def create_users():
-    from db.models import AuthModel
+    from api.internal.SqlAlchemy.models import AuthModel
 
     conn = SmitDb(AuthModel)
     user1: dict[str, str] = {
@@ -413,7 +417,7 @@ def create_users():
 
 
 def read_users():
-    from db.models import AuthModel
+    from api.internal.SqlAlchemy.models import AuthModel
 
     conn = SmitDb(AuthModel)
     try:

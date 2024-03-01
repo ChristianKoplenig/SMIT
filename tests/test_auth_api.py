@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from .conftest import TestSmitDb
-from api.schemas import UserResponseSchema
+from schemas.user_schemas import UserResponseSchema
 
 
 @pytest.mark.smoke

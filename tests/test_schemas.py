@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from tests.conftest import TestSmitDb
 
-from api import schemas
+from schemas.user_schemas import UserBase
 
 if TYPE_CHECKING:
     from sqlmodel import SQLModel
@@ -16,12 +16,11 @@ if TYPE_CHECKING:
 ### Needed for warning output
 # Used to validate if all field constraints are met
 import warnings
-from authentication.auth_exceptions import AuthValidateError
 ###
 
 # Test database model
 @pytest.mark.smoke
-@pytest.mark.schema
+@pytest.mark.schemas
 def test_invalid_users(
     invalid_users: dict[str, dict[str, str]],
     db_instance_empty: TestSmitDb
@@ -31,7 +30,7 @@ def test_invalid_users(
             db_instance_empty.db_schema.model_validate(invalid_users[user])
 
 @pytest.mark.smoke
-@pytest.mark.schema
+@pytest.mark.schemas
 def test_valid_users(
     valid_users: dict[str, dict[str, str]],
     db_instance_empty: TestSmitDb
@@ -40,7 +39,7 @@ def test_valid_users(
         db_instance_empty.db_schema.model_validate(valid_users[user])
 
 @pytest.mark.smoke
-@pytest.mark.schema
+@pytest.mark.schemas
 def test_unique_constraint(
     valid_users: dict[str, dict[str, str]],
     db_instance_empty: TestSmitDb,
@@ -57,7 +56,7 @@ def test_unique_constraint(
 
 # Test Api schemas
 @pytest.mark.smoke
-@pytest.mark.schema
+@pytest.mark.schemas
 def test_api_userbase_schema(
     invalid_users: dict[str, dict[str, str]],
     valid_users: dict[str, dict[str, str]],
@@ -76,12 +75,12 @@ def test_api_userbase_schema(
     """
     # Test valid users
     for user in valid_users:
-        schemas.UserBase.model_validate(valid_users[user])
+        UserBase.model_validate(valid_users[user])
 
     # Test exceptions for invalid users
     with pytest.raises(ValidationError):
         for user in invalid_users:
-            schemas.UserBase.model_validate(invalid_users[user])
+            UserBase.model_validate(invalid_users[user])
 
     # Show warnings to validate each field constraint output
     # for user in invalid_users:
@@ -91,7 +90,7 @@ def test_api_userbase_schema(
     #         warnings.warn(str(AuthValidateError(ve)), UserWarning)
 
 @pytest.mark.smoke
-@pytest.mark.schema
+@pytest.mark.schemas
 def test_api_unique_constraint(
     valid_users: dict[str, dict[str, str]],
     api_instance_empty: TestSmitDb,

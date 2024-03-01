@@ -3,7 +3,7 @@ from typing import Callable
 #from unittest.mock import patch
 from sqlalchemy.exc import SQLAlchemyError
 
-from db.connection import local_session, DatabaseError, Session
+from database.connection import local_session, DatabaseError, Session
 
 @pytest.mark.smoke
 @pytest.mark.engine
