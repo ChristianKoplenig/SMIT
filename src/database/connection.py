@@ -1,13 +1,13 @@
+from typing import Annotated, Any, Generator
 import os
-from typing import Generator, Any
 from dotenv import load_dotenv
 
-from sqlmodel import create_engine, Session
+from sqlmodel import Session, create_engine
 from sqlalchemy.engine import URL
 from sqlalchemy.engine.base import Engine
 
-from utils.logger import Logger
 from exceptions.db_exc import DatabaseError
+from utils.logger import Logger
 
 # Import secrets
 load_dotenv()
@@ -17,7 +17,7 @@ db_host = os.getenv("DATABASE_SMIT_HOST")
 db_database = os.getenv("DATABASE_SMIT_NAME")
 
 # Define database connection
-url = URL.create(
+url: URL = URL.create(
     drivername="postgresql+psycopg",
     username=db_user,
     host=db_host,
@@ -25,38 +25,62 @@ url = URL.create(
     password=db_pwd,
 )
 
-# Create the engine for smit database at fly.io
-engine: Engine = create_engine(url) #, echo=True)
 
-def local_session() -> Session:
-    """Return SqlModel session.
+class Db:
+    """Class to manage database connection.
 
-    Use engine to create a session for the smit database at fly.io.
-
-    Returns:
-        Session: SqlModel session for smit database at fly.io.
+    This class is used to manage the connection to the database.
     """
-    try:
-        return Session(engine)
-    except Exception as e:
-        Logger().log_exception(e)
-        raise DatabaseError(e, "Error creating local session") from e
 
-# Connection for fastapi module
-def get_db() -> Generator[Session, Any, None]:
-    """Return database session for fastapi.
+    def __init__(
+        self,
+        url: Annotated[URL, "Connection Parameters"] = url,
+    ) -> None:
+        """Initialize DbConnection class."""
+        self.engine: Engine = create_engine(url)
 
-    Use local_session() to connect to database.
+        Logger().log_module_init()
+        Logger().logger.debug(f'Engine for connection to "{url.database}" database created')
 
-    Yields:
-        Session: SqlModel session for smit database at fly.io.
 
-    """
-    db: Session = local_session()
-    try:
-        Logger().logger.debug("Opening database session")
-        yield db
-    finally:
-        Logger().logger.debug("Closing database session")
-        db.rollback()
-        db.close()
+    def local_session(self) -> Session:
+        """Return SqlModel session.
+
+        Use engine to create a session for the smit database at fly.io.
+
+        Returns:
+            Session: SqlModel session for smit database at fly.io.
+        """
+        try:
+            session = Session(self.engine)
+            Logger().logger.debug(f'Session for "{url.database}" database created.')
+            return session
+        except Exception as e:
+            Logger().log_exception(e)
+            raise DatabaseError(e, "Error creating local session") from e
+
+    def get_db(self) -> Generator[Session, Any, None]:
+        """Return database session for fastapi.
+
+        Use local_session() to connect to database.
+
+        Yields:
+            Session: SqlModel session for smit database at fly.io.
+
+        """
+        db: Session = self.local_session()
+        try:
+            Logger().logger.debug(f'Session for "{url.database}" database opened.')
+            yield db
+        finally:
+            db.rollback()
+            db.close()
+            Logger().logger.debug(f'Session for "{url.database}" database closed.')
+
+    def db_engine(self) -> Engine:
+        """Return the engine for smit database at fly.io.
+
+        Returns:
+            Engine: SqlModel engine for smit database at fly.io.
+        """
+        return self.engine

@@ -47,6 +47,10 @@ class ApiValidationError(Exception):
                     "Input": "du",
                     "Message": "Username length must be greater than 3"
                 }
+                "email": {
+                    "Input": "du.com",
+                    "Message": "Field must be validate email address"
+                }
             }
             ```
 

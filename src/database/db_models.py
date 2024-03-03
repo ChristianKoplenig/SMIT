@@ -7,11 +7,22 @@ from pydantic import ConfigDict
 from schemas.user_schemas import UserBase
 
 class UserModel(UserBase, table=True):
-    """Table model for database connection.
+    """Table model for user entry in database.
+    
+    Connect to the user table in the database.
+    Inherits from UserBase class.
 
-    Create id, and created_on fields on database commit.
+    Columns:
+        - id (Optional[int]): The ID of the user.
+        - created_on (Optional[datetime]): The creation date of the user.
+        - username (Mandatory[str]): The username of the user.
+        - password (Mandatory[str]): The password of the user.
+        - email (Optional[str]): The email address of the user.
+        - sng_username (Optional[str]): The username for the SNG login.
+        - sng_password (Optional[str]): The password for the SNG login.
+        - daymeter (Optional[int]): The daymeter value of the user.
+        - nightmeter (Optional[int]): The nightmeter value of the user.
     """
-
     __tablename__: Any = "auth_api"
 
     id: Annotated[Optional[int], Field(default=None, primary_key=True)]
@@ -37,3 +48,54 @@ class UserModel(UserBase, table=True):
             ]
         }
     }
+
+########################################################################
+
+### Table for user configuration handling ###
+
+# class ConfigSchema(SQLModel, table=True):
+#     """
+#     Represents the authentication configuration schema.
+
+#     Attributes:
+#         id (Optional[int]): The ID of the configuration.
+#         created_on (Optional[datetime]): The creation date of the configuration.
+#         preauth_mails (Optional[list]): The list of preauthorized email addresses.
+
+#     Methods:
+#         validate_preauth(cls, v: str, info: ValidationInfo) -> str:
+#             Validates the email addresses for .
+
+#     """
+
+#     __tablename__: Any = "auth_config"
+
+#     id: Annotated[Optional[int], Field(default=None, primary_key=True)]
+#     created_on: Annotated[
+#         Optional[datetime],
+#         Field(default_factory=datetime.now, description="User creation date"),
+#     ]
+
+#     preauth_mails: Annotated[
+#         Optional[str],
+#         StringConstraints(
+#             pattern=r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+#         ),
+#         Field(
+#             default=None,
+#             description="Mail address for identification of preauthorized users",
+#         ),
+#     ]
+
+#     # Needed for Column(JSON)
+#     # Config: ConfigDict = {
+#     #     'arbitrary_types_allowed' : True
+#     # }
+
+#     @field_validator("preauth_mails")
+#     @classmethod
+#     def validate_preauth(cls, v: str, info: ValidationInfo) -> str:
+#         pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+#         if not re.match(pattern, v):
+#             raise ValueError(f"{info.field_name} must be a valid email address")
+#         return v

@@ -1,5 +1,4 @@
 """Schemas for user management."""
-from datetime import datetime
 from typing import Annotated, Any, Optional, Union
 
 from schemas.response_schemas import Response404, Response500
@@ -132,8 +131,6 @@ class UserResponseSchema(UserBase):
 class UserInputSchema(UserBase):
     """Input schema for user creation."""
 
-    pass
-
     model_config: ConfigDict = {
         "json_schema_extra": {
             "examples": [
@@ -238,7 +235,7 @@ class LoginFormOutput(UserBase):
     logged_in: Annotated[bool | None, "User logged in status"]
 
 
-class CreateUserInput(UserBase):
-    """Schema for creating a new user."""
+# class UserInput(UserBase):
+#     """Schema for creating a new user."""
 
-    pass
+#     pass

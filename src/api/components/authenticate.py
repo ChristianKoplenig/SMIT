@@ -1,45 +1,39 @@
 """Helper functions for authenticating users."""
 import os
-from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Any, List
+from typing import Annotated, Any, Callable, Generator
+
+from database.connection import Db
+from database.users_crud import Users
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from sqlmodel import Session, select
-from sqlmodel.sql.expression import SelectOfScalar
 from jose import JWTError, jwt
-
-from pydantic import ValidationError
 from jose.exceptions import ExpiredSignatureError
-
-from database.connection import get_db
-
-from utils.logger import Logger
-from utils.hasher import Hasher
-from exceptions.api_exc import ApiValidationError
-from schemas.response_schemas import Response401, Response404, Response500
 from schemas.auth_schemas import TokenData
+from schemas.response_schemas import Response401
 from schemas.user_schemas import UserResponseSchema
-from database.db_models import UserModel
-from database.users_crud import get_user
+from sqlmodel import Session
+from utils.hasher import Hasher
+from utils.logger import Logger
 
 # Import secrets
 load_dotenv()
-ALGORITHM: str | Any = os.getenv('SMIT_TOKEN_ALGORITHM')
-SECRET_KEY: str | Any = os.getenv('SMIT_TOKEN_SECRET_KEY')
+ALGORITHM: str | Any = os.getenv("SMIT_TOKEN_ALGORITHM")
+SECRET_KEY: str | Any = os.getenv("SMIT_TOKEN_SECRET_KEY")
+
+# Dependencies
+dep_get_db: Callable[[], Generator[Session, Any, None]] = Db().get_db
 
 
 # Scheme for OAuth2 setup
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
-
-
-
 async def authenticate_user(
     username: str,
     password: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(dep_get_db),
 ) -> UserResponseSchema:
     """Get user and verify password.
 
@@ -56,7 +50,7 @@ async def authenticate_user(
         Exception: General database exception.
     """
     try:
-        user: UserResponseSchema = await get_user(username, db=db)
+        user: UserResponseSchema = await Users().get_user(username, db=db)
 
     except HTTPException as hte:
         if hte.status_code == 404:
@@ -112,7 +106,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(get_db),
+    db: Session = Depends(dep_get_db),
 ) -> UserResponseSchema:
     """Retrieves user based on provided token.
 
@@ -157,7 +151,7 @@ async def get_current_user(
         raise e
 
     if token_data.username:
-        user: UserResponseSchema = await get_user(token_data.username, db=db)
+        user: UserResponseSchema = await Users().get_user(token_data.username, db=db)
         Logger().logger.debug(f"User: {username} logged in using token")
         return user
     else:

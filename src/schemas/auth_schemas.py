@@ -4,6 +4,7 @@ from sqlmodel import SQLModel, Field
 from pydantic import ConfigDict
 
 class AuthToken(SQLModel):
+    """Schema for token response."""
     access_token: str
     token_type: str
 
