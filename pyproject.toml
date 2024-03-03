@@ -64,8 +64,9 @@ markers = [
     "database: Test database connection and CRUD operations",
     "engine: Test database engine",
     "schemas: Test SqlModel schemas",
-    "api: Test FastAPI endpoints",
+    "api: Use mocked FastApi testclient, connect to test database",
     "authentication: Test FastAPI authentication framework",
+    "production: Use testclient to access production database",
 ]
 
 [tool.tox]
