@@ -1,6 +1,6 @@
-from typing import Any, Callable, Generator, List
+from typing import Annotated, Any, Callable, Generator, List
 
-from database.connection import Db
+from api.dependencies import dep_session
 from database.db_models import UserModel
 from database.users_crud import Users
 from exceptions.api_exc import ApiValidationError, DbSessionError
@@ -13,15 +13,15 @@ from sqlmodel.sql.expression import SelectOfScalar
 from utils.logger import Logger
 from utils.users_mock import valid_users
 
-# Dependencies
-dep_get_db: Callable[[], Generator[Session, Any, None]] = Db().get_db
-
-router = APIRouter()
+router = APIRouter(
+    prefix="/debug",
+    tags=["Debug"],
+)
 
 
 @router.get("/dummyuser")
 async def get_dummy_user(
-    session: Session = Depends(dep_get_db),
+    session: Annotated[Session, Depends(dep_session)],
 ) -> UserResponseSchema:
     """Return 'dummy_user', bypass UserCrud class."""
     try:
@@ -38,11 +38,11 @@ async def get_dummy_user(
 
 @router.get("/userslist/")
 async def get_userslist(
-    db: Session = Depends(dep_get_db),
+    session: Annotated[Session, Depends(dep_session)],
 ) -> list[str]:
     """Get all usernames, bypass UserCrud class."""
 
-    existing_users: ScalarResult[UserModel] = db.exec(select(UserModel))
+    existing_users: ScalarResult[UserModel] = session.exec(select(UserModel))
 
     usernames: List[str] = []
     for each in existing_users:
@@ -56,7 +56,7 @@ async def get_userslist(
 )
 async def get_user_by_path(
     username: str,
-    db: Session = Depends(dep_get_db),
+    session: Annotated[Session, Depends(dep_session)],
 ) -> UserResponseSchema:
     """Path operation to get user by username.
 
@@ -67,17 +67,17 @@ async def get_user_by_path(
     Returns:
         UserResponseSchema: User data row from database.
     """
-    user: UserResponseSchema = await Users().get_user(username, db=db)
+    user: UserResponseSchema = await Users().get_user(username, session=session)
     return user
 
 
 @router.get("/setup/dummyusers")
 async def create_dummy_users(
-    db: Session = Depends(dep_get_db),
+    session: Annotated[Session, Depends(dep_session)],
 ) -> str:
     """Use valid user dict from `utils.users_mock` file to create users."""
 
-    existing_users: List[str] = await get_userslist(db)
+    existing_users: List[str] = await get_userslist(session=session)
 
     new_users: List[dict[str, str]] = valid_users()
     added_users: List[str] = []
@@ -95,9 +95,9 @@ async def create_dummy_users(
                 raise e
 
             try:
-                db.add(user)
-                db.commit()
-                db.refresh(user)
+                session.add(user)
+                session.commit()
+                session.refresh(user)
             except Exception as e:
                 Logger().log_exception(e)
                 raise HTTPException(status_code=500, detail=DbSessionError(e).message())

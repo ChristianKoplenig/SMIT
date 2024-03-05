@@ -57,9 +57,10 @@ class Db:
     ) -> None:
         """Initialize database connection."""
         self.url: URL = url
-        self.engine: Engine = self.db_engine()
 
         Logger().log_module_init()
+
+        
 
     def db_engine(self) -> Engine:
         """Return engine object for privided url.
@@ -73,12 +74,13 @@ class Db:
             DatabaseError: On error creating engine.
         """
         try:
-            engine: Engine = create_engine(self.url)
+            self.engine: Engine = create_engine(self.url)
             Logger().logger.debug(f'Engine for "{url.database}" database created.')
-            return engine
         except Exception as e:
             Logger().log_exception(e)
             raise DatabaseError(e, "Error creating engine") from e
+        
+        return self.engine
 
     def local_session(self) -> Session:
         """Return SqlModel session object.

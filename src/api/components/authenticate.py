@@ -1,9 +1,10 @@
 """Helper functions for authenticating users."""
 import os
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Any, Callable, Generator
+from typing import Annotated, Any
 
-from database.connection import Db
+# Dependencies
+from api.dependencies import dep_session
 from database.users_crud import Users
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
@@ -22,9 +23,6 @@ load_dotenv()
 ALGORITHM: str | Any = os.getenv("SMIT_TOKEN_ALGORITHM")
 SECRET_KEY: str | Any = os.getenv("SMIT_TOKEN_SECRET_KEY")
 
-# Dependencies
-dep_get_db: Callable[[], Generator[Session, Any, None]] = Db().get_db
-
 
 # Scheme for OAuth2 setup
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
@@ -33,7 +31,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 async def authenticate_user(
     username: str,
     password: str,
-    db: Session = Depends(dep_get_db),
+    session: Annotated[Session, Depends(dep_session)],
 ) -> UserResponseSchema:
     """Get user and verify password.
 
@@ -50,7 +48,7 @@ async def authenticate_user(
         Exception: General database exception.
     """
     try:
-        user: UserResponseSchema = await Users().get_user(username, db=db)
+        user: UserResponseSchema = await Users().get_user(username, session=session)
 
     except HTTPException as hte:
         if hte.status_code == 404:
@@ -106,7 +104,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(dep_get_db),
+    session: Annotated[Session, Depends(dep_session)],
 ) -> UserResponseSchema:
     """Retrieves user based on provided token.
 
@@ -151,7 +149,8 @@ async def get_current_user(
         raise e
 
     if token_data.username:
-        user: UserResponseSchema = await Users().get_user(token_data.username, db=db)
+        user: UserResponseSchema = await Users().get_user(token_data.username,
+                                                          session=session)
         Logger().logger.debug(f"User: {username} logged in using token")
         return user
     else:

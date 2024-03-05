@@ -1,14 +1,13 @@
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
 
+from api.dependencies import dep_get_engine
+from api.routes import auth, crud, debug
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import SQLModel
 from sqlalchemy.engine.base import Engine
-
+from sqlmodel import SQLModel
 from utils.logger import Logger
-from database.connection import Db
-from api.routes import auth, crud, debug
 
 description = """
 # Smart Meter Interface Tool
@@ -40,7 +39,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
 
     """
     try:
-        engine: Engine = Db().db_engine()
+        engine: Engine = dep_get_engine
         SQLModel.metadata.create_all(engine)
         Logger().logger.debug("SqlModel metadata created successfully.")
     except Exception as e:
@@ -79,7 +78,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(crud.router)
-app.include_router(debug.router, tags=["Debug"], prefix="/debug")
+app.include_router(debug.router)
 
 
 @app.get("/api/healthchecker")

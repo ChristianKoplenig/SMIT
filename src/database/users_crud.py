@@ -30,13 +30,13 @@ class Users:
     async def create_user(
         self,
         user: Annotated[UserModel, "Schema for creating a user"],
-        db: Annotated[Session, "Database session dependency"],
+        session: Annotated[Session, "Database session dependency"],
     ) -> UserModel:
         """create validated user"""
         try:
-            db.add(user)
-            db.commit()
-            db.refresh(user)
+            session.add(user)
+            session.commit()
+            session.refresh(user)
             Logger().logger.info(
                 f"Created user: {user.username} on table: {user.__tablename__}"
             )
@@ -67,7 +67,7 @@ class Users:
     async def get_user(
         self,
         username: Annotated[str, "Username to retrieve"],
-        db: Annotated[Session, "Database session"],
+        session: Annotated[Session, "Database session"],
     ) -> UserResponseSchema:
         """Get user by username.
 
@@ -87,7 +87,7 @@ class Users:
             statement: SelectOfScalar[UserModel] = select(UserModel).where(
                 UserModel.username == username
             )
-            user: UserModel = db.exec(statement).one()
+            user: UserModel = session.exec(statement).one()
 
             return_model: UserResponseSchema = UserResponseSchema.model_validate(user)
             Logger().logger.info(
@@ -119,7 +119,7 @@ class Users:
 
     async def get_userlist(
         self,
-        db: Annotated[Session, "Database session"],
+        session: Annotated[Session, "Database session"],
     ) -> list[str]:
         """Get list of registered usernames.
 
@@ -130,7 +130,7 @@ class Users:
             list[str]: A list of registered usernames.
         """
 
-        existing_users: ScalarResult[UserModel] = db.exec(select(UserModel))
+        existing_users: ScalarResult[UserModel] = session.exec(select(UserModel))
 
         usernames: List[str] = []
         for each in existing_users:

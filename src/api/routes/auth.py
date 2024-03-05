@@ -7,7 +7,7 @@ from api.components.authenticate import (
     create_access_token,
     get_current_user,
 )
-from database.connection import Db
+from api.dependencies import dep_session
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -24,8 +24,6 @@ if token_expire:
 else:
     ACCESS_TOKEN_EXPIRE_MINUTES = 0
 
-# Dependencies
-dep_get_db: Callable[[], Generator[Session, Any, None]] = Db().get_db
 
 router: APIRouter = APIRouter(
     prefix="/auth",
@@ -41,7 +39,7 @@ router: APIRouter = APIRouter(
 @router.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: Session = Depends(dep_get_db),
+    session: Annotated[Session, Depends(dep_session)],
 ) -> AuthToken:
     """Login route for token generation.
 
@@ -58,7 +56,9 @@ async def login_for_access_token(
         AuthToken: The generated access token.
     """
     user: UserResponseSchema = await authenticate_user(
-        form_data.username, form_data.password, db=db
+        form_data.username,
+        form_data.password,
+        session=session,
     )
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

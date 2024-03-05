@@ -8,12 +8,12 @@ from sqlmodel import Session
 from sqlalchemy.engine import URL
 
 from database.connection import Db
-from database.db_setup import DbAdmin
+from database.db_admin import DbAdmin
 from database.db_models import UserModel
 from utils.logger import Logger
 
 from api.main import app
-from api.routes.crud import dep_get_db
+from api.dependencies import dep_session
 
 load_dotenv()
 db_user: str | None = os.getenv("DATABASE_SMIT_USERNAME")
@@ -81,7 +81,7 @@ def api_testclient(
             session.rollback()
             session.close()
     
-    app.dependency_overrides[dep_get_db] = override_get_db
+    app.dependency_overrides[dep_session] = override_get_db
     test_client = TestClient(app)
 
     DbAdmin().delete_all(session=db_test_session, db_model=UserModel)

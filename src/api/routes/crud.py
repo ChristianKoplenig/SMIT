@@ -2,7 +2,7 @@
 import os
 from typing import Annotated, Any, Callable, Generator
 
-from database.connection import Db
+from api.dependencies import dep_session
 from database.db_models import UserModel
 from database.users_crud import Users
 from dotenv import load_dotenv
@@ -25,8 +25,6 @@ if token_expire:
 else:
     ACCESS_TOKEN_EXPIRE_MINUTES = 0
 
-# Dependencies
-dep_get_db: Callable[[], Generator[Session, Any, None]] = Db().get_db
 
 router: APIRouter = APIRouter(
     prefix="/crud",
@@ -44,7 +42,7 @@ router: APIRouter = APIRouter(
 @router.post("/user/create")
 async def create_new_user(
     user: Annotated[UserInputSchema, "Schema for user creation."],
-    db: Session = Depends(dep_get_db),
+    session: Annotated[Session, Depends(dep_session)],
 ) -> UserResponseSchema:
     """Create a new user.
 
@@ -63,7 +61,7 @@ async def create_new_user(
     """
     try:
         db_user: UserModel = UserModel.model_validate(user)
-        new_user: UserModel = await Users().create_user(db_user, db)
+        new_user: UserModel = await Users().create_user(db_user, session=session)
         response_user: UserResponseSchema = UserResponseSchema.model_validate(new_user)
         return response_user
 
