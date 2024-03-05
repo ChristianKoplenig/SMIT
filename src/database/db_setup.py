@@ -8,7 +8,7 @@ from sqlalchemy.engine.result import ScalarResult
 from utils.logger import Logger
 
 
-class DbSetup:
+class DbAdmin:
     """Database setup class."""
     # Move to own file #
     def create_table(

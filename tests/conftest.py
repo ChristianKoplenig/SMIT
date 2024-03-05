@@ -8,7 +8,7 @@ from sqlmodel import Session
 from sqlalchemy.engine import URL
 
 from database.connection import Db
-from database.db_setup import DbSetup
+from database.db_setup import DbAdmin
 from database.db_models import UserModel
 from utils.logger import Logger
 
@@ -58,11 +58,11 @@ def empty_test_db(
 ) -> Generator[Db, Any, None]:
     """Yield clean test database."""
     try:
-        DbSetup().create_table(engine=db_test_instance.db_engine())
-        DbSetup().delete_all(session=db_test_session, db_model=UserModel)
+        DbAdmin().create_table(engine=db_test_instance.db_engine())
+        DbAdmin().delete_all(session=db_test_session, db_model=UserModel)
         yield db_test_instance
     finally:
-        DbSetup().delete_all(session=db_test_session, db_model=UserModel)
+        DbAdmin().delete_all(session=db_test_session, db_model=UserModel)
 
 @pytest.fixture
 def api_testclient(
@@ -84,11 +84,11 @@ def api_testclient(
     app.dependency_overrides[dep_get_db] = override_get_db
     test_client = TestClient(app)
 
-    DbSetup().delete_all(session=db_test_session, db_model=UserModel)
+    DbAdmin().delete_all(session=db_test_session, db_model=UserModel)
 
     Logger().logger.debug("Yielding test client")
     try:
         yield test_client
     finally:
-        DbSetup().delete_all(session=db_test_session, db_model=UserModel)
+        DbAdmin().delete_all(session=db_test_session, db_model=UserModel)
         Logger().logger.debug("Closing test client")
