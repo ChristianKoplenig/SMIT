@@ -11,10 +11,10 @@ from utils.logger import Logger
 
 # Import secrets
 load_dotenv()
-db_user = os.getenv("DATABASE_SMIT_USERNAME")
-db_pwd = os.getenv("DATABASE_SMIT_PASSWORD")
-db_host = os.getenv("DATABASE_SMIT_HOST")
-db_database = os.getenv("DATABASE_SMIT_NAME")
+db_user: str | None = os.getenv("DATABASE_SMIT_USERNAME")
+db_pwd: str | None = os.getenv("DATABASE_SMIT_PASSWORD")
+db_host: str | None = os.getenv("DATABASE_SMIT_HOST")
+db_database: str | None = os.getenv("DATABASE_SMIT_NAME")
 
 # Define database connection
 url: URL = URL.create(
@@ -24,7 +24,6 @@ url: URL = URL.create(
     database=db_database,
     password=db_pwd,
 )
-
 
 class Db:
     """Provide database connection.
@@ -78,7 +77,7 @@ class Db:
             Logger().logger.debug(f'Engine for "{url.database}" database created.')
         except Exception as e:
             Logger().log_exception(e)
-            raise DatabaseError(e, "Error creating engine") from e
+            raise DatabaseError(e, f'Error creating engine for "{url.database}"') from e
         
         return self.engine
 
@@ -116,12 +115,7 @@ class Db:
         try:
             Logger().logger.debug(f'Session for "{url.database}" database opened.')
             yield db
-        except Exception as e:
-            Logger().log_exception(e)
-            raise DatabaseError(
-                e,
-                f'Error getting database connection for "{url.database}"',
-                ) from e
+
         finally:
             db.rollback()
             db.close()

@@ -97,31 +97,57 @@ class Response422(SQLModel):
         }
     }
 
-class Response500(SQLModel):
-    """Error schema for database exceptions."""
+# class Response500(SQLModel):
+#     """Error schema for database exceptions."""
 
-    error: Annotated[
-        str,
-        Field(description="Error description"),
-    ]
-    info: Annotated[
-        dict[str, str | Any],
-        Field(
-            description="Error details",
-        ),
-    ]
+#     error: Annotated[
+#         str,
+#         Field(description="Error description"),
+#     ]
+#     info: Annotated[
+#         dict[str, str | Any],
+#         Field(
+#             description="Error details",
+#         ),
+#     ]
+
+#     model_config: ConfigDict = {
+#         "json_schema_extra": {
+#             "examples": [
+#                 {
+#                     "error": "Database validation error",
+#                     "info": {
+#                         "username": {
+#                             "Input": "asd",
+#                             "Message": "String should have at least 5 characters",
+#                         },
+#                     },
+#                 }
+#             ]
+#         }
+#     }
+
+class DatabaseErrorResponse(SQLModel):
+    """Schema for database error response."""
+    error_type: Annotated[str,
+                          Field(description="Type of error")]
+    error_message: Annotated[str,
+                             Field(description="Application details on error")]
+    error_info: Annotated[str,
+                          Field(description="Details from error call stack")]
+    error_traceback: Annotated[str,
+                               Field(description="Name of method where error occurred")]
 
     model_config: ConfigDict = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "error": "Database validation error",
-                    "info": {
-                        "username": {
-                            "Input": "asd",
-                            "Message": "String should have at least 5 characters",
-                        },
-                    },
+                    "detail": {
+                        "Type": "InvalidRequestError",
+                        "Message": "create user error",
+                        "Info": "Instance not persistent within this Session",
+                        "Traceback": "create_user",
+                    }
                 }
             ]
         }

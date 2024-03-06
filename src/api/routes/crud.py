@@ -6,16 +6,18 @@ from api.dependencies import dep_session
 from database.db_models import UserModel
 from database.users_crud import Users
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends
-from schemas.response_schemas import (
-    Response400,
-    Response401,
-    Response404,
-    Response422,
-    Response500,
-)
+from fastapi import APIRouter, Depends, HTTPException
+# from schemas.response_schemas import (
+#     Response400,
+#     # Response401,
+#     # Response404,
+#     Response422,
+# )
 from schemas.user_schemas import UserInputSchema, UserResponseSchema
 from sqlmodel import Session
+
+from exceptions.db_exc import DatabaseError
+from schemas.response_schemas import DatabaseErrorResponse
 
 # Load secrets
 load_dotenv()
@@ -30,11 +32,11 @@ router: APIRouter = APIRouter(
     prefix="/crud",
     tags=["CRUD Operations"],
     responses={
-        400: {"model": Response400},
+        #400: {"model": Response400},
         # 401: {"model": Response401},
         # 404: {"model": Response404},
-        422: {"model": Response422},
-        500: {"model": Response500},
+        #422: {"model": Response422},
+        500: {"model": DatabaseErrorResponse},
     },
 )
 
@@ -64,6 +66,11 @@ async def create_new_user(
         new_user: UserModel = await Users().create_user(db_user, session=session)
         response_user: UserResponseSchema = UserResponseSchema.model_validate(new_user)
         return response_user
+    
+    except DatabaseError as dbe:
+        raise HTTPException(
+            status_code=500, 
+            detail=dbe.http_message())
 
     except Exception as e:
         raise e

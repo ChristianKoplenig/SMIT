@@ -9,6 +9,7 @@ from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from pydantic import ValidationError
 from exceptions.api_exc import ApiValidationError
+from exceptions.db_exc import DatabaseError
 
 from utils.logger import Logger
 from database.db_models import UserModel
@@ -18,7 +19,7 @@ from schemas.response_schemas import (
     Response400,
     Response404,
     Response422,
-    Response500,
+    #Response500,
 )
 
 class Users:
@@ -41,28 +42,14 @@ class Users:
                 f"Created user: {user.username} on table: {user.__tablename__}"
             )
             return user
-
-        except ValidationError as ve:
-            response422: Response422 = Response422(
-                error="User input validation error",
-                info=ApiValidationError(ve).message(),
-            )
-            raise HTTPException(
-                status_code=422, detail=response422.model_dump()
-            ) from ve
-
-        except IntegrityError as ie:
-            response400: Response400 = Response400(
-                error="Unique constraint violation",
-                info="Username already exists in database",
-            )
-            Logger().log_exception(ie)
-            raise HTTPException(
-                status_code=400, detail=response400.model_dump()
-            ) from ie
+        
         except Exception as e:
             Logger().log_exception(e)
-            raise e
+            session.rollback()
+            raise DatabaseError(e, 'create user error')
+
+
+
 
     async def get_user(
         self,
@@ -95,14 +82,14 @@ class Users:
             )
             return return_model
 
-        except ValidationError as ve:
-            response500: Response500 = Response500(
-                error="Database Validation Error", info=ApiValidationError(ve).message()
-            )
-            Logger().log_exception(ve)
-            raise HTTPException(
-                status_code=500, detail=response500.model_dump()
-            ) from ve
+        # except ValidationError as ve:
+        #     response500: Response500 = Response500(
+        #         error="Database Validation Error", info=ApiValidationError(ve).message()
+        #     )
+        #     Logger().log_exception(ve)
+        #     raise HTTPException(
+        #         status_code=500, detail=response500.model_dump()
+        #     ) from ve
 
         except NoResultFound as nrf:
             response404: Response404 = Response404(
