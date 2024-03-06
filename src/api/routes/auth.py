@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas.auth_schemas import AuthToken
-from schemas.response_schemas import Response401, Response404, Response500
+from schemas.response_schemas import Response401, Response404 #Response500
 from schemas.user_schemas import UserResponseSchema
 from sqlmodel import Session
 
@@ -31,7 +31,7 @@ router: APIRouter = APIRouter(
     responses={
         401: {"model": Response401},
         404: {"model": Response404},
-        500: {"model": Response500},
+        #500: {"model": Response500},
     },
 )
 

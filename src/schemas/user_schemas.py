@@ -1,7 +1,7 @@
 """Schemas for user management."""
 from typing import Annotated, Any, Optional, Union
 
-from schemas.response_schemas import Response404, Response500
+from schemas.response_schemas import Response404, DatabaseErrorResponse #, Response500
 from pydantic import ConfigDict, StringConstraints
 from sqlmodel import Field, SQLModel
 
@@ -106,7 +106,7 @@ class UserResponseSchema(UserBase):
 
     id: Annotated[int, "User id"]
     api_response: Annotated[
-        Optional[Union[Response404, Response500]],
+        Optional[Union[Response404, DatabaseErrorResponse]],
         Field(default=None, description="API response for error handling"),
     ]
 
