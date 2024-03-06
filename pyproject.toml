@@ -46,6 +46,7 @@ pytest-mock = "^3.12.0"
 ruff = "^0.2.1"
 httpx = "^0.27.0"
 python-dotenv = "^1.0.1"
+pytest-asyncio = "^0.23.5"
 
 [tool.poetry.group.fastapi.dependencies]
 fastapi = "^0.109.2"
@@ -67,6 +68,7 @@ markers = [
     "api: Use mocked FastApi testclient, connect to test database",
     "authentication: Test FastAPI authentication framework",
     "production: Use testclient to access production database",
+    "crud: Test CRUD operations, bypass FastAPI TestClient",
 ]
 
 [tool.tox]
@@ -86,7 +88,7 @@ legacy_tox_ini = """
     commands_pre =
         poetry install
     commands =
-        poetry run pytest --basetemp={envtmpdir} -v -m "smoke" #combine markers with or/and syntax
+        poetry run pytest --basetemp={envtmpdir} -v -m "crud" #combine markers with or/and syntax
 
     [testenv:flake8]
     basepython = python3.11

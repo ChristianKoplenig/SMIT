@@ -30,45 +30,47 @@ testing_url: URL = URL.create(
     password=db_pwd,
 )
 
-@pytest.fixture
-def db_test_instance(scope='session') -> Generator[Db, Any, None]:
+@pytest.fixture(scope='session')
+def db_test_instance() -> Generator[Db, Any, None]:
     """Connect to test database."""
-    db = Db(url=testing_url)
+    db: Db = Db(url=testing_url)
     Logger().logger.debug("Creating test database instance.")
     yield db
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def db_test_engine(
-    db_test_instance: Annotated[Db, "Database instance for test connection."],
+    db_test_instance: Annotated[Db,
+                                "Database instance for test connection."],
 ) -> Generator[Engine, Any, None]:
     engine: Engine = db_test_instance.db_engine()
     yield engine
     Logger().logger.debug("Disposing test database engine.")
     engine.dispose()
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def db_test_session(
-    db_test_engine: Annotated[Engine, "Engine connected to test database."],
-    scope='session'
+    db_test_engine: Annotated[Engine,
+                              "Engine connected to test database."],
 ) -> Generator[Session, Any, None]:
     """Yield test database session."""
-    testing_session = Session(db_test_engine)
+    testing_session: Session = Session(db_test_engine)
     Logger().logger.debug("Opening test database session.")
     yield testing_session
     Logger().logger.debug("Closing test database session.")
     testing_session.close()
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def empty_test_db(
-    db_test_session: Annotated[Session, "Test database session."],
-    db_test_engine: Annotated[Engine, "Engine connected to test database."],
-    scope="function",
+    db_test_session: Annotated[Session,
+                               "Test database session."],
+    db_test_engine: Annotated[Engine,
+                              "Engine connected to test database."],
 ) -> Generator[Session, Any, None]:
     """Yield clean test database."""
 
     DbAdmin().create_table(engine=db_test_engine)
     DbAdmin().delete_all(session=db_test_session, db_model=UserModel)
-    empty_instance = db_test_session
+    empty_instance: Session = db_test_session
     try:
         yield empty_instance
     finally:
@@ -78,7 +80,8 @@ def empty_test_db(
 
 @pytest.fixture
 def api_testclient(
-    db_test_session: Session
+    db_test_session: Annotated[Session,
+                               "Test database session."],
 ) -> Generator[TestClient, Any, None]:
     """Instantiate fastapi test client with test database session.
     """
@@ -94,7 +97,7 @@ def api_testclient(
             session.close()
     
     app.dependency_overrides[dep_session] = override_get_db
-    test_client = TestClient(app)
+    test_client: Annotated[TestClient, 'FastApi TestClient'] = TestClient(app)
 
     DbAdmin().delete_all(session=db_test_session, db_model=UserModel)
 
