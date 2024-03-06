@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
-
-from api.dependencies import dep_get_engine
-from api.routes import auth, crud, debug
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.engine.base import Engine
 from sqlmodel import SQLModel
+from sqlalchemy.engine.base import Engine
+
+from api.dependencies import dep_get_engine
+from api.routes import auth, debug, users
+
 from utils.logger import Logger
 
 description = """
@@ -23,10 +24,14 @@ Download and plot data from smart meters.
 - Customized exception handling.
 """
 tags_metadata: list[dict[str, str]] = [
-    {"name": "Debug", "description": "Debugging routes for the API"},
+    {"name": "Debug", "description": "Dev routes"},
     {
         "name": "Authentication",
-        "description": "Routes for user authentication management.",
+        "description": "Dev routes for authentication management.",
+    },
+    {
+        "name": "Users",
+        "description": "Routes for user management.",
     },
 ]
 
@@ -77,7 +82,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
-app.include_router(crud.router)
+app.include_router(users.router)
 app.include_router(debug.router)
 
 

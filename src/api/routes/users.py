@@ -1,23 +1,19 @@
-"""Router for CRUD operations."""
+"""Router for user operations."""
 import os
-from typing import Annotated, Any, Callable, Generator
-
-from api.dependencies import dep_session
-from database.db_models import UserModel
-from database.users_crud import Users
+from typing import Annotated
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
-# from schemas.response_schemas import (
-#     Response400,
-#     # Response401,
-#     # Response404,
-#     Response422,
-# )
-from schemas.user_schemas import UserInputSchema, UserResponseSchema
 from sqlmodel import Session
 
-from exceptions.db_exc import DatabaseError
+from api.dependencies import dep_session
+
+from database.db_models import UserModel
+from database.db_users import Users
+
+from schemas.user_schemas import UserInputSchema, UserResponseSchema
 from schemas.response_schemas import DatabaseErrorResponse
+
+from exceptions.db_exc import DatabaseError
 
 # Load secrets
 load_dotenv()
@@ -29,13 +25,9 @@ else:
 
 
 router: APIRouter = APIRouter(
-    prefix="/crud",
-    tags=["CRUD Operations"],
+    prefix="/users",
+    tags=["Users"],
     responses={
-        #400: {"model": Response400},
-        # 401: {"model": Response401},
-        # 404: {"model": Response404},
-        #422: {"model": Response422},
         500: {"model": DatabaseErrorResponse},
     },
 )
@@ -56,9 +48,7 @@ async def create_new_user(
         db (Session, optional): The database session. Defaults to Depends(get_db).
 
     Raises:
-        Response400: If the user already exists in database.
-        Response422: If the user input is invalid.
-        Exception: On unexpected database error.
+        HTTPException: 500 - On database error.
 
     """
     try:

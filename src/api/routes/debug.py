@@ -2,7 +2,7 @@ from typing import Annotated, Any, Callable, Generator, List
 
 from api.dependencies import dep_session
 from database.db_models import UserModel
-from database.users_crud import Users
+from database.db_users import Users
 from exceptions.api_exc import ApiValidationError, DbSessionError
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError

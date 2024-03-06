@@ -4,7 +4,7 @@ import pytest
 from typing import Annotated
 from sqlmodel import Session
 
-from database.users_crud import Users
+from database.db_users import Users
 from database.db_models import UserModel
 from utils import users_mock
 

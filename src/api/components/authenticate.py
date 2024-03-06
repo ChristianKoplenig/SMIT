@@ -1,20 +1,21 @@
 """Helper functions for authenticating users."""
 import os
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Any
-
-# Dependencies
-from api.dependencies import dep_session
-from database.users_crud import Users
 from dotenv import load_dotenv
+from typing import Annotated, Any
+from sqlmodel import Session
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from jose.exceptions import ExpiredSignatureError
+
+from api.dependencies import dep_session
+
+from database.db_users import Users
 from schemas.auth_schemas import TokenData
 from schemas.response_schemas import Response401
 from schemas.user_schemas import UserResponseSchema
-from sqlmodel import Session
+
 from utils.hasher import Hasher
 from utils.logger import Logger
 
@@ -60,6 +61,8 @@ async def authenticate_user(
                 detail=error_detail.model_dump(),
                 headers={"WWW-Authenticate": "Bearer"},
             ) from hte
+        else:
+            raise hte
 
     except Exception as e:
         Logger().log_exception(e)

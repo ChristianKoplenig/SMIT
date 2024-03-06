@@ -1,16 +1,25 @@
 """Database exceptions formatting."""
 from typing import Annotated, Any
-from utils.logger import Logger
 
 class DatabaseError(Exception):
-    """Generate database error message.
+    """
+    Custom exception class for database errors.
 
     Args:
-        e (Exception): The exception to be logged.
-        message (str): The custom error message to append.
+        e (Exception): Exception to format.
+        message (str): Custom info on exception.
 
-    Returns:
-        str: The formatted error message.
+    Attributes:
+        message (str): Custom info on exception.
+        error (Exception): The original exception.
+        error_type (str): The type of the original exception.
+
+    Methods:
+        __str__(): Returns a string representation of the exception.
+        _integrity_error(): Formats the exception for IntegrityError.
+        _general_exception(): Formats the exception for other types.
+        http_message(): Returns a dictionary representation of the exception for HTTP response.
+
     """
 
     def __init__(
@@ -22,46 +31,30 @@ class DatabaseError(Exception):
         self.message: str = message
         self.error: Exception = e
         self.error_type = type(e).__name__
-        #self.http_code: int = http_code
-
-        # self.error_details: str = self._create_error_message(e)
-
-        # self.proccessed_message: str = (
-        #     f"{self.error_details}; \n Application message: {self.message}"
-        # )
-
-        #super().__init__(self.message)
-
-
-
-    # def _create_error_message(self, e: Exception) -> str:
-    #     """Create the error message from traceback.
-
-    #     Returns:
-    #         str: Error message containing trace information.
-    #     """
-
-    #     error_type: str = type(e).__name__
-    #     method_name: str = e.__traceback__.tb_frame.f_code.co_name  # type: ignore
-    #     try:
-    #         error_argument: str = e.args[0]
-    #     except Exception:
-    #         error_argument = "No argument provided"
-
-    #     return f"Database Error in method: {method_name}(); \n Raised: {error_type} with error argument: {error_argument}"
-
-
 
     def __str__(self) -> str:
         if self.error_type == 'IntegrityError':
             return f'{self._integrity_error()}'
         else:
             return f"{self._general_exception()}"
-    
 
-       
     def _integrity_error(self) -> dict[str, Any]:
+        """Format IntegrityError exception.
 
+        Returns:
+            dict[str, Any]: A dictionary containing the formatted exception details.
+
+        Examples:
+            >>> db_exc = DatabaseError(e, "Custom message")
+            >>> db_exc._integrity_error()
+            {
+                "Type": "IntegrityError",
+                "Message": "Custom message",
+                "Info": "Key (id)=(1) already exists.",
+                "Traceback": "method_name"
+            }
+
+        """
         msg: dict[str, Any] = {
             "Type": self.error_type,
             "Message": self.message,
@@ -71,6 +64,22 @@ class DatabaseError(Exception):
         return msg
 
     def _general_exception(self) -> dict[str, Any]:
+        """Format general exception.
+
+        Returns:
+            dict[str, Any]: A dictionary containing the formatted exception details.
+
+        Examples:
+            >>> db_exc = DatabaseError(e, "Custom message")
+            >>> db_exc._general_exception()
+            {
+                "Type": "IntegrityError",
+                "Message": "Custom message",
+                "Info": "Key (id)=(1) already exists.",
+                "Traceback": "method_name"
+            }
+
+        """
         msg: dict[str, Any] = {
             "Type": self.error_type,
             "Message": self.message,
@@ -79,9 +88,22 @@ class DatabaseError(Exception):
         }
         return msg
 
+    def http_message(self) -> dict[str, Any]:
+        """Returns dict for HTTP response.
 
+        Returns:
+            dict[str, Any]: A dictionary containing the formatted exception details.
 
-    def http_message(self):
+        Examples:
+            >>> db_exc = DatabaseError(e, "Custom message")
+            >>> db_exc.http_message()
+            {
+                "Type": "IntegrityError",
+                "Message": "Custom message",
+                "Info": "Key (id)=(1) already exists.",
+                "Traceback": "method_name"
+            }
+        """
         if self.error_type == 'IntegrityError':
             return self._integrity_error()
         else:
@@ -89,27 +111,7 @@ class DatabaseError(Exception):
     
 
 
-
-
-
-# class DbEngineError(Exception):
-#     """
-#     Exceptions raised for the database connection.
-
-#     Attributes
-#     ----------
-#     message: str
-#         The custom error message to display.
-#     """
-
-#     def __init__(self, message: str) -> None:
-#         self.message = message
-#         super().__init__(self.message)
-
-#     def __str__(self) -> str:
-#         return f"Database Error: {self.message}"
-
-
+############# Example generic database exceptions ################
 # class DbReadError(Exception):
 #     """
 #     Exceptions raised for the database connection.
@@ -127,56 +129,33 @@ class DatabaseError(Exception):
 #     def __str__(self) -> str:
 #         return f"Database Error: {self.message}"
 
+##################################################################
+        
+        ######## dump ##########
 
-# class DbCreateError(Exception):
-#     """
-#     Exceptions raised for the database connection.
+# self.http_code: int = http_code
 
-#     Attributes
-#     ----------
-#     message: str
-#         The custom error message to display.
-#     """
+# self.error_details: str = self._create_error_message(e)
 
-#     def __init__(self, message: str) -> None:
-#         self.message = message
-#         super().__init__(self.message)
+# self.proccessed_message: str = (
+#     f"{self.error_details}; \n Application message: {self.message}"
+# )
 
-#     def __str__(self) -> str:
-#         return f"Database Error: {self.message}"
+# super().__init__(self.message)
 
 
-# class DbUpdateError(Exception):
-#     """
-#     Exceptions raised for the database connection.
+# def _create_error_message(self, e: Exception) -> str:
+#     """Create the error message from traceback.
 
-#     Attributes
-#     ----------
-#     message: str
-#         The custom error message to display.
+#     Returns:
+#         str: Error message containing trace information.
 #     """
 
-#     def __init__(self, message: str) -> None:
-#         self.message = message
-#         super().__init__(self.message)
+#     error_type: str = type(e).__name__
+#     method_name: str = e.__traceback__.tb_frame.f_code.co_name  # type: ignore
+#     try:
+#         error_argument: str = e.args[0]
+#     except Exception:
+#         error_argument = "No argument provided"
 
-#     def __str__(self) -> str:
-#         return f"Database Error: {self.message}"
-
-
-# class DbDeleteError(Exception):
-#     """
-#     Exceptions raised for the database connection.
-
-#     Attributes
-#     ----------
-#     message: str
-#         The custom error message to display.
-#     """
-
-#     def __init__(self, message: str) -> None:
-#         self.message = message
-#         super().__init__(self.message)
-
-#     def __str__(self) -> str:
-#         return f"Database Error: {self.message}"
+#     return f"Database Error in method: {method_name}(); \n Raised: {error_type} with error argument: {error_argument}"
