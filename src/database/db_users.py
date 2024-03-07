@@ -39,7 +39,7 @@ class Users:
             session.commit()
             session.refresh(user)
             Logger().logger.info(
-                f"Created user: {user.username} on table: {user.__tablename__}"
+                f'Created user: "{user.username}" on table: "{user.__tablename__}"'
             )
             return user
         
@@ -78,7 +78,7 @@ class Users:
 
             return_model: UserResponseSchema = UserResponseSchema.model_validate(user)
             Logger().logger.info(
-                f"Return user: {return_model.username} from table: {UserModel.__tablename__}"
+                f'Return user: "{return_model.username}" from table: "{UserModel.__tablename__}"'
             )
             return return_model
 

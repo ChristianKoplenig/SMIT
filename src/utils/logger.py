@@ -17,13 +17,14 @@ class ClassnameFilter(logging.Filter):
                     "Logger",
                     "ClassnameFilter",
                 ] and not filename.endswith("logger.py"):
-                    record.classname = class_name
+                    file: str = os.path.basename(filename)
+                    record.classname = f'{file}::{class_name}'
                     record.lineno = frame.f_lineno
                     break
             if frame_self is None:
                 frame_info = inspect.getframeinfo(frame)
                 file = os.path.basename(filename)
-                record.classname = f'{file}:{frame_info.function}' # type: ignore
+                record.classname = f'{file}::{frame_info.function}' # type: ignore
                 record.lineno = frame.f_lineno
                 break
             frame = frame.f_back
@@ -82,7 +83,7 @@ class Logger(ClassnameFilter):
         # Log message format
         self.logger.addFilter(ClassnameFilter())
         formatter = logging.Formatter(
-            "%(asctime)s :: %(levelname)-8s :: [%(classname)s:%(lineno)d] :: %(message)s"
+            "%(asctime)s :: %(levelname)-8s :: [%(classname)s::%(lineno)d] :: %(message)s"
         )
 
         file_handler = logging.FileHandler(filepath)

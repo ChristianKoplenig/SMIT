@@ -1,4 +1,4 @@
-from typing import Annotated, Type
+from typing import Annotated, Type, KeysView
 
 from sqlmodel import SQLModel, Session, select
 from sqlmodel.sql.expression import SelectOfScalar
@@ -7,7 +7,6 @@ from sqlalchemy.engine.result import ScalarResult
 
 from utils.logger import Logger
 
-#TODO: Logger info table name not correct
 class DbAdmin:
     """Database setup class."""
     # Move to own file #
@@ -18,7 +17,9 @@ class DbAdmin:
         """Create table setup."""
         try:
             SQLModel.metadata.create_all(engine)
-            Logger().logger.info(f"Created table: {SQLModel.__tablename__}")
+            log_tablenames: KeysView[str] = SQLModel.metadata.tables.keys()
+            Logger().logger.info(
+                f"From SqlModel metadata created table(s): {', '.join(log_tablenames)}")
         except Exception as e:
             Logger().log_exception(e)
             raise e

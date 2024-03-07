@@ -44,9 +44,7 @@ class Db:
         Session: SqlModel session object connected to provided url.
 
     Raises:
-        DatabaseError: On error creating engine.
-        DatabaseError: On error creating local session.
-        DatabaseError: On error getting database connection.
+        DatabaseError: On creating engine or local session.
 
     """
 
@@ -74,10 +72,12 @@ class Db:
         """
         try:
             self.engine: Engine = create_engine(self.url)
-            Logger().logger.debug(f'Engine for "{url.database}" database created.')
+            Logger().logger.debug(
+                f'Engine connected to database "{self.url.database}".')
         except Exception as e:
             Logger().log_exception(e)
-            raise DatabaseError(e, f'Error creating engine for "{url.database}"') from e
+            raise DatabaseError(
+                e, f'Error creating engine for "{self.url.database}"') from e
         
         return self.engine
 
@@ -94,11 +94,13 @@ class Db:
         """
         try:
             session = Session(self.engine)
-            Logger().logger.debug(f'Session for "{url.database}" database created.')
+            Logger().logger.debug(
+                f'Created session connected to database: "{self.url.database}".')
             return session
         except Exception as e:
             Logger().log_exception(e)
-            raise DatabaseError(e, "Error creating local session") from e
+            raise DatabaseError(
+                e, "Error creating local session") from e
 
     def get_db(self) -> Generator[Session, Any, None]:
         """Yield session object.
@@ -113,10 +115,12 @@ class Db:
         """
         db: Session = self.local_session()
         try:
-            Logger().logger.debug(f'Session for "{url.database}" database opened.')
+            Logger().logger.debug(
+                f'Opened session connected to database: "{self.url.database}".')
             yield db
 
         finally:
             db.rollback()
             db.close()
-            Logger().logger.debug(f'Session for "{url.database}" database closed.')
+            Logger().logger.debug(
+                f'Closed session connected to database: "{self.url.database}".')

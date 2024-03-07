@@ -1,6 +1,5 @@
 """Test database users_crud directly."""
 import pytest
-#import asyncio
 from typing import Annotated
 from sqlmodel import Session
 

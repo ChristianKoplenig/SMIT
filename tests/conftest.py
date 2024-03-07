@@ -34,7 +34,6 @@ testing_url: URL = URL.create(
 def db_test_instance() -> Generator[Db, Any, None]:
     """Connect to test database."""
     db: Db = Db(url=testing_url)
-    Logger().logger.debug("Creating test database instance.")
     yield db
 
 @pytest.fixture(scope='session')
@@ -43,8 +42,11 @@ def db_test_engine(
                                 "Database instance for test connection."],
 ) -> Generator[Engine, Any, None]:
     engine: Engine = db_test_instance.db_engine()
+    Logger().logger.debug(
+        f'Test engine for database: "{testing_url.database}" established.')
     yield engine
-    Logger().logger.debug("Disposing test database engine.")
+    Logger().logger.debug(
+        f'Disposing test engine for database: "{testing_url.database}".')
     engine.dispose()
 
 @pytest.fixture(scope='function')
@@ -54,9 +56,11 @@ def db_test_session(
 ) -> Generator[Session, Any, None]:
     """Yield test database session."""
     testing_session: Session = Session(db_test_engine)
-    Logger().logger.debug("Opening test database session.")
+    Logger().logger.debug(
+        f'Test session connected to database: "{testing_url.database}".')
     yield testing_session
-    Logger().logger.debug("Closing test database session.")
+    Logger().logger.debug(
+        f'Closing test session for database: "{testing_url.database}".')
     testing_session.close()
 
 @pytest.fixture(scope='function')
@@ -75,7 +79,8 @@ def empty_test_db(
         yield empty_instance
     finally:
         DbAdmin().delete_all(session=empty_instance, db_model=UserModel)
-        Logger().logger.debug("Closing connection to test database.")
+        Logger().logger.debug(
+            f'Closing test connection to table: "{UserModel.__tablename__}".')
         empty_instance.close()
 
 @pytest.fixture

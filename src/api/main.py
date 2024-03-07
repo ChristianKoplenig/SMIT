@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, KeysView
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
@@ -46,7 +46,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
     try:
         engine: Engine = dep_get_engine
         SQLModel.metadata.create_all(engine)
-        Logger().logger.debug("SqlModel metadata created successfully.")
+        log_tablenames: KeysView[str] = SQLModel.metadata.tables.keys()
+        Logger().logger.info(
+            f'From SqlModel metadata created table(s): [{", ".join(log_tablenames)}]')
     except Exception as e:
         Logger().log_exception(e)
         raise e

@@ -23,7 +23,7 @@ router = APIRouter(
 async def get_dummy_user(
     session: Annotated[Session, Depends(dep_session)],
 ) -> UserResponseSchema:
-    """Return 'dummy_user', bypass UserCrud class."""
+    """Return 'dummy_user', bypass User class methods."""
     try:
         statement: SelectOfScalar[UserModel] = select(UserModel).where(
             UserModel.username == "dummy_user"
