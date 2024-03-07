@@ -105,10 +105,10 @@ class UserResponseSchema(UserBase):
     """
 
     id: Annotated[int, "User id"]
-    api_response: Annotated[
-        Optional[Union[Response404, DatabaseErrorResponse]],
-        Field(default=None, description="API response for error handling"),
-    ]
+    # api_response: Annotated[
+    #     Optional[Union[Response404, DatabaseErrorResponse]],
+    #     Field(default=None, description="API response for error handling"),
+    # ]
 
     model_config: ConfigDict = {
         "json_schema_extra": {

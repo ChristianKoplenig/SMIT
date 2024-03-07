@@ -11,7 +11,7 @@ from database.db_models import UserModel
 from database.db_users import Users
 
 from schemas.user_schemas import UserInputSchema, UserResponseSchema
-from schemas.response_schemas import DatabaseErrorResponse
+from schemas.response_schemas import DatabaseErrorSchema, DatabaseErrorResponse
 
 from exceptions.db_exc import DatabaseError
 
@@ -28,7 +28,7 @@ router: APIRouter = APIRouter(
     prefix="/users",
     tags=["Users"],
     responses={
-        500: {"model": DatabaseErrorResponse},
+        500: {"model": DatabaseErrorSchema},
     },
 )
 
@@ -58,9 +58,7 @@ async def create_new_user(
         return response_user
     
     except DatabaseError as dbe:
-        raise HTTPException(
-            status_code=500, 
-            detail=dbe.http_message())
+        raise DatabaseErrorResponse(dbe)
 
     except Exception as e:
         raise e

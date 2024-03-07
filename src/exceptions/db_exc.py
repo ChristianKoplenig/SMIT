@@ -1,5 +1,7 @@
 """Database exceptions formatting."""
-from typing import Annotated, Any
+from typing import Annotated
+
+from schemas.response_schemas import DatabaseErrorSchema
 
 class DatabaseError(Exception):
     """
@@ -38,7 +40,7 @@ class DatabaseError(Exception):
         else:
             return f"{self._general_exception()}"
 
-    def _integrity_error(self) -> dict[str, Any]:
+    def _integrity_error(self) -> DatabaseErrorSchema:
         """Format IntegrityError exception.
 
         Returns:
@@ -51,19 +53,22 @@ class DatabaseError(Exception):
                 "Type": "IntegrityError",
                 "Message": "Custom message",
                 "Info": "Key (id)=(1) already exists.",
-                "Traceback": "method_name"
+                "Traceback": Method: "method_name" raised error.
             }
 
         """
-        msg: dict[str, Any] = {
-            "Type": self.error_type,
-            "Message": self.message,
-            "Info": self.error.args[0].split("DETAIL:")[1],
-            "Traceback": self.error.__traceback__.tb_frame.f_code.co_name, # type: ignore
-        }
+
+        method: tuple[str] = self.error.__traceback__.tb_frame.f_code.co_name, # type: ignore
+
+        msg = DatabaseErrorSchema(
+            type=self.error_type,
+            message=self.message,
+            error=self.error.args[0].split("DETAIL:")[1],
+            location= f'Method: `{method[0]}()` raised error.'
+        )
         return msg
 
-    def _general_exception(self) -> dict[str, Any]:
+    def _general_exception(self) -> DatabaseErrorSchema:
         """Format general exception.
 
         Returns:
@@ -80,15 +85,17 @@ class DatabaseError(Exception):
             }
 
         """
-        msg: dict[str, Any] = {
-            "Type": self.error_type,
-            "Message": self.message,
-            "Info": self.error.args[0],
-            "Traceback": self.error.__traceback__.tb_frame.f_code.co_name, # type: ignore
-        }
+        method: tuple[str] = (self.error.__traceback__.tb_frame.f_code.co_name,)  # type: ignore
+
+        msg = DatabaseErrorSchema(
+            type=self.error_type,
+            message=self.message,
+            error=self.error.args[0].split("DETAIL:")[1],
+            location=f"Method: `{method[0]}()` raised error.",
+        )
         return msg
 
-    def http_message(self) -> dict[str, Any]:
+    def http_message(self)-> DatabaseErrorSchema:
         """Returns dict for HTTP response.
 
         Returns:

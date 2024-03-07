@@ -2,7 +2,54 @@
 from typing import Annotated, Any
 from sqlmodel import SQLModel, Field
 from pydantic import ConfigDict
+from fastapi import HTTPException
 
+
+class DatabaseErrorResponse(HTTPException):
+    """Raise on DatabaseError."""
+
+    def __init__(
+        self,
+        dbe: Annotated[Any, "Class DatabaseError"],
+        status_code: Annotated[int, "http error"] = 500,
+    ):
+        self.dbe = dbe
+
+        super().__init__(status_code=status_code, detail=self.unpack_error())
+
+    def unpack_error(self) -> dict[str, Any]:
+        """Unpack error details."""
+
+        model: DatabaseErrorSchema = self.dbe.http_message()
+
+        return model.model_dump()
+
+
+class DatabaseErrorSchema(SQLModel):
+    """Define details field for database error response."""
+
+    type: Annotated[str, Field(description="Type of error")]
+    message: Annotated[str, Field(description="Custom debug info")]
+    error: Annotated[str, Field(description="Details from error call stack")]
+    location: Annotated[str, Field(description="Name of method where error occurred")]
+
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "detail": {
+                        "type": "IntegrityError",
+                        "message": "create user error",
+                        "error": "  Key (username)=(dummy_user) already exists.",
+                        "location": "Method: `create_user()` raised error.",
+                    }
+                }
+            ]
+        }
+    }
+
+#############################################################
+#TODO    ########### rework ############
 class Response400(SQLModel):
     """Schema for bad data request."""
 
@@ -67,6 +114,8 @@ class Response404(SQLModel):
         }
     }
 
+
+
 class Response422(SQLModel):
     """Error schema for invalid user input."""
 
@@ -97,6 +146,9 @@ class Response422(SQLModel):
         }
     }
 
+
+#############################################################
+    ########### dump ############
 # class Response500(SQLModel):
 #     """Error schema for database exceptions."""
 
@@ -126,29 +178,3 @@ class Response422(SQLModel):
 #             ]
 #         }
 #     }
-
-class DatabaseErrorResponse(SQLModel):
-    """Schema for database error response."""
-    error_type: Annotated[str,
-                          Field(description="Type of error")]
-    error_message: Annotated[str,
-                             Field(description="Application details on error")]
-    error_info: Annotated[str,
-                          Field(description="Details from error call stack")]
-    error_traceback: Annotated[str,
-                               Field(description="Name of method where error occurred")]
-
-    model_config: ConfigDict = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "detail": {
-                        "Type": "InvalidRequestError",
-                        "Message": "create user error",
-                        "Info": "Instance not persistent within this Session",
-                        "Traceback": "create_user",
-                    }
-                }
-            ]
-        }
-    }

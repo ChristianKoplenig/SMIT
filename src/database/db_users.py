@@ -15,12 +15,12 @@ from utils.logger import Logger
 from database.db_models import UserModel
 
 from schemas.user_schemas import UserResponseSchema
-from schemas.response_schemas import (
-    Response400,
-    Response404,
-    Response422,
-    #Response500,
-)
+# from schemas.response_schemas import (
+#     Response400,
+#     Response404,
+#     Response422,
+#     #Response500,
+# )
 
 class Users:
     """Class for user CRUD operations."""
@@ -47,8 +47,6 @@ class Users:
             Logger().log_exception(e)
             session.rollback()
             raise DatabaseError(e, 'create user error')
-
-
 
 
     async def get_user(
@@ -91,14 +89,14 @@ class Users:
         #         status_code=500, detail=response500.model_dump()
         #     ) from ve
 
-        except NoResultFound as nrf:
-            response404: Response404 = Response404(
-                error="User not found", info=f"User '{username}' not in database."
-            )
-            Logger().log_exception(nrf)
-            raise HTTPException(
-                status_code=404, detail=response404.model_dump()
-            ) from nrf
+        # except NoResultFound as nrf:
+        #     response404: Response404 = Response404(
+        #         error="User not found", info=f"User '{username}' not in database."
+        #     )
+        #     Logger().log_exception(nrf)
+        #     raise HTTPException(
+        #         status_code=404, detail=response404.model_dump()
+        #     ) from nrf
 
         except Exception as e:
             Logger().log_exception(e)
