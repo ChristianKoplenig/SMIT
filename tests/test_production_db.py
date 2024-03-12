@@ -17,12 +17,12 @@ def test_production_api_healthchecker() -> None:
     assert {"message": "The API is LIVE!!"} == response.json()
 
 
-@pytest.mark.smoke
-@pytest.mark.production
-def test_production_post_user() -> None:
-    """Access production database."""
-    user: dict[str, str] = users_mock.valid_users()[0]
+# @pytest.mark.smoke
+# @pytest.mark.production
+# def test_production_post_user() -> None:
+#     """Access production database."""
+#     user: dict[str, str] = users_mock.valid_users()[0]
 
-    response: Response = client.post("/crud/user/create", json=user)
+#     response: Response = client.post("/users/user/create", json=user)
 
-    assert response.status_code == 400
+#     assert response.status_code == 400

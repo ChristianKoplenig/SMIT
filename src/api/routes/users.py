@@ -1,19 +1,19 @@
 """Router for user operations."""
 import os
-from typing import Annotated
 from dotenv import load_dotenv
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
+from sqlmodel import Session, SQLModel
 
 from api.dependencies import dep_session
+from database.crud import Crud
+from utils.logger import Logger
 
 from database.db_models import UserModel
-from database.db_users import Users
-
-from schemas.user_schemas import UserInputSchema, UserResponseSchema
-from schemas.response_schemas import DatabaseErrorSchema, DatabaseErrorResponse
-
 from exceptions.db_exc import DatabaseError
+from schemas.response_schemas import DatabaseErrorResponse, DatabaseErrorSchema
+from schemas.user_schemas import UserInputSchema, UserResponseSchema
 
 # Load secrets
 load_dotenv()
@@ -53,12 +53,14 @@ async def create_new_user(
     """
     try:
         db_user: UserModel = UserModel.model_validate(user)
-        new_user: UserModel = await Users().create_user(db_user, session=session)
+        new_user: SQLModel = await Crud().post(db_user, session=session)
         response_user: UserResponseSchema = UserResponseSchema.model_validate(new_user)
         return response_user
     
     except DatabaseError as dbe:
+        Logger().log_exception(dbe)
         raise DatabaseErrorResponse(dbe)
 
     except Exception as e:
+        Logger().log_exception(e)
         raise e

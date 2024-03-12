@@ -1,20 +1,19 @@
 """Helper functions for user CRUD operations."""
 from typing import Annotated, List
-from sqlmodel import Session, select
 
-from sqlalchemy.engine.result import ScalarResult
-from sqlmodel.sql.expression import SelectOfScalar
-
-from fastapi import HTTPException
-from sqlalchemy.exc import IntegrityError, NoResultFound
-from pydantic import ValidationError
 from exceptions.api_exc import ApiValidationError
 from exceptions.db_exc import DatabaseError
-
+from fastapi import HTTPException
+from pydantic import ValidationError
+from schemas.user_schemas import UserResponseSchema
+from sqlalchemy.engine.result import ScalarResult
+from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlmodel import Session, select, SQLModel
+from sqlmodel.sql.expression import SelectOfScalar
 from utils.logger import Logger
+
 from database.db_models import UserModel
 
-from schemas.user_schemas import UserResponseSchema
 # from schemas.response_schemas import (
 #     Response400,
 #     Response404,
@@ -22,31 +21,47 @@ from schemas.user_schemas import UserResponseSchema
 #     #Response500,
 # )
 
-class Users:
+class Crud:
     """Class for user CRUD operations."""
 
     def __init__(self):
         Logger().log_module_init()
 
-    async def create_user(
+    async def post(
         self,
-        user: Annotated[UserModel, "Schema for creating a user"],
+        datamodel: Annotated[SQLModel, "Schema for creating a user"],
         session: Annotated[Session, "Database session dependency"],
-    ) -> UserModel:
-        """create validated user"""
+    ) -> SQLModel:
+        """Create model data on database
+        
+        Insert data into database table.
+        Refresh the ORM model and return it.
+
+        Args:
+            datamodel (SqlModel): The data model to create at database.
+            db (Session): The database session.
+        
+        Returns:
+            SqlModel: Return the ORM input model.
+
+        Raises:
+            DatabaseError: If creation fails on database error.
+        
+        """
         try:
-            session.add(user)
+            session.add(datamodel)
             session.commit()
-            session.refresh(user)
+            session.refresh(datamodel)
             Logger().logger.info(
-                f'Created user: "{user.username}" on table: "{user.__tablename__}"'
+                f'Created data using ORM model: "{datamodel.__class__.__name__}" '
+                f'on table: "{datamodel.__tablename__}"'
             )
-            return user
+            return datamodel
         
         except Exception as e:
             Logger().log_exception(e)
             session.rollback()
-            raise DatabaseError(e, 'create user error')
+            raise DatabaseError(e, 'create on db error')
 
 
     async def get_user(

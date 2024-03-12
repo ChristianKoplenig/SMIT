@@ -1,21 +1,19 @@
 """Helper functions for authenticating users."""
 import os
 from datetime import datetime, timedelta, timezone
-from dotenv import load_dotenv
 from typing import Annotated, Any
-from sqlmodel import Session
+
+from api.dependencies import dep_session
+from database.crud import Crud
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from jose.exceptions import ExpiredSignatureError
-
-from api.dependencies import dep_session
-
-from database.db_users import Users
 from schemas.auth_schemas import TokenData
 from schemas.response_schemas import Response401
 from schemas.user_schemas import UserResponseSchema
-
+from sqlmodel import Session
 from utils.hasher import Hasher
 from utils.logger import Logger
 
@@ -49,7 +47,7 @@ async def authenticate_user(
         Exception: General database exception.
     """
     try:
-        user: UserResponseSchema = await Users().get_user(username, session=session)
+        user: UserResponseSchema = await Crud().get_user(username, session=session)
 
     except HTTPException as hte:
         if hte.status_code == 404:
@@ -152,7 +150,7 @@ async def get_current_user(
         raise e
 
     if token_data.username:
-        user: UserResponseSchema = await Users().get_user(token_data.username,
+        user: UserResponseSchema = await Crud().get_user(token_data.username,
                                                           session=session)
         Logger().logger.debug(f"User: {username} logged in using token")
         return user

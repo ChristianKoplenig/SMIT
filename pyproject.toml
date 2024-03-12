@@ -62,13 +62,11 @@ argon2-cffi = "^23.1.0"
 addopts = "--ignore=opt/"
 markers = [
     "smoke: Validate all core methods",
-    "database: Test database connection and CRUD operations",
-    "engine: Test database engine",
     "schemas: Test SqlModel schemas",
-    "api: Use mocked FastApi testclient, connect to test database",
-    "authentication: Test FastAPI authentication framework",
-    "production: Use testclient to access production database",
+    "engine: Test database engine",
     "crud: Test CRUD operations, bypass FastAPI TestClient",
+    "api: Test API endpoints using mocked TestClient",
+    "production: Use testclient to access production database",
 ]
 
 [tool.tox]
@@ -88,7 +86,7 @@ legacy_tox_ini = """
     commands_pre =
         poetry install
     commands =
-        poetry run pytest --basetemp={envtmpdir} -v -m "crud" #combine markers with or/and syntax
+        poetry run pytest --basetemp={envtmpdir} -v -m "smoke" #combine markers with or/and syntax
 
     [testenv:flake8]
     basepython = python3.11

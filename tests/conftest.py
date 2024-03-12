@@ -83,7 +83,7 @@ def empty_test_db(
             f'Closing test connection to table: "{UserModel.__tablename__}".')
         empty_instance.close()
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def api_testclient(
     db_test_session: Annotated[Session,
                                "Test database session."],

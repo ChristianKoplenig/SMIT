@@ -1,8 +1,8 @@
 from typing import Annotated, Any, Callable, Generator, List
 
 from api.dependencies import dep_session
+from database.crud import Crud
 from database.db_models import UserModel
-from database.db_users import Users
 from exceptions.api_exc import ApiValidationError, DbSessionError
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
@@ -67,7 +67,7 @@ async def get_user_by_path(
     Returns:
         UserResponseSchema: User data row from database.
     """
-    user: UserResponseSchema = await Users().get_user(username, session=session)
+    user: UserResponseSchema = await Crud().get_user(username, session=session)
     return user
 
 
