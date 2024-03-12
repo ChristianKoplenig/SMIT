@@ -49,5 +49,3 @@ async def test_create_user_exception(
             datamodel=db_user1,
             session=session)
     assert "IntegrityError" in str(dbe.value)
-        
-    
