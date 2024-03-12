@@ -5,13 +5,15 @@ from sqlmodel import Session, SQLModel
 
 from database.crud import Crud
 from database.db_models import UserModel
+from schemas.user_schemas import UserResponseSchema
 from utils import users_mock
+from utils.logger import Logger
 
 from exceptions.db_exc import DatabaseError
 
 @pytest.mark.asyncio
 @pytest.mark.smoke
-@pytest.mark.crud
+#@pytest.mark.crud
 async def test_post(
     empty_test_db: Annotated[Session, "Database session"],
 ) -> None:
@@ -29,7 +31,7 @@ async def test_post(
 
 @pytest.mark.asyncio
 @pytest.mark.smoke
-@pytest.mark.crud
+#@pytest.mark.crud
 async def test_create_user_exception(
     empty_test_db: Annotated[Session, "Database session"],
 ) -> None:
@@ -49,3 +51,29 @@ async def test_create_user_exception(
             datamodel=db_user1,
             session=session)
     assert "IntegrityError" in str(dbe.value)
+
+@pytest.mark.asyncio
+@pytest.mark.smoke
+@pytest.mark.crud
+async def test_get(
+    empty_test_db: Annotated[Session, "Database session"],
+) -> None:
+    """Test get method."""
+    session: Session = empty_test_db
+    user: dict[str, str] = users_mock.valid_users()[0]
+    db_user: UserModel = UserModel.model_validate(user)
+
+    in_db: SQLModel = await Crud().post(datamodel=db_user, session=session)
+
+    Logger().logger.debug(f"TEST:: db_user: {db_user.username} created")
+
+    on_db: SQLModel = await Crud().get(
+        datamodel=UserModel,
+        column="username",
+        value= db_user.username,
+        returnmodel= UserResponseSchema,
+        session=session,
+    )
+    assert on_db.username == db_user.username
+
+    assert False

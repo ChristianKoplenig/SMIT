@@ -1,21 +1,11 @@
+from typing import List
 
 import pytest
-from typing import List
-from typing import TYPE_CHECKING
-from sqlmodel import Session, SQLModel
-
-from sqlalchemy.exc import IntegrityError
+from database.db_models import UserModel
 from pydantic import ValidationError
-
 from utils import users_mock
 from utils.logger import Logger
-from database.db_models import UserModel
 
-
-### Needed for warning output
-# Used to validate if all field constraints are met
-import warnings
-###
 
 # Test database models
 @pytest.mark.smoke

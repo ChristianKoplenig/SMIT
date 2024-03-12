@@ -1,5 +1,5 @@
 """Helper functions for user CRUD operations."""
-from typing import Annotated, List
+from typing import Annotated, List, Generator, Any, Type
 
 from exceptions.api_exc import ApiValidationError
 from exceptions.db_exc import DatabaseError
@@ -64,36 +64,41 @@ class Crud:
             raise DatabaseError(e, 'create on db error')
 
 
-    async def get_user(
+    async def get(
         self,
-        username: Annotated[str, "Username to retrieve"],
+        datamodel: Annotated[Type[SQLModel], 'ORM model schema for database table'],
+        column: Annotated[str, "Table column to search value in."],
+        value: Annotated[str, "Match pattern to select row."],
+        returnmodel: Annotated[SQLModel, "ORM model schema for database table"],
         session: Annotated[Session, "Database session"],
-    ) -> UserResponseSchema:
+    ) -> SQLModel:
         """Get user by username.
 
         Args:
-            username (str): The username of the user to retrieve.
-            db (Session): The database session.
+            datamodel (SQLModel): Database table schema.
+            column (str): The column to search for value.
+            value (str): The value to search for in column.
+            returnmodel (SQLModel): Schema for database response.
+            session (Session): The database session.
 
         Returns:
-            UserResponseSchema: The user response schema.
+            SQLModel: The model row retrieved from database.
 
         Raises:
-            Response404: If the user is not found.
-            Response500: If there is a database validation error.
-            Exception: Unexpected database error.
+            DatabaseError: If creation fails on database error.
         """
         try:
-            statement: SelectOfScalar[UserModel] = select(UserModel).where(
-                UserModel.username == username
+            statement: SelectOfScalar[SQLModel] = select(datamodel).where(
+                getattr(datamodel, column) == value
             )
-            user: UserModel = session.exec(statement).one()
 
-            return_model: UserResponseSchema = UserResponseSchema.model_validate(user)
+            user: SQLModel = session.exec(statement).one()
+
+            db_row: SQLModel = returnmodel.model_validate(user)
             Logger().logger.info(
-                f'Return user: "{return_model.username}" from table: "{UserModel.__tablename__}"'
+                f'Return user: "{db_row.username}" from table: "{datamodel.__tablename__}"'
             )
-            return return_model
+            return db_row
 
         # except ValidationError as ve:
         #     response500: Response500 = Response500(
@@ -115,7 +120,8 @@ class Crud:
 
         except Exception as e:
             Logger().log_exception(e)
-            raise e
+            session.rollback()
+            raise DatabaseError(e, "get from db error")
 
     async def get_userlist(
         self,
