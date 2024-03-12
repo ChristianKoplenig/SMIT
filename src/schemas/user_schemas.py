@@ -45,7 +45,9 @@ class UserBase(SQLModel):
         Field(index=True, description="Authentication username.", unique=True),
     ]
 
-    password: Annotated[str, Field(description="Hash of Authentication password")]
+    password: Annotated[str, Field(
+        min_length=1, # Make sure that password is not empty
+        description="Hash of Authentication password")]
 
     # Additional fields
     email: Annotated[

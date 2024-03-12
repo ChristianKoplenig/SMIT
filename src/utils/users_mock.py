@@ -45,7 +45,7 @@ def invalid_users() -> List[dict[str, str]]:
             List[dict[str, str]]: A list of dictionaries representing invalid users.
     """
     all_errors: dict[str, str] = {
-        "username": "df",
+        "username": "all",
         "password": "",
         "email": "dummydummymail.com",
         "sng_username": "du",
@@ -63,7 +63,7 @@ def invalid_users() -> List[dict[str, str]]:
         "nightmeter": "199997",
     }
     short_username: dict[str, str] = {
-        "username": "abc",
+        "username": "srt",
         "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
         "email": "dummy@dummymail.com",
         "sng_username": "dummy_sng_login",
@@ -72,7 +72,7 @@ def invalid_users() -> List[dict[str, str]]:
         "nightmeter": "199997",
     }
     empty_pwd: dict[str, str] = {
-        "username": "dummy_user",
+        "username": "empty_pwd",
         "password": "",
         "email": "dummy@dummymail.com",
         "sng_username": "dummy_sng_login",
@@ -81,7 +81,7 @@ def invalid_users() -> List[dict[str, str]]:
         "nightmeter": "199997",
     }
     meter_string: dict[str, str] = {
-        "username": "dummy_user",
+        "username": "meter_string",
         "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
         "email": "dummy@dummymail.com",
         "sng_username": "dummy_sng_login",
@@ -90,7 +90,7 @@ def invalid_users() -> List[dict[str, str]]:
         "nightmeter": "199996",
     }
     meter_short: dict[str, str] = {
-        "username": "dummy_user",
+        "username": "meter_short",
         "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
         "email": "dummy@dummymail.com",
         "sng_username": "dummy_sng_login",
@@ -99,7 +99,7 @@ def invalid_users() -> List[dict[str, str]]:
         "nightmeter": "199996",
     }
     mail_invalid: dict[str, str] = {
-        "username": "dummy_user",
+        "username": "mail_invalid",
         "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
         "email": "dummydummymail.com",
         "sng_username": "dummy_sng_login",
@@ -108,7 +108,7 @@ def invalid_users() -> List[dict[str, str]]:
         "nightmeter": "199996",
     }
     sng_user_short: dict[str, str] = {
-        "username": "dummy_user",
+        "username": "sng_user_short",
         "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6bUZs3om",
         "email": "dummy@dummymail.com",
         "sng_username": "sng",
@@ -124,7 +124,7 @@ def invalid_users() -> List[dict[str, str]]:
         mail_invalid,
         meter_string,
         meter_short,
-        sng_user_short,
+        #sng_user_short, # Not needed because sng username is optional at the moment.
     ]
     return bad_users
 
