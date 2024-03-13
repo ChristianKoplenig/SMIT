@@ -1,5 +1,6 @@
 """Database exceptions formatting."""
-from typing import Annotated
+from typing import Annotated, Any
+from pydantic import ValidationError
 
 from schemas.response_schemas import DatabaseErrorSchema
 
@@ -26,47 +27,21 @@ class DatabaseError(Exception):
 
     def __init__(
             self,
-            e: Annotated[Exception, 'Exception to format'],
+            e: Annotated[Exception | ValidationError, 'Exception to format'],
             message: Annotated[str, 'Custom info on exception'],
             ) -> None:
         
         self.message: str = message
-        self.error: Exception = e
+        self.error: Exception | ValidationError = e
         self.error_type = type(e).__name__
 
     def __str__(self) -> str:
         if self.error_type == 'IntegrityError':
             return f'{self._integrity_error()}'
+        if self.error_type == 'ValidationError':
+            return f'{self._validation_error()}'
         else:
             return f"{self._general_exception()}"
-
-    def _integrity_error(self) -> DatabaseErrorSchema:
-        """Format IntegrityError exception.
-
-        Returns:
-            dict[str, Any]: A dictionary containing the formatted exception details.
-
-        Examples:
-            >>> db_exc = DatabaseError(e, "Custom message")
-            >>> db_exc._integrity_error()
-            {
-                "Type": "IntegrityError",
-                "Message": "Custom message",
-                "Info": "Key (id)=(1) already exists.",
-                "Traceback": Method: "method_name" raised error.
-            }
-
-        """
-
-        method: tuple[str] = self.error.__traceback__.tb_frame.f_code.co_name, # type: ignore
-
-        msg = DatabaseErrorSchema(
-            type=self.error_type,
-            message=self.message,
-            error=self.error.args[0].split("DETAIL:")[1],
-            location= f'Method: `{method[0]}()` raised error.'
-        )
-        return msg
 
     def _general_exception(self) -> DatabaseErrorSchema:
         """Format general exception.
@@ -95,6 +70,86 @@ class DatabaseError(Exception):
         )
         return msg
 
+    def _integrity_error(self) -> DatabaseErrorSchema:
+        """Format IntegrityError exception.
+
+        Returns:
+            dict[str, Any]: A dictionary containing the formatted exception details.
+
+        Examples:
+            >>> db_exc = DatabaseError(e, "Custom message")
+            >>> db_exc._integrity_error()
+            {
+                "Type": "IntegrityError",
+                "Message": "Custom message",
+                "Info": "Key (id)=(1) already exists.",
+                "Traceback": Method: "method_name" raised error.
+            }
+
+        """
+        method: tuple[str] = self.error.__traceback__.tb_frame.f_code.co_name, # type: ignore
+
+        msg = DatabaseErrorSchema(
+            type=self.error_type,
+            message=self.message,
+            error=self.error.args[0].split("DETAIL:")[1],
+            location= f'Method: `{method[0]}()` raised error.'
+        )
+        return msg
+    
+    def _validation_error(self) -> DatabaseErrorSchema:
+        """Format Pydantic ValidationError exception.
+
+        Returns:
+            dict[str, Any]: 
+                A dictionary containing the formatted exception details.
+
+        Examples:
+            >>> db_exc = DatabaseError(e, "Custom message")
+            >>> db_exc._validation_error()
+            {
+                "type": "ValidationError",
+                "message": "Custom message",
+                "error": {
+                    "username": {
+                        "Input": "du",
+                        "Message": "Username length must be greater than 3"
+                    },
+                    "email": {
+                        "Input": "du.com",
+                        "Message": "Field must be validate email address"
+                    }
+                },
+                "location": "Method: `method_name()` raised error."
+        """
+        error_messages: dict[str, str | Any] = {}
+        method: tuple[str] = (self.error.__traceback__.tb_frame.f_code.co_name,)  # type: ignore
+
+        if type(self.error) == ValidationError:
+            errors = self.error.errors()
+
+            for error in errors:
+                field: str = str(error["loc"][0])
+                error_message: str = error["msg"]
+                input: str = error["input"]
+                error_messages[field] = {"Input": input, "Error": error_message}
+            
+            msg = DatabaseErrorSchema(
+                type=self.error_type,
+                message=self.message,
+                error=str(error_messages),
+                location=f"Method: `{method[0]}()` raised error.",
+            )
+            return msg
+        else:
+            msg = DatabaseErrorSchema(
+                type=self.error_type,
+                message=self.message,
+                error='Unspecific validation error.',
+                location=f"Method: `{method[0]}()` raised error.",
+            )
+            return msg
+
     def http_message(self)-> DatabaseErrorSchema:
         """Returns dict for HTTP response.
 
@@ -113,6 +168,8 @@ class DatabaseError(Exception):
         """
         if self.error_type == 'IntegrityError':
             return self._integrity_error()
+        if self.error_type == 'ValidationError':
+            return self._validation_error()
         else:
             return self._general_exception()
     

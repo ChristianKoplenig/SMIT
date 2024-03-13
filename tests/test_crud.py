@@ -13,7 +13,7 @@ from exceptions.db_exc import DatabaseError
 
 @pytest.mark.asyncio
 @pytest.mark.smoke
-@pytest.mark.crud
+#@pytest.mark.crud
 async def test_post(
     empty_test_db: Annotated[Session, "Database session"],
 ) -> None:
@@ -28,10 +28,9 @@ async def test_post(
     assert on_db.email == db_user.email
     assert on_db.daymeter == db_user.daymeter
 
-
 @pytest.mark.asyncio
 @pytest.mark.smoke
-@pytest.mark.crud
+#@pytest.mark.crud
 async def test_post_exception(
     empty_test_db: Annotated[Session, "Database session"],
 ) -> None:
@@ -54,7 +53,7 @@ async def test_post_exception(
 
 @pytest.mark.asyncio
 @pytest.mark.smoke
-@pytest.mark.crud
+#@pytest.mark.crud
 async def test_get(
     empty_test_db: Annotated[Session, "Database session"],
 ) -> None:
@@ -78,7 +77,7 @@ async def test_get(
 
 @pytest.mark.asyncio
 @pytest.mark.smoke
-@pytest.mark.crud
+#@pytest.mark.crud
 async def test_get_exception(
     empty_test_db: Annotated[Session, "Database session"],
 ) -> None:
@@ -117,7 +116,7 @@ async def test_get_exception(
 
 @pytest.mark.asyncio
 @pytest.mark.smoke
-@pytest.mark.crud
+#@pytest.mark.crud
 async def test_get_column_entries(
     empty_test_db: Annotated[Session, "Database session"],
 ) -> None:
@@ -142,7 +141,7 @@ async def test_get_column_entries(
 
 @pytest.mark.asyncio
 @pytest.mark.smoke
-@pytest.mark.crud
+#@pytest.mark.crud
 async def test_get_column_entries_exception(
     empty_test_db: Annotated[Session, "Database session"],
 ) -> None:
@@ -157,3 +156,101 @@ async def test_get_column_entries_exception(
         )
 
     assert 'AttributeError' in str(dbe.value)
+
+@pytest.mark.asyncio
+@pytest.mark.smoke
+#@pytest.mark.crud
+async def test_put(
+    empty_test_db: Annotated[Session, "Database session"],
+) -> None:
+    """Test update method."""
+    session: Session = empty_test_db
+    user: dict[str, str] = users_mock.valid_users()[0]
+    db_user: UserModel = UserModel.model_validate(user)
+
+    in_db: SQLModel = await Crud().post(datamodel=db_user, session=session)
+
+    Logger().logger.debug(f"TESTING:: db_user: {db_user.username} created ::TESTING")
+
+    # Fetch user from database
+    on_db: SQLModel = await Crud().get(
+        datamodel=UserModel,
+        column="id",
+        value= in_db.id,
+        returnmodel=UserResponseSchema,
+        session=session,
+    )
+    Logger().logger.debug(f"TESTING:: Original username: {on_db.username} ::TESTING")
+
+    # Update username
+    await Crud().put(
+        datamodel=UserModel,
+        select_column="id",
+        select_value=in_db.id,
+        update_entry="username",
+        update_value="new_username",
+        returnmodel=UserResponseSchema,
+        session=session,
+    )
+
+    updated_db: SQLModel = await Crud().get(
+        datamodel=UserModel,
+        column="id",
+        value=in_db.id,
+        returnmodel=UserResponseSchema,
+        session=session,
+    )
+    Logger().logger.debug(f"TESTING:: Modified username: {updated_db.username} ::TESTING")
+
+    assert updated_db.username == "new_username"
+
+@pytest.mark.asyncio
+@pytest.mark.smoke
+@pytest.mark.crud
+async def test_put_exception(
+    empty_test_db: Annotated[Session, "Database session"],
+) -> None:
+    """Test update method exceptions."""
+    session: Session = empty_test_db
+    user: dict[str, str] = users_mock.valid_users()[0]
+    db_user: UserModel = UserModel.model_validate(user)
+
+    in_db: SQLModel = await Crud().post(datamodel=db_user, session=session)
+
+    Logger().logger.debug(f"TESTING:: db_user: {db_user.username} created ::TESTING")
+
+    with pytest.raises(DatabaseError) as dbe:
+        await Crud().put(
+            datamodel=UserModel,
+            select_column="id",
+            select_value=in_db.id,
+            update_entry="username",
+            update_value="new",
+            returnmodel=UserResponseSchema,
+            session=session,
+        )
+    assert 'ValidationError' in str(dbe.value)
+
+    with pytest.raises(DatabaseError) as dbe:
+        await Crud().put(
+            datamodel=UserModel,
+            select_column="id",
+            select_value=in_db.id,
+            update_entry="wrong_entry",
+            update_value="new_username",
+            returnmodel=UserResponseSchema,
+            session=session,
+        )
+    assert "ValueError" in str(dbe.value)
+
+    with pytest.raises(DatabaseError) as dbe:
+        await Crud().put(
+            datamodel=UserModel,
+            select_column="wrong_column",
+            select_value=in_db.id,
+            update_entry="username",
+            update_value="new_username",
+            returnmodel=UserResponseSchema,
+            session=session,
+        )
+    assert "AttributeError" in str(dbe.value)

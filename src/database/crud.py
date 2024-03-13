@@ -63,7 +63,6 @@ class Crud:
             session.rollback()
             raise DatabaseError(e, 'create on db error')
 
-
     async def get(
         self,
         datamodel: Annotated[Type[SQLModel], 'ORM model schema for database table'],
@@ -135,3 +134,40 @@ class Crud:
             Logger().log_exception(e)
             session.rollback()
             raise DatabaseError(e, "get_column_entries from db error")
+
+    async def put(
+        self,
+        datamodel: Annotated[Type[SQLModel], 'ORM model schema for database table'],
+        select_column: Annotated[str, "Table column to search select_value in."],
+        select_value: Annotated[str, "Match pattern to select database entry for update."],
+        update_entry: Annotated[str, "Database entry to update."],
+        update_value: Annotated[str, "New value to update entry with."],
+        returnmodel: Annotated[SQLModel, "ORM model schema for response"],
+        session: Annotated[Session, "Database session"],
+    ) -> SQLModel:
+        """Select database row and update entry."""
+        try:
+            statement: SelectOfScalar[SQLModel] = select(datamodel).where(
+                getattr(datamodel, select_column) == select_value
+            )
+            on_db: SQLModel = session.exec(statement).one()
+
+            # Update entry
+            setattr(on_db, update_entry, update_value)
+            
+            # Validate entry; Raise error before commit
+            updated_entry: SQLModel = returnmodel.model_validate(on_db)
+            
+            session.add(on_db)
+            session.commit()
+            session.refresh(on_db)
+            Logger().logger.info(
+                f'Updated entry for: "{update_entry}" to new value: "{update_value}" '
+                f'on table: "{datamodel.__tablename__}"'
+            )
+            return updated_entry
+
+        except Exception as e:
+            Logger().log_exception(e)
+            session.rollback()
+            raise DatabaseError(e, "update on db error")
