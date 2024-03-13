@@ -100,45 +100,38 @@ class Crud:
             )
             return db_row
 
-        # except ValidationError as ve:
-        #     response500: Response500 = Response500(
-        #         error="Database Validation Error", info=ApiValidationError(ve).message()
-        #     )
-        #     Logger().log_exception(ve)
-        #     raise HTTPException(
-        #         status_code=500, detail=response500.model_dump()
-        #     ) from ve
-
-        # except NoResultFound as nrf:
-        #     response404: Response404 = Response404(
-        #         error="User not found", info=f"User '{username}' not in database."
-        #     )
-        #     Logger().log_exception(nrf)
-        #     raise HTTPException(
-        #         status_code=404, detail=response404.model_dump()
-        #     ) from nrf
-
         except Exception as e:
             Logger().log_exception(e)
             session.rollback()
             raise DatabaseError(e, "get from db error")
 
-    async def get_userlist(
+    async def get_column_entries(
         self,
+        datamodel: Annotated[Type[SQLModel], "ORM model schema for database table"],
+        column: Annotated[str, "Table column to search value in."],
         session: Annotated[Session, "Database session"],
     ) -> list[str]:
-        """Get list of registered usernames.
-
+        """Return list of all enries in a column.
+        
         Args:
-            db (Session): The database session.
+            datamodel (SQLModel): Database table schema.
+            column (str): The column to search for value.
+            session (Session): The database session.
 
         Returns:
-            list[str]: A list of registered usernames.
+            list[str]: List with column entries.
+
+        Raises:
+            DatabaseError: If getting values fails.
         """
-
-        existing_users: ScalarResult[UserModel] = session.exec(select(UserModel))
-
-        usernames: List[str] = []
-        for each in existing_users:
-            usernames.append(each.username)
-        return usernames
+        try:
+            db_entries: ScalarResult[SQLModel] = session.exec(
+                select(getattr(datamodel, column))
+                )
+            entries_list: List[str] = [str(each) for each in db_entries]
+            return entries_list
+        
+        except Exception as e:
+            Logger().log_exception(e)
+            session.rollback()
+            raise DatabaseError(e, "get_column_entries from db error")

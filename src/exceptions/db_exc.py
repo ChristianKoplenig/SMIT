@@ -90,7 +90,7 @@ class DatabaseError(Exception):
         msg = DatabaseErrorSchema(
             type=self.error_type,
             message=self.message,
-            error=self.error.args[0].split("DETAIL:")[1],
+            error=self.error.args[0],
             location=f"Method: `{method[0]}()` raised error.",
         )
         return msg
