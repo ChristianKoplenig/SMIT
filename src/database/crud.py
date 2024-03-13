@@ -1,30 +1,25 @@
-"""Helper functions for user CRUD operations."""
-from typing import Annotated, List, Generator, Any, Type
-
-from exceptions.api_exc import ApiValidationError
-from exceptions.db_exc import DatabaseError
-from fastapi import HTTPException
-from pydantic import ValidationError
-from schemas.user_schemas import UserResponseSchema
-from sqlalchemy.engine.result import ScalarResult
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from typing import Annotated, List, Type
 from sqlmodel import Session, select, SQLModel
+from sqlalchemy.engine.result import ScalarResult
 from sqlmodel.sql.expression import SelectOfScalar
+
+from exceptions.db_exc import DatabaseError
 from utils.logger import Logger
 
-from database.db_models import UserModel
-
-# from schemas.response_schemas import (
-#     Response400,
-#     Response404,
-#     Response422,
-#     #Response500,
-# )
-
 class Crud:
-    """Class for user CRUD operations."""
+    """SqlModel CRUD operations.
+    
+    Use SqlModel models and session to perform CRUD operations on database.
 
-    def __init__(self):
+    Methods:
+        post: Use SqlModel to create data entry.
+        get: Select entry with column name and pattern.
+        get_column_entries: Return list of all entries from column.
+        put: Select database row and update entry.
+        delete: Delete database row.
+    """
+
+    def __init__(self) -> None:
         Logger().log_module_init()
 
     async def post(
@@ -32,7 +27,7 @@ class Crud:
         datamodel: Annotated[SQLModel, "Schema for creating a user"],
         session: Annotated[Session, "Database session dependency"],
     ) -> SQLModel:
-        """Create model data on database
+        """Use SqlModel to create data entry.
         
         Insert data into database table.
         Refresh the ORM model and return it.
@@ -71,7 +66,7 @@ class Crud:
         returnmodel: Annotated[SQLModel, "ORM model schema for database table"],
         session: Annotated[Session, "Database session"],
     ) -> SQLModel:
-        """Get user by username.
+        """Select entry with column name and pattern.
 
         Args:
             datamodel (SQLModel): Database table schema.
@@ -95,7 +90,8 @@ class Crud:
 
             db_row: SQLModel = returnmodel.model_validate(user)
             Logger().logger.info(
-                f'Return user: "{db_row.username}" from table: "{datamodel.__tablename__}"'
+                f'Return user: "{db_row.username}" '
+                f'from table: "{datamodel.__tablename__}"'
             )
             return db_row
 
@@ -110,7 +106,7 @@ class Crud:
         column: Annotated[str, "Table column to search value in."],
         session: Annotated[Session, "Database session"],
     ) -> list[str]:
-        """Return list of all enries in a column.
+        """Return list of all entries from column.
         
         Args:
             datamodel (SQLModel): Database table schema.
@@ -139,13 +135,29 @@ class Crud:
         self,
         datamodel: Annotated[Type[SQLModel], 'ORM model schema for database table'],
         select_column: Annotated[str, "Table column to search select_value in."],
-        select_value: Annotated[str, "Match pattern to select database entry for update."],
+        select_value: Annotated[str, "Match pattern to select database entry."],
         update_entry: Annotated[str, "Database entry to update."],
         update_value: Annotated[str, "New value to update entry with."],
         returnmodel: Annotated[SQLModel, "ORM model schema for response"],
         session: Annotated[Session, "Database session"],
     ) -> SQLModel:
-        """Select database row and update entry."""
+        """Select database row and update entry.
+        
+        Args:
+            datamodel (SQLModel): Database table schema.
+            select_column (str): The column to search for value.
+            select_value (str): The value to search for in column.
+            update_entry (str): The column to update.
+            update_value (str): The new value to update entry with.
+            returnmodel (SQLModel): Schema for database response.
+            session (Session): The database session.
+
+        Returns:
+            SQLModel: The updated model row from database.
+
+        Raises:
+            DatabaseError: If update fails on database error.
+        """
         try:
             statement: SelectOfScalar[SQLModel] = select(datamodel).where(
                 getattr(datamodel, select_column) == select_value
@@ -171,3 +183,45 @@ class Crud:
             Logger().log_exception(e)
             session.rollback()
             raise DatabaseError(e, "update on db error")
+
+    async def delete(
+        self,
+        datamodel: Annotated[Type[SQLModel], 'ORM model schema for database table'],
+        column: Annotated[str, "Table column to search value in."],
+        value: Annotated[str, "Match pattern to select row for deletion."],
+        session: Annotated[Session, "Database session"],
+    ) -> str:
+        """Delete database row.
+        
+        Args:
+            datamodel (SQLModel): Database table schema.
+            column (str): The column to search for value.
+            value (str): The value to search for in column.
+            session (Session): The database session.
+        
+        Returns:
+            str: Message of deleted entry.
+
+        Raises:
+            DatabaseError: If delete fails on database error.
+        """
+        try:
+            statement: SelectOfScalar[SQLModel] = select(datamodel).where(
+                getattr(datamodel, column) == value
+            )
+            on_db: SQLModel = session.exec(statement).one()
+            session.delete(on_db)
+            session.commit()
+            Logger().logger.info(
+                f'Deleted entry: "{column} == {value}" '
+                f'on table: "{datamodel.__tablename__}"'
+            )
+            return (
+                f'Deleted entry: "{column} == {value}" '
+                f'on table: "{datamodel.__tablename__}"'
+            )
+
+        except Exception as e:
+            Logger().log_exception(e)
+            session.rollback()
+            raise DatabaseError(e, "delete from db error")

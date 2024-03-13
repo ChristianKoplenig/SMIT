@@ -8,13 +8,26 @@ from sqlalchemy.engine.result import ScalarResult
 from utils.logger import Logger
 
 class DbAdmin:
-    """Database setup class."""
-    # Move to own file #
+    """Methods to set up the database.
+    
+    Methods:
+        create_table: Create all tables from the SQLModel metadata.
+        delete_all: Delete all entries on database.
+    """
     def create_table(
         self,
         engine: Annotated[Engine, "Database engine"],
-    ):
-        """Create table setup."""
+    ) -> None:
+        """Setup database tables.
+
+        Create all tables from the SQLModel metadata.
+        
+        Args:
+            engine (Engine): The database engine. 
+
+        Raises:
+            Exception: On generic engine error.       
+        """
         try:
             SQLModel.metadata.create_all(engine)
             log_tablenames: KeysView[str] = SQLModel.metadata.tables.keys()
@@ -28,8 +41,16 @@ class DbAdmin:
         self,
         session: Annotated[Session, "Database session"],
         db_model: Annotated[Type[SQLModel], "Database model"],
-    ):
-        """Delete all entries from the database."""
+    ) -> None:
+        """Delete all entries on database.
+
+        Args:
+            session (Session): The database session.
+            db_model (Type[SQLModel]): The database model.
+
+        Raises:
+            Exception: Rollback session, Log exception.
+        """
         statement: SelectOfScalar[SQLModel] = select(db_model)
         results: ScalarResult[SQLModel] = session.exec(statement)
         try:

@@ -39,13 +39,6 @@ class Db:
         db_engine(): Create and return engine object for provided url.
         local_session(): Instantiate and return SqlModel session.
         get_db(): Yield database session.
-    
-    Yields:
-        Session: SqlModel session object connected to provided url.
-
-    Raises:
-        DatabaseError: On creating engine or local session.
-
     """
 
     def __init__(
@@ -56,8 +49,6 @@ class Db:
         self.url: URL = url
 
         Logger().log_module_init()
-
-        
 
     def db_engine(self) -> Engine:
         """Return engine object for privided url.
@@ -78,7 +69,6 @@ class Db:
             Logger().log_exception(e)
             raise DatabaseError(
                 e, f'Error creating engine for "{self.url.database}"') from e
-        
         return self.engine
 
     def local_session(self) -> Session:
@@ -110,8 +100,8 @@ class Db:
         Yields:
             Session: SqlModel session for url parameters.
 
-        Raises:
-            DatabaseError: On error getting database connection.
+        Finally:
+            Rollback and close session.
         """
         db: Session = self.local_session()
         try:
