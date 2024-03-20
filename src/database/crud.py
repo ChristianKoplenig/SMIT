@@ -1,10 +1,13 @@
-from typing import Annotated, List, Type
+from typing import Annotated, List, Type, TypeVar
 from sqlmodel import Session, select, SQLModel
 from sqlalchemy.engine.result import ScalarResult
 from sqlmodel.sql.expression import SelectOfScalar
 
 from exceptions.db_exc import DatabaseError
 from utils.logger import Logger
+
+# Annotate return values as instances of SQLModel class
+ReturnType = TypeVar("ReturnType", bound=SQLModel)
 
 class Crud:
     """SqlModel CRUD operations.
@@ -63,9 +66,9 @@ class Crud:
         datamodel: Annotated[Type[SQLModel], 'ORM model schema for database table'],
         column: Annotated[str, "Table column to search value in."],
         value: Annotated[str, "Match pattern to select row."],
-        returnmodel: Annotated[SQLModel, "ORM model schema for database table"],
+        returnmodel: Annotated[Type[ReturnType], "ORM model schema for database table"],
         session: Annotated[Session, "Database session"],
-    ) -> SQLModel:
+    ) -> ReturnType:
         """Select entry with column name and pattern.
 
         Args:
@@ -88,7 +91,7 @@ class Crud:
 
             user: SQLModel = session.exec(statement).one()
 
-            db_row: SQLModel = returnmodel.model_validate(user)
+            db_row: ReturnType = returnmodel.model_validate(user)
             Logger().logger.info(
                 f'Return user: "{db_row.username}" '
                 f'from table: "{datamodel.__tablename__}"'

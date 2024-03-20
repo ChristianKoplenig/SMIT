@@ -13,7 +13,7 @@ from utils.logger import Logger
 from database.db_models import UserModel
 from exceptions.db_exc import DatabaseError
 from schemas.response_schemas import DatabaseErrorResponse, DatabaseErrorSchema
-from schemas.user_schemas import UserInputSchema, UserResponseSchema
+from schemas.user_schemas import UserInputSchema, UserResponseSchema, UserlistSchema
 
 # Load secrets
 load_dotenv()
@@ -41,7 +41,7 @@ async def create_new_user(
     """Create a new user.
 
     Depends:
-        get_db: The database session.
+        dep_session: The database session.
 
     Args:
         user (UserInputSchema): The user input schema.
@@ -57,6 +57,77 @@ async def create_new_user(
         response_user: UserResponseSchema = UserResponseSchema.model_validate(new_user)
         return response_user
     
+    except DatabaseError as dbe:
+        Logger().log_exception(dbe)
+        raise DatabaseErrorResponse(dbe)
+
+    except Exception as e:
+        Logger().log_exception(e)
+        raise e
+
+@router.get('/allusers')
+async def get_all_users(
+    session: Annotated[Session, Depends(dep_session)],
+) -> UserlistSchema:
+    """Get list of all users.
+    
+    Depends:
+        dep_session: The database session.
+
+    Args:
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:    
+        UserlistSchema: A list with all usernames.
+
+    Raises: 
+        HTTPException: 500 - On database error.
+    """
+    try:
+        userlist: list[str] = await Crud().get_column_entries(
+            datamodel=UserModel,
+            column="username",
+            session=session,
+        )
+        return UserlistSchema(userlist=userlist)
+
+    except DatabaseError as dbe:
+        Logger().log_exception(dbe)
+        raise DatabaseErrorResponse(dbe)
+
+    except Exception as e:
+        Logger().log_exception(e)
+        raise e
+
+
+@router.get("/user/{username}")
+async def get_user(
+    username: str,
+    session: Annotated[Session, Depends(dep_session)],
+) -> UserResponseSchema:
+    """Get user by username.
+
+    Args:
+        username (str): The username to search for.
+        session (Session): The database session.
+
+    Returns:
+        UserResponseSchema: The user response schema.
+
+    Raises:
+        HTTPException: 404 - If user not found.
+        HTTPException: 500 - On database error.
+    """
+    try:
+        user: UserResponseSchema = await Crud().get(
+            datamodel=UserModel,
+            column="username",
+            value=username,
+            returnmodel=UserResponseSchema,
+            session=session,
+        )
+        return user
+
     except DatabaseError as dbe:
         Logger().log_exception(dbe)
         raise DatabaseErrorResponse(dbe)

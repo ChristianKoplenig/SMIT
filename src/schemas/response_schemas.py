@@ -1,21 +1,41 @@
 """Schemas for response formatting."""
-from typing import Annotated, Any
+from typing import Annotated, Any, TYPE_CHECKING, Type
 from sqlmodel import SQLModel, Field
 from pydantic import ConfigDict
 from fastapi import HTTPException
 
+if TYPE_CHECKING:
+    from exceptions.db_exc import DatabaseError
+
 
 class DatabaseErrorResponse(HTTPException):
-    """Raise on DatabaseError."""
+    """Raise on DatabaseError.
+    
+    Format database error message for HTTP response.
+
+    Attributes:
+        dbe (DatabaseError): The original exception.
+        status_code (int): The HTTP error code.
+
+    Raises:
+        HTTPException: On database error.
+            Status code 404 - If error type 'NoResultFound'.
+            Status code 500 - On general database error.
+    """
 
     def __init__(
         self,
-        dbe: Annotated[Any, "Class DatabaseError"],
-        status_code: Annotated[int, "http error"] = 500,
-    ):
-        self.dbe = dbe
+        dbe: Annotated['DatabaseError', "Class DatabaseError"],
+        status_code: Annotated[int, "http error code"] = 500,
+    ) -> None:
+        self.dbe: 'DatabaseError' = dbe
 
-        super().__init__(status_code=status_code, detail=self.unpack_error())
+        error: dict[str, Any] = self.unpack_error()
+
+        if error["type"] == "NoResultFound":
+            status_code = 404
+
+        super().__init__(status_code=status_code, detail=error)
 
     def unpack_error(self) -> dict[str, Any]:
         """Unpack error details."""
