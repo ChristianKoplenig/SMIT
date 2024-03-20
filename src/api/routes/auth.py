@@ -29,8 +29,8 @@ router: APIRouter = APIRouter(
     prefix="/auth",
     tags=["Authentication"],
     responses={
-        401: {"model": Response401},
-        404: {"model": Response404},
+        #401: {"model": Response401},
+        #404: {"model": Response404},
         #500: {"model": Response500},
     },
 )

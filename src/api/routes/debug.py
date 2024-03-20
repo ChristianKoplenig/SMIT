@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
 from schemas.user_schemas import UserResponseSchema
 from sqlalchemy.engine.result import ScalarResult
-from sqlmodel import Session, select
+from sqlmodel import SQLModel, Session, select
 from sqlmodel.sql.expression import SelectOfScalar
 from utils.logger import Logger
 from utils.users_mock import valid_users
@@ -23,7 +23,7 @@ router = APIRouter(
 async def get_dummy_user(
     session: Annotated[Session, Depends(dep_session)],
 ) -> UserResponseSchema:
-    """Return 'dummy_user', bypass User class methods."""
+    """Return 'dummy_user', bypass Crud class methods."""
     try:
         statement: SelectOfScalar[UserModel] = select(UserModel).where(
             UserModel.username == "dummy_user"
@@ -52,7 +52,7 @@ async def get_userslist(
 
 @router.get(
     "/user/{username}",
-    response_model=UserResponseSchema,
+    #response_model=UserResponseSchema,
 )
 async def get_user_by_path(
     username: str,
@@ -67,7 +67,12 @@ async def get_user_by_path(
     Returns:
         UserResponseSchema: User data row from database.
     """
-    user: UserResponseSchema = await Crud().get_user(username, session=session)
+    user: SQLModel = await Crud().get(
+        value=username,
+        datamodel=UserModel,
+        column="username",
+        returnmodel=UserResponseSchema,
+        session=session)
     return user
 
 

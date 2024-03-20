@@ -42,7 +42,9 @@ class UserBase(SQLModel):
             pattern=r"^[A-Za-z0-9_]+$",
             min_length=5,
         ),
-        Field(index=True, description="Authentication username.", unique=True),
+        Field(index=True,
+              description="Authentication username.",
+              unique=True),
     ]
 
     password: Annotated[str, Field(
@@ -63,15 +65,22 @@ class UserBase(SQLModel):
     sng_username: Annotated[
         Optional[str],
         StringConstraints(pattern=r"^[A-Za-z0-9_]+$"),
-        Field(index=True, description="Electricity provider username."),
+        Field(index=True,
+              default=None,
+              description="Electricity provider username."),
     ]
     sng_password: Annotated[
-        Optional[str], Field(default=None, description="Electricity provider password")
+        Optional[str],
+        Field(default=None,
+              description="Electricity provider password")
     ]
     daymeter: Annotated[
         Optional[int],
         Field(
-            default=None, description="Day meter endpoint number", ge=100000, le=999999
+            default=None,
+            description="Day meter endpoint number",
+            ge=100000,
+            le=999999
         ),
     ]
     nightmeter: Annotated[
@@ -149,7 +158,27 @@ class UserInputSchema(UserBase):
         }
     }
 
+class UserlistSchema(SQLModel):
+    """Schema for user list."""
 
+    userlist: Annotated[
+        list[str],
+        "List of user data"
+    ]
+
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "userlist": [
+                        "user",
+                        "user2",
+                        "user3",
+                    ]
+                }
+            ]
+        }
+    }
 
 
 ##################################################

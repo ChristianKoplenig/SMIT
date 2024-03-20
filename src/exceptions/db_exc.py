@@ -66,7 +66,7 @@ class DatabaseError(Exception):
             type=self.error_type,
             message=self.message,
             error=self.error.args[0],
-            location=f"Method: `{method[0]}()` raised error.",
+            location=f"CRUD Method: `{method[0]}()` raised error.",
         )
         return msg
 
@@ -93,7 +93,7 @@ class DatabaseError(Exception):
             type=self.error_type,
             message=self.message,
             error=self.error.args[0].split("DETAIL:")[1],
-            location= f'Method: `{method[0]}()` raised error.'
+            location= f'CRUD Method: `{method[0]}()` raised error.'
         )
         return msg
     
@@ -138,7 +138,7 @@ class DatabaseError(Exception):
                 type=self.error_type,
                 message=self.message,
                 error=str(error_messages),
-                location=f"Method: `{method[0]}()` raised error.",
+                location=f"CRUD Method: `{method[0]}()` raised error.",
             )
             return msg
         else:
@@ -146,7 +146,7 @@ class DatabaseError(Exception):
                 type=self.error_type,
                 message=self.message,
                 error='Unspecific validation error.',
-                location=f"Method: `{method[0]}()` raised error.",
+                location=f"CRUD Method: `{method[0]}()` raised error.",
             )
             return msg
 

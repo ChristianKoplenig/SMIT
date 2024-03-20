@@ -5,6 +5,7 @@ from typing import Annotated, Any
 
 from api.dependencies import dep_session
 from database.crud import Crud
+from database.db_models import UserModel
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -47,7 +48,12 @@ async def authenticate_user(
         Exception: General database exception.
     """
     try:
-        user: UserResponseSchema = await Crud().get_user(username, session=session)
+        user: UserResponseSchema = await Crud().get(
+            datamodel=UserModel,
+            column="username",
+            value=username,
+            returnmodel=UserResponseSchema,
+            session=session)
 
     except HTTPException as hte:
         if hte.status_code == 404:
@@ -150,8 +156,12 @@ async def get_current_user(
         raise e
 
     if token_data.username:
-        user: UserResponseSchema = await Crud().get_user(token_data.username,
-                                                          session=session)
+        user: UserResponseSchema = await Crud().get(
+            value=token_data.username,
+            datamodel=UserModel,
+            column="username",
+            returnmodel=UserResponseSchema,
+            session=session)
         Logger().logger.debug(f"User: {username} logged in using token")
         return user
     else:
