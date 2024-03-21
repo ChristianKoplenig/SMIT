@@ -7,13 +7,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, SQLModel
 
 from api.dependencies import dep_session
+from api.components.authenticate import get_current_user
 from database.crud import Crud
 from utils.logger import Logger
 
 from database.db_models import UserModel
 from exceptions.db_exc import DatabaseError
 from schemas.response_schemas import DatabaseErrorResponse, DatabaseErrorSchema
-from schemas.user_schemas import UserInputSchema, UserResponseSchema, UserlistSchema
+from schemas.user_schemas import UserInputSchema, UserResponseSchema, UserlistSchema, UserUpdateSchema
 
 # Load secrets
 load_dotenv()
@@ -127,6 +128,46 @@ async def get_user(
             session=session,
         )
         return user
+
+    except DatabaseError as dbe:
+        Logger().log_exception(dbe)
+        raise DatabaseErrorResponse(dbe)
+
+    except Exception as e:
+        Logger().log_exception(e)
+        raise e
+    
+@router.patch("/user/patch",
+              response_model=UserResponseSchema)
+async def update_user(
+    current_user: Annotated[UserResponseSchema, Depends(get_current_user)],
+    data: Annotated[UserUpdateSchema, 'User data for update.'],
+    session: Annotated[Session, Depends(dep_session)],
+) -> SQLModel:
+    """Update user by id.
+    
+    Args:
+        current_user (UserResponseSchema): Current logged in user.
+        data (UserUpdateSchema): The user data for update.
+        session (Session): The database session.
+
+    Returns:
+        UserResponseSchema: The updated user.
+
+    Raises:
+        DatabaseErrorResponse: On database error.
+        Exception: On any other error.
+    """
+    db_user: UserResponseSchema = current_user
+
+    try:
+        updated_user: SQLModel = await Crud().patch(
+            column='id',
+            value=db_user.id,
+            datamodel=UserModel,
+            new_data=data,
+            session=session)
+        return updated_user
 
     except DatabaseError as dbe:
         Logger().log_exception(dbe)

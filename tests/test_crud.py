@@ -5,7 +5,7 @@ from sqlmodel import Session, SQLModel
 
 from database.crud import Crud
 from database.db_models import UserModel
-from schemas.user_schemas import UserResponseSchema
+from schemas.user_schemas import UserResponseSchema, UserUpdateSchema
 from exceptions.db_exc import DatabaseError
 
 from utils import users_mock
@@ -375,3 +375,63 @@ async def test_delete_exception(
             session=session,
         )
     assert "AttributeError" in str(dbe.value)
+
+@pytest.mark.asyncio
+@pytest.mark.smoke
+@pytest.mark.crud
+@pytest.mark.dev
+async def test_patch(
+    empty_test_db: Annotated[Session, "Database session"],
+) -> None:
+    """Test update method.
+
+    Asserts:
+        Sng_username and daymeter from database.
+        Id not changed.
+    """
+    session: Session = empty_test_db
+    user: dict[str, str] = users_mock.valid_users()[0]
+    db_user: UserModel = UserModel.model_validate(user)
+
+    in_db: SQLModel = await Crud().post(datamodel=db_user, session=session)
+
+    Logger().logger.debug(f"TESTING:: db_user: {db_user.username} created ::TESTING")
+
+    # Fetch user from database
+    on_db: SQLModel = await Crud().get(
+        datamodel=UserModel,
+        column="id",
+        value=in_db.id,
+        returnmodel=UserResponseSchema,
+        session=session,
+    )
+    Logger().logger.debug(f"TESTING:: Original username: {on_db.sng_username} ::TESTING")
+
+    new_data: UserUpdateSchema = UserUpdateSchema(
+        sng_username="new_username",
+        daymeter=123456)
+
+    # Update username
+    await Crud().patch(
+        column="id",
+        value=in_db.id,
+        datamodel=UserModel,
+        new_data=new_data,
+        session=session,
+    )
+
+    # Get modified user from database
+    updated_db: SQLModel = await Crud().get(
+        datamodel=UserModel,
+        column="id",
+        value=in_db.id,
+        returnmodel=UserResponseSchema,
+        session=session,
+    )
+    Logger().logger.debug(
+        f"TESTING:: Modified username: {updated_db.sng_username} ::TESTING"
+    )
+
+    assert updated_db.sng_username == "new_username"
+    assert updated_db.daymeter == 123456
+    assert updated_db.id == in_db.id

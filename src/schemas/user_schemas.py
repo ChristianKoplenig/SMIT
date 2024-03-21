@@ -180,6 +180,102 @@ class UserlistSchema(SQLModel):
         }
     }
 
+class UserUpdateSchema(SQLModel):
+    """Schema to update user model fields.
+
+    All fields optional.
+
+    Attributes:
+        - username (str): Authentication username.
+            - Strip whitespace
+            - Convert to lowercase
+            - Must consist of alphanumeric characters and underscores only
+            - Minimum length of 5 characters
+        - password (str): Authentication password.
+            - Must be a hash value
+        - email (str, optional): The email address of the user.
+            - Must be a valid email address
+        - sng_username (str, optional): The username for energy provider login.
+            - Must consist of alphanumeric characters and underscores only
+        - sng_password (str, optional): The password for energy provider login.
+        - daymeter (int, optional): The day meter value.
+            - Must be six digits long
+        - nightmeter (int, optional): The night meter value.
+            - Must be six digits long
+    """
+    username: Annotated[
+        Optional[str],
+        StringConstraints(
+            strip_whitespace=True,
+            to_lower=True,
+            pattern=r"^[A-Za-z0-9_]+$",
+            min_length=5,
+        ),
+        Field(description="Authentication username."),
+    ] = None
+
+    password: Annotated[
+        Optional[str],
+        Field(
+            min_length=1,  # Make sure that password is not empty
+            description="Hash of Authentication password",
+        ),
+    ] = None
+
+    email: Annotated[
+        Optional[str],
+        StringConstraints(
+            pattern=r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        ),
+        Field(
+            default=None,
+            description="Mail address for pwd recovery",
+        ),
+    ] = None
+
+    sng_username: Annotated[
+        Optional[str],
+        StringConstraints(pattern=r"^[A-Za-z0-9_]+$"),
+        Field(index=True, default=None, description="Electricity provider username."),
+    ] = None
+
+    sng_password: Annotated[
+        Optional[str], Field(default=None, description="Electricity provider password")
+    ] = None
+
+    daymeter: Annotated[
+        Optional[int],
+        Field(
+            default=None, description="Day meter endpoint number", ge=100000, le=999999
+        ),
+    ] = None
+    
+    nightmeter: Annotated[
+        Optional[int],
+        Field(
+            default=None,
+            description="Night meter endpoint number",
+            ge=100000,
+            le=999999,
+        ),
+    ] = None
+
+    model_config: ConfigDict = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "username": "dummy_user",
+                    "password": "$2b$12$5l0MAxJ3X7m2vqY66PMt9uFXULt82./8KpmAxbqjE4VyT6",
+                    "email": "dummy@dummymail.com",
+                    "sng_username": "dummy_sng_login",
+                    "sng_password": "dummy_sng_password",
+                    "daymeter": 199996,
+                    "nightmeter": 199997,
+                }
+            ]
+        }
+    }
+
 
 ##################################################
 class Username(SQLModel):

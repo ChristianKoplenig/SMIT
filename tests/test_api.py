@@ -1,4 +1,5 @@
 import pytest
+from typing import Annotated
 from fastapi.testclient import TestClient
 from httpx import Response
 
@@ -46,8 +47,6 @@ def test_get_user(api_testclient: TestClient) -> None:
     assert response.status_code == 200
     assert response.json()["username"] == "dummy_user"
 
-    assert False
-
 @pytest.mark.smoke
 #@pytest.mark.api
 def test_get_nonexisting_user(api_testclient: TestClient) -> None:
@@ -60,7 +59,7 @@ def test_get_nonexisting_user(api_testclient: TestClient) -> None:
     assert response404.status_code == 404
 
 @pytest.mark.smoke
-@pytest.mark.api
+#@pytest.mark.api
 def test_get_all_users(api_testclient: TestClient) -> None:
     """Use mocked testclient to get all users from testing database."""
 
@@ -72,3 +71,13 @@ def test_get_all_users(api_testclient: TestClient) -> None:
     assert response.status_code == 200
     assert len(response.json()['userlist']) == len(users_mock.valid_users())
     assert 'dummy_user' in response.json()['userlist']
+
+# @pytest.mark.smoke
+# @pytest.mark.api
+# def test_put_username(
+#     api_testclient: TestClient,
+# ):
+#     """Test update username."""
+
+#     user = users_mock.valid_users()[0]
+

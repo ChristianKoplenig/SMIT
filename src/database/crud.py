@@ -186,6 +186,54 @@ class Crud:
             Logger().log_exception(e)
             session.rollback()
             raise DatabaseError(e, "update on db error")
+        
+    async def patch(
+            self,
+            column: Annotated[str, 'Column id to select from for update.'],
+            value: Annotated[str | int, 'Search pattern for column.'],
+            datamodel: Annotated[Type[SQLModel], 'ORM model schema for database table'],
+            new_data: Annotated[SQLModel, 'Updated data for database entry.'],
+            session: Annotated[Session, "Database session"],
+    ) -> SQLModel:
+        """Update database fields.
+        
+        Update database fields using ORM update model.
+
+        Args:
+            column (str): The column to search for value.
+            value (str): Match pattern for column entry.
+            datamodel (SQLModel): Database table schema.
+            new_data (SQLModel): ORM Update Model with just new data.
+            session (Session): The database session.
+        
+        Returns:
+            SQLModel: The updated model row from database.
+
+        Raises:
+            DatabaseError: If update fails.
+        """
+        try:
+            statement: SelectOfScalar[SQLModel] = select(datamodel).where(
+                getattr(datamodel, column) == value
+            )
+            db_entry: SQLModel = session.exec(statement).one()
+
+            update_data = new_data.model_dump(exclude_unset=True)
+            updated_data = db_entry.sqlmodel_update(update_data)
+
+            session.add(updated_data)
+            session.commit()
+            session.refresh(updated_data)
+
+            Logger().logger.info(
+                f'Updated data "{updated_data}" on table: "{datamodel.__tablename__}" '
+                f'for row id: "{db_entry.id}"')
+            return updated_data
+
+        except Exception as e:
+            Logger().log_exception(e)
+            session.rollback()
+            raise DatabaseError(e, "update on db error")
 
     async def delete(
         self,
